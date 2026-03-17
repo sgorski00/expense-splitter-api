@@ -8,7 +8,4 @@
  * Responsible for creating, accepting and managing
  * friendship relations.
  */
-@NullMarked
 package pl.sgorski.expense_splitter.features.friendship;
-
-import org.jspecify.annotations.NullMarked;

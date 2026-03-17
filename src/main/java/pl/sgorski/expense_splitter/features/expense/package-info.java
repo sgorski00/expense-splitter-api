@@ -7,7 +7,4 @@
  * <br>
  * Only friends can be added as participants to an expense.
  */
-@NullMarked
 package pl.sgorski.expense_splitter.features.expense;
-
-import org.jspecify.annotations.NullMarked;
