@@ -25,7 +25,9 @@ jobs:
         run: mvn clean verify -Ptest -DskipTests
 
       - name: Copy OpenAPI file to docs
-        run: cp target/openapi.json docs/openapi.json
+        run: |
+            mkdir -p docs
+            cp target/openapi.json docs/openapi.json
 
       - name: Commit and push docs
         run: |
