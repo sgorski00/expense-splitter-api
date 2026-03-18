@@ -27,22 +27,17 @@ jobs:
       - name: Build project and generate OpenAPI
         run: mvn clean verify -Ptest -DskipTests
 
-      - name: Copy OpenAPI file to docs
-        run: |
-            mkdir -p docs
-            cp target/openapi.json docs/openapi.json
-
       - name: Commit and push docs to gh-actions branch
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin
           
+          git fetch origin
           git checkout gh-actions
           git pull origin gh-actions
           
           mkdir -p docs
-          git show main:docs/openapi.json > docs/openapi.json
+          cp target/openapi.json docs/openapi.json
           
           if git diff --quiet; then
               echo "No changes to commit"
