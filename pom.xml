@@ -15,10 +15,13 @@
 	<description>API of expense-splitter application.</description>
 
 	<properties>
+		<spring.profiles.active>default</spring.profiles.active>
 		<java.version>25</java.version>
 		<openapi.version>3.0.2</openapi.version>
 		<jjwt.version>0.13.0</jjwt.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
+		<openapi-maven-plugin.version>1.5</openapi-maven-plugin.version>
+		<h2.version>2.4.240</h2.version>
 	</properties>
 
 	<dependencies>
@@ -127,6 +130,12 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>${h2.version}</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -155,6 +164,8 @@
 				<executions>
 					<execution>
 						<goals>
+							<goal>start</goal>
+							<goal>stop</goal>
 							<goal>repackage</goal>
 							<goal>build-info</goal>
 						</goals>
@@ -169,7 +180,34 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-maven-plugin</artifactId>
+				<version>${openapi-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<apiDocsUrl>http://localhost:8080/api/v3/api-docs</apiDocsUrl>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>test</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
+			</properties>
+		</profile>
+	</profiles>
 </project>
