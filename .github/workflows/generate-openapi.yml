@@ -32,15 +32,24 @@ jobs:
             mkdir -p docs
             cp target/openapi.json docs/openapi.json
 
-      - name: Commit and push docs
+      - name: Commit and push docs to gh-actions branch
         run: |
-            git config --local user.name "github-actions[bot]"
-            git config --local user.email "github-actions[bot]@users.noreply.github.com"
-            git fetch origin
-            git checkout gh-actions || git checkout -b gh-actions
-            git pull origin gh-actions
-            git add docs/openapi.json
-            git commit -m "docs: Update OpenAPI documentation" || echo "No changes to commit"
-            git push --set-upstream origin gh-actions
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin
+          
+          git checkout gh-actions
+          git pull origin gh-actions
+          
+          mkdir -p docs
+          git show main:docs/openapi.json > docs/openapi.json
+          
+          if git diff --quiet; then
+              echo "No changes to commit"
+          else
+              git add docs/openapi.json
+              git commit -m "docs: Update OpenAPI documentation"
+              git push origin gh-actions
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
