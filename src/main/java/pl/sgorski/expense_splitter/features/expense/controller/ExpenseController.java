@@ -1,5 +1,9 @@
 package pl.sgorski.expense_splitter.features.expense.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,9 +24,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/expenses", version = "1.0.0")
+@Tag(name = "Expenses", description = "Endpoints for expense management and settlement tracking.")
 public final class ExpenseController {
 
     @GetMapping
+    @Operation(
+            summary = "List my expenses",
+            description = "Retrieves a paginated list of expenses involving the authenticated user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Expenses retrieved successfully."
+            )
+    })
     public ResponseEntity<Page<ExpenseResponse>> getMyExpenses(
             Authentication authentication
     ) {
@@ -31,6 +46,16 @@ public final class ExpenseController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Create new expense",
+            description = "Creates a new expense and assigns participants with their respective shares."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Expense created successfully."
+            )
+    })
     public ResponseEntity<DetailedExpenseResponse> createExpense(
             @RequestBody @Valid CreateExpenseRequest request,
             Authentication authentication
@@ -42,6 +67,16 @@ public final class ExpenseController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Get expense details",
+            description = "Retrieves detailed information about a specific expense including all participants and their shares."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Expense retrieved successfully."
+            )
+    })
     public ResponseEntity<DetailedExpenseResponse> getExpense(
             @PathVariable Long id,
             Authentication authentication
@@ -53,6 +88,16 @@ public final class ExpenseController {
     }
 
     @PatchMapping("/{id}")
+    @Operation(
+            summary = "Update expense",
+            description = "Updates expense details (title, description, amount). Only the creator can update an expense."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Expense updated successfully."
+            )
+    })
     public ResponseEntity<DetailedExpenseResponse> updateExpense(
             @PathVariable Long id,
             @RequestBody @Valid UpdateExpenseRequest request,
@@ -66,6 +111,16 @@ public final class ExpenseController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Delete expense",
+            description = "Deletes an expense. Only the creator can delete an expense."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Expense deleted successfully."
+            )
+    })
     public ResponseEntity<DetailedExpenseResponse> deleteExpense(
             @PathVariable Long id,
             Authentication authentication
@@ -75,6 +130,16 @@ public final class ExpenseController {
     }
 
     @GetMapping("/{id}/participants")
+    @Operation(
+            summary = "Get expense participants",
+            description = "Retrieves a paginated list of participants for a specific expense and their shares."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Participants retrieved successfully."
+            )
+    })
     public ResponseEntity<Page<ExpenseParticipantResponse>> getExpenseParticipants(
             @PathVariable Long id,
             Pageable pageable,

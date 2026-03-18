@@ -1,5 +1,9 @@
 package pl.sgorski.expense_splitter.features.friendship.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,9 +21,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/friendships", version = "1.0.0")
+@Tag(name = "Friendships", description = "Endpoints for friendship management and friend requests.")
 public final class FriendshipController {
 
     @GetMapping
+    @Operation(
+            summary = "List my friendships",
+            description = "Retrieves a paginated list of friendships for the authenticated user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Friendships retrieved successfully."
+            )
+    })
     public ResponseEntity<Page<FriendshipResponse>> getMyFriendships(
             Pageable pageable,
             Authentication authentication
@@ -32,6 +47,16 @@ public final class FriendshipController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Send friend request",
+            description = "Sends a friendship invitation to another user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Friend request sent successfully."
+            )
+    })
     public ResponseEntity<FriendshipResponse> sendFriendRequest(
             @RequestBody @Valid FriendshipRequest request,
             Authentication authentication
@@ -41,6 +66,16 @@ public final class FriendshipController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Get friendship details",
+            description = "Retrieves detailed information about a specific friendship relation."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Friendship retrieved successfully."
+            )
+    })
     public ResponseEntity<FriendshipResponse> getFriendship(
             @PathVariable Long id,
             Authentication authentication
@@ -53,6 +88,16 @@ public final class FriendshipController {
     }
 
     @PatchMapping("/{id}/accept")
+    @Operation(
+            summary = "Accept friend request",
+            description = "Accepts a pending friendship invitation."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Friend request accepted successfully."
+            )
+    })
     public ResponseEntity<FriendshipResponse> acceptFriendship(
             @PathVariable Long id,
             Authentication authentication
@@ -65,6 +110,16 @@ public final class FriendshipController {
     }
 
     @PatchMapping("/{id}/reject")
+    @Operation(
+            summary = "Reject friend request",
+            description = "Rejects a pending friendship invitation."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Friend request rejected successfully."
+            )
+    })
     public ResponseEntity<FriendshipResponse> rejectFriendship(
             @PathVariable Long id,
             Authentication authentication
@@ -77,6 +132,16 @@ public final class FriendshipController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "End friendship",
+            description = "Removes an existing friendship relation between two users."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Friendship ended successfully."
+            )
+    })
     public ResponseEntity<Void> endFriendship(
             @PathVariable Long id,
             Authentication authentication

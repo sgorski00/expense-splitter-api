@@ -1,5 +1,9 @@
 package pl.sgorski.expense_splitter.features.payment.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,9 +22,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/payments", version = "1.0.0")
+@Tag(name = "Payments", description = "Endpoints for payment recording and expense settlement.")
 public final class PaymentController {
 
     @PostMapping
+    @Operation(
+            summary = "Create payment",
+            description = "Records a new payment made by the authenticated user towards an expense."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Payment created successfully."
+            )
+    })
     public ResponseEntity<PaymentResponse> createPayment(
             @RequestBody @Valid CreatePaymentRequest request,
             Authentication authentication
@@ -32,6 +47,16 @@ public final class PaymentController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "List my payments",
+            description = "Retrieves a paginated list of payments made by the authenticated user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Payments retrieved successfully."
+            )
+    })
     public ResponseEntity<Page<PaymentResponse>> getMyPayments(
             Authentication authentication
     ) {
@@ -43,6 +68,16 @@ public final class PaymentController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Get payment details",
+            description = "Retrieves detailed information about a specific payment."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Payment retrieved successfully."
+            )
+    })
     public ResponseEntity<PaymentResponse> getPayment(
             @PathVariable Long id,
             Authentication authentication
@@ -54,6 +89,16 @@ public final class PaymentController {
     }
 
     @PatchMapping("/{id}")
+    @Operation(
+            summary = "Update payment",
+            description = "Updates the amount of an existing payment."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Payment updated successfully."
+            )
+    })
     public ResponseEntity<PaymentResponse> updatePayment(
             @PathVariable Long id,
             @RequestBody @Valid UpdatePaymentRequest request,
@@ -66,11 +111,21 @@ public final class PaymentController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Delete payment",
+            description = "Deletes a payment record."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Payment deleted successfully."
+            )
+    })
     public ResponseEntity<PaymentResponse> deletePayment(
             @PathVariable Long id,
             Authentication authentication
     ) {
-        //maybe without soft delete?
+        //...existing code...
         return ResponseEntity.noContent().build();
     }
 }
