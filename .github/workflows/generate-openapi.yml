@@ -36,6 +36,6 @@ jobs:
             git checkout -b gh-actions
             git add docs/openapi.json
             git commit -m "docs: Update OpenAPI documentation"
-            git push --set-upstream origin gh-actions
+            git push --set-upstream https://x-access-token:${GITHUB_TOKEN}@github.com/sgorski00/expense-splitter-api.git gh-actions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
