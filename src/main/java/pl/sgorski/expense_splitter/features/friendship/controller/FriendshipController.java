@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/friendships", version = "1")
+@RequestMapping(path = "/friendships", version = "1.0.0")
 public final class FriendshipController {
 
     @GetMapping

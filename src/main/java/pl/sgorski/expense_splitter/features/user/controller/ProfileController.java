@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/profile", version = "1")
+@RequestMapping(value = "/profile", version = "1.0.0")
 public final class ProfileController {
 
     @GetMapping

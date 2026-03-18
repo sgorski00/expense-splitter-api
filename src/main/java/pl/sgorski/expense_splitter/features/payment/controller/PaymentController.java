@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/payments", version = "1")
+@RequestMapping(value = "/payments", version = "1.0.0")
 public final class PaymentController {
 
     @PostMapping

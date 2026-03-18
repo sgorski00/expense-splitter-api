@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/users", version = "1")
+@RequestMapping(value = "/users", version = "1.0.0")
 public final class UserController {
 
     @GetMapping

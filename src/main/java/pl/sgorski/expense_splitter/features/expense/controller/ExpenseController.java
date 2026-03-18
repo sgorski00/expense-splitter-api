@@ -15,12 +15,11 @@ import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseResponse
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/expenses", version = "1")
+@RequestMapping(value = "/expenses", version = "1.0.0")
 public final class ExpenseController {
 
     @GetMapping
