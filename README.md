@@ -2,6 +2,12 @@
 
 API do wieloplatformowej aplikacji, której zadaniem jest dzielenie, zarządzanie i kontrolowanie wydatków w grupie.
 
+## Dokumentacja API
+
+Dokumentacja API jest udostępniona jako strona statyczna w (GitHub Pages)[https://sgorski00.github.io/expense-splitter-api/].
+
+Można ją również sprawdzić lokalnie z interfejsem Swagger UI po uruchomieniu aplikacji. W tym celu należy odwiedzić adres `http://localhost:8080/api/swagger-ui/index.html` w przeglądarce internetowej.
+
 ## Uruchomienie
 
 Aby uruchomić aplikację, w celach programistcznych, najlepiej skorzystać ze skonfigurowanego w projekcie Dockera.
