@@ -4,12 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import pl.sgorski.expense_splitter.features.user.domain.Role;
+import pl.sgorski.expense_splitter.validator.password.ValidPassword;
 
-//TODO: validate password
 @Schema(
         name = "Create User Request",
         description = "Payload used to create a new user account by an admin."
 )
+@ValidPassword
 public record CreateUserRequest(
         @Schema(
                 description = "User email address.",
@@ -21,7 +23,7 @@ public record CreateUserRequest(
                 example = "USER",
                 allowableValues = {"USER", "ADMIN"}
         )
-        @NotNull String role, //todo: change to enum/entity
+        @NotNull Role role,
         @Schema(
                 description = "New password provided by the user.",
                 example = "StrongP@ssw0rd!"

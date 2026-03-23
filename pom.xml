@@ -22,6 +22,7 @@
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<openapi-maven-plugin.version>1.5</openapi-maven-plugin.version>
 		<h2.version>2.4.240</h2.version>
+		<bouncycastle.version>1.83</bouncycastle.version>
 	</properties>
 
 	<dependencies>
@@ -94,6 +95,12 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>${bouncycastle.version}</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

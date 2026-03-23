@@ -6,6 +6,7 @@ import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 @Schema(
         name = "Payment Response",
@@ -16,7 +17,7 @@ public record PaymentResponse(
                 description = "Payment unique identifier.",
                 example = "1"
         )
-        Long id,
+        UUID id,
         @Schema(
                 description = "User who made the payment."
         )

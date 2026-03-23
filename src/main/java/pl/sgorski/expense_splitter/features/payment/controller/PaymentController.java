@@ -14,11 +14,13 @@ import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseResponse
 import pl.sgorski.expense_splitter.features.payment.dto.request.CreatePaymentRequest;
 import pl.sgorski.expense_splitter.features.payment.dto.request.UpdatePaymentRequest;
 import pl.sgorski.expense_splitter.features.payment.dto.response.PaymentResponse;
+import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/payments", version = "1.0.0")
@@ -40,9 +42,9 @@ public final class PaymentController {
             @RequestBody @Valid CreatePaymentRequest request,
             Authentication authentication
     ) {
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
-        var expense = new ExpenseResponse(1L, "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
-        var result = new PaymentResponse(1L, user, expense, BigDecimal.valueOf(300), Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
+        var expense = new ExpenseResponse(UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
+        var result = new PaymentResponse(UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
         return ResponseEntity.ok(result);
     }
 
@@ -60,9 +62,9 @@ public final class PaymentController {
     public ResponseEntity<Page<PaymentResponse>> getMyPayments(
             Authentication authentication
     ) {
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
-        var expense = new ExpenseResponse(1L, "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
-        var Payment = new PaymentResponse(1L, user, expense, BigDecimal.valueOf(300), Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
+        var expense = new ExpenseResponse(UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
+        var Payment = new PaymentResponse(UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
         var result = new PageImpl<>(List.of(Payment));
         return ResponseEntity.ok(result);
     }
@@ -82,9 +84,9 @@ public final class PaymentController {
             @PathVariable Long id,
             Authentication authentication
     ) {
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
-        var expense = new ExpenseResponse(1L, "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
-        var Payment = new PaymentResponse(1L, user, expense, BigDecimal.valueOf(300), Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
+        var expense = new ExpenseResponse(UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
+        var Payment = new PaymentResponse(UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
         return ResponseEntity.ok(Payment);
     }
 
@@ -104,9 +106,9 @@ public final class PaymentController {
             @RequestBody @Valid UpdatePaymentRequest request,
             Authentication authentication
     ) {
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
-        var expense = new ExpenseResponse(1L, "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
-        var Payment = new PaymentResponse(1L, user, expense, BigDecimal.valueOf(300), Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
+        var expense = new ExpenseResponse(UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(33.33), Instant.now());
+        var Payment = new PaymentResponse(UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
         return ResponseEntity.ok(Payment);
     }
 

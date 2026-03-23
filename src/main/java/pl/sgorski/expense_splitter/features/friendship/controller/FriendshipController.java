@@ -13,11 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.sgorski.expense_splitter.features.friendship.dto.request.FriendshipRequest;
 import pl.sgorski.expense_splitter.features.friendship.dto.response.FriendshipResponse;
+import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/friendships", version = "1.0.0")
@@ -40,9 +42,9 @@ public final class FriendshipController {
             Authentication authentication
     ) {
         // TODO: implement
-        var requester = new UserResponse(1L, "user1@example.com", "USER", Instant.now());
-        var recipient = new UserResponse(2L, "user2@example.com", "USER", Instant.now());
-        var result = new PageImpl<>(List.of(new FriendshipResponse(1L, requester, recipient, "PENDING", Instant.now(), Instant.now(), null)));
+        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
+        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
+        var result = new PageImpl<>(List.of(new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null)));
         return ResponseEntity.ok(result);
     }
 
@@ -81,9 +83,9 @@ public final class FriendshipController {
             Authentication authentication
     ) {
         // TODO: implement
-        var requester = new UserResponse(1L, "user1@example.com", "USER", Instant.now());
-        var recipient = new UserResponse(2L, "user2@example.com", "USER", Instant.now());
-        var result = new FriendshipResponse(1L, requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
+        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
+        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
+        var result = new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
         return ResponseEntity.ok(result);
     }
 
@@ -103,9 +105,9 @@ public final class FriendshipController {
             Authentication authentication
     ) {
         // TODO: implement
-        var requester = new UserResponse(1L, "user1@example.com", "USER", Instant.now());
-        var recipient = new UserResponse(2L, "user2@example.com", "USER", Instant.now());
-        var result = new FriendshipResponse(1L, requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
+        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
+        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
+        var result = new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
         return ResponseEntity.ok(result);
     }
 
@@ -125,9 +127,9 @@ public final class FriendshipController {
             Authentication authentication
     ) {
         // TODO: implement
-        var requester = new UserResponse(1L, "user1@example.com", "USER", Instant.now());
-        var recipient = new UserResponse(2L, "user2@example.com", "USER", Instant.now());
-        var result = new FriendshipResponse(1L, requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
+        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
+        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
+        var result = new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
         return ResponseEntity.ok(result);
     }
 

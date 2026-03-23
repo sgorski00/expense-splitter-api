@@ -11,10 +11,5 @@ public record LoginResponse(
                 description = "JWT access token used to authorize API requests.",
                 example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         )
-        String accessToken,
-        @Schema(
-                description = "Refresh token used to obtain a new access token.",
-                example = "dGhpcy1pcy1hLXJlZnJlc2gtdG9rZW4="
-        )
-        String refreshToken
+        String accessToken
 ) { }

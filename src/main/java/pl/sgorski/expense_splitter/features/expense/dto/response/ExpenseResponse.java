@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 @Schema(
         name = "Expense Response",
@@ -12,9 +13,9 @@ import java.time.Instant;
 public record ExpenseResponse(
         @Schema(
                 description = "Expense unique identifier.",
-                example = "1"
+                example = "123e4567-e89b-12d3-a456-426614174000"
         )
-        Long id,
+        UUID id,
         @Schema(
                 description = "Expense title.",
                 example = "Dinner in Rome"

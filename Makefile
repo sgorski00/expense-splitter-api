@@ -16,3 +16,6 @@ rebuild:
 
 logs:
 	docker-compose logs -f
+
+test:
+	mvn clean verify -Ptest
