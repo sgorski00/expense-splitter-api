@@ -19,3 +19,6 @@ logs:
 
 test:
 	mvn clean verify -Ptest
+
+psql:
+	docker-compose exec es-postgres psql -U postgres -d es-db
