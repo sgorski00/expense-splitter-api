@@ -18,6 +18,7 @@ import java.awt.print.Pageable;
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -75,7 +76,7 @@ public final class UserController {
     public ResponseEntity<DetailedUserResponse> getUser(
             @PathVariable Long id
     ) {
-        var result = new DetailedUserResponse(UUID.randomUUID(), "user@example.com", "John", "Doe", Role.USER, Instant.now(), Instant.now(), null); //TODO: implement
+        var result = new DetailedUserResponse(UUID.randomUUID(), "user@example.com", "John", "Doe", Role.USER, Set.of(), Instant.now(), Instant.now(), null); //TODO: implement
         return ResponseEntity.ok(result);
     }
 
@@ -112,7 +113,7 @@ public final class UserController {
             @PathVariable Long id,
             @RequestBody @Valid CreateUserRequest request
     ) {
-        var result = new DetailedUserResponse(UUID.randomUUID(), "user@example.com", "John", "Doe", Role.USER, Instant.now(), Instant.now(), null); //TODO: implement
+        var result = new DetailedUserResponse(UUID.randomUUID(), "user@example.com", "John", "Doe", Role.USER, Set.of(), Instant.now(), Instant.now(), null); //TODO: implement
         return ResponseEntity.ok(result);
     }
 }

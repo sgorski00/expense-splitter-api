@@ -17,10 +17,7 @@ import java.time.Instant;
 import java.util.*;
 
 @Entity
-@Table(
-        name = "users",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"email", "deleted_at"})
-)
+@Table(name = "users")
 @Data
 @ToString(exclude = {"passwordHash", "identities"})
 @EqualsAndHashCode(exclude = "identities")

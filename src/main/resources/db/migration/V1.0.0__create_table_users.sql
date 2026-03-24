@@ -8,9 +8,9 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
-    is_password_for_change boolean not null DEFAULT false,
-    UNIQUE(email, deleted_at)
+    is_password_for_change boolean not null DEFAULT false
 );
+CREATE UNIQUE INDEX unique_active_email ON users(email) WHERE deleted_at IS NULL;
 
 CREATE TABLE user_identities (
     id uuid PRIMARY KEY,

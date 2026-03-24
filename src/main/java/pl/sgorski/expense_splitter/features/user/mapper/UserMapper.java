@@ -5,8 +5,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import pl.sgorski.expense_splitter.config.CentralMapperConfig;
 import pl.sgorski.expense_splitter.features.user.domain.User;
+import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
 import pl.sgorski.expense_splitter.features.user.dto.request.UpdateUserRequest;
 import pl.sgorski.expense_splitter.features.user.dto.response.DetailedUserResponse;
+import pl.sgorski.expense_splitter.features.user.dto.response.UserIdentityResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 @Mapper(config = CentralMapperConfig.class)
@@ -14,6 +16,8 @@ public interface UserMapper {
     UserResponse toResponse(User user);
 
     DetailedUserResponse toDetailedResponse(User user);
+
+    UserIdentityResponse toIdentityResponse(UserIdentity identity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)

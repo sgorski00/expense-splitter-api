@@ -1,9 +1,6 @@
 package pl.sgorski.expense_splitter.features.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +24,6 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
 import pl.sgorski.expense_splitter.security.jwt.JwtService;
 
-import java.net.URI;
 import java.util.UUID;
 
 @RestController

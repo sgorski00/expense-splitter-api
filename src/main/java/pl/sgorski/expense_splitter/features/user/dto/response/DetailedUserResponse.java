@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 @Schema(
@@ -37,6 +38,10 @@ public record DetailedUserResponse(
                 example = "USER"
         )
         Role role,
+        @Schema(
+                description = "User identities linked to external providers."
+        )
+        Set<UserIdentityResponse> identities,
         @Schema(
                 description = "Account creation timestamp.",
                 example = "2026-03-18T10:15:30Z"
