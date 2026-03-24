@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @Service
-public class JwtService {
+public final class JwtService {
 
     private static final String PASSWORD_CHANGE_REQUIRED_CLAIM = "passwordForChange";
     private static final String EMAIL_CLAIM = "email";

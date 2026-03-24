@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class OAuth2SessionService {
+public final class OAuth2SessionService {
     public final static String OAUTH_MODE_KEY = "oauth_mode";
     public final static String OAUTH_LINK_USER_ID_KEY = "oauth_link_user_id";
 

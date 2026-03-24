@@ -23,7 +23,7 @@ import java.util.Set;
  * - Swagger/OpenAPI documentation endpoints
  */
 @Component
-public class PasswordChangeRequiredFilter extends OncePerRequestFilter {
+public final class PasswordChangeRequiredFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";

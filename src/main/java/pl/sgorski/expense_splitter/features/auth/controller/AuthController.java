@@ -44,7 +44,13 @@ public final class AuthController {
     @PostMapping("/login")
     @Operation(
             summary = "Authenticate user",
-            description = "Authenticates a user with email and password, then returns access and refresh tokens."
+            description = """
+                    Authenticates a user with email and password, then returns access and refresh tokens.<br><br>
+                    If user's password is marked to be changed, the access token will be generated but will allow only to access these endpoints:
+                    - /profile/password (PUT and PATCH for password change/set)<br>
+                    - /auth/logout (allow users to logout)<br>
+                    - /auth/refresh (allow refresh token)<br>
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -83,6 +89,16 @@ public final class AuthController {
     }
 
     @PostMapping("/refresh")
+    @Operation(
+            summary = "Refresh access token",
+            description = "Generates a new access token using a valid refresh token from the cookie. The old refresh token is revoked and a new one is issued in the cookie."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Refresh token used successfully."
+            )
+    })
     public ResponseEntity<LoginResponse> refreshToken(
             @CookieValue(RefreshTokenCookieResponseHelper.REFRESH_TOKEN_COOKIE_KEY) UUID refreshTokenCookie,
             Authentication authentication
@@ -103,6 +119,16 @@ public final class AuthController {
     }
 
     @PostMapping("/logout")
+    @Operation(
+            summary = "Revoke refresh token",
+            description = "Revokes a refresh token from the cookie, effectively logging the user out."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Refresh token revoked successfully."
+            )
+    })
     public ResponseEntity<Void> logout(
             @CookieValue(value = RefreshTokenCookieResponseHelper.REFRESH_TOKEN_COOKIE_KEY, required = false) UUID refreshTokenCookie
     ) {
