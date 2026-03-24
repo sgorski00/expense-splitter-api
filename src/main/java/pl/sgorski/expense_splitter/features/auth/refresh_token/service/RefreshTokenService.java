@@ -51,17 +51,11 @@ public class RefreshTokenService {
      * Revokes all refresh tokens for a given user.
      * Useful when password is changed to force re-authentication.
      *
-     * @param userId the user ID
+     * @param userId the user's id
      */
     @Transactional
     public void revokeAllUserTokens(UUID userId) {
-        var tokens = refreshTokenRepository.findAll().stream()
-                .filter(token -> token.getUser().getId().equals(userId) && !token.isRevoked())
-                .toList();
-        tokens.forEach(token -> {
-            token.setRevoked(true);
-            refreshTokenRepository.save(token);
-        });
+        refreshTokenRepository.revokeAllByUserId(userId);
     }
 
     public long getExpirationSecond() {

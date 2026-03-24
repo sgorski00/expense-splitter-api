@@ -17,6 +17,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
+    private final UserIdentityService userIdentityService;
 
     @Transactional
     public User save(User user) {
@@ -45,6 +46,7 @@ public class UserService {
     @Transactional
     public void deleteUser(User user) {
         refreshTokenService.revokeAllUserTokens(user.getId());
+        userIdentityService.removeAllUserIdentities(user);
         userRepository.delete(user);
     }
 
