@@ -3,6 +3,7 @@ package pl.sgorski.expense_splitter.features.auth.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
 import pl.sgorski.expense_splitter.validator.password.ValidPassword;
 
 @Schema(
@@ -39,4 +40,4 @@ public record RegisterRequest(
                 example = "StrongP@ssw0rd!"
         )
         @NotBlank String repeatNewPassword
-) { }
+) implements PasswordChange { }

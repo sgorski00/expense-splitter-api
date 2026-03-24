@@ -12,7 +12,7 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 
 @Component
 @RequiredArgsConstructor
-public class AdminSeeder implements ApplicationRunner {
+public final class AdminSeeder implements ApplicationRunner {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -20,7 +20,7 @@ public class AdminSeeder implements ApplicationRunner {
     @Value("${es.first-admin.password}")
     private String password;
 
-    @Value("${es.first-admin.email")
+    @Value("${es.first-admin.email}")
     private String email;
 
     @Override

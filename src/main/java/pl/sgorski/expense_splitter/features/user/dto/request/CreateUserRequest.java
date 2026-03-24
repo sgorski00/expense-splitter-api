@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
+import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
 import pl.sgorski.expense_splitter.validator.password.ValidPassword;
 
 @Schema(
@@ -34,4 +35,4 @@ public record CreateUserRequest(
                 example = "StrongP@ssw0rd!"
         )
         @NotBlank String repeatNewPassword
-) {}
+) implements PasswordChange {}
