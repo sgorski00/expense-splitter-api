@@ -12,6 +12,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.sgorski.expense_splitter.exceptions.DuplicateIdentityException;
 
 import java.time.Instant;
 import java.util.*;
@@ -66,7 +67,7 @@ public class User implements UserDetails {
                 .filter(i -> i.getProvider().equals(identity.getProvider()))
                 .findFirst()
                 .ifPresentOrElse(
-                        i -> { throw new IllegalStateException("User already has identity for provider: " + i.getProvider()); },
+                        i -> { throw new DuplicateIdentityException("User already has identity for provider: " + i.getProvider()); },
                         () -> {
                             identities.add(identity);
                             identity.setUser(this);

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import pl.sgorski.expense_splitter.exceptions.AccountLinkingException;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.oauth2.dto.OAuth2LoginContext;
 import pl.sgorski.expense_splitter.features.auth.oauth2.service.OAuth2LoginService;
@@ -27,11 +28,11 @@ public class OAuth2AccountLinkService implements OAuth2LoginService {
         log.debug("Entering OAuth2 account link mode");
         if (userIdentityService.isUserIdentityPresent(userInfo.getProviderId(), userInfo.getProvider())) {
             log.debug("Someone is using account: {} [{}] already.", userInfo.getEmail(), provider.name());
-            throw new IllegalStateException("Account is already linked to another user");
+            throw new AccountLinkingException("Account is already linked to another user");
         }
         if (userId == null) {
             log.error("There is no user id in the session! Cannot link an oauth2 account");
-            throw new IllegalStateException("User id is required to link an account");
+            throw new AccountLinkingException("User id is required to link an account");
         }
         var user = userService.getUserWithIdentities(userId);
         log.debug("Linking new identity {} to existing user {}", provider.name(), user.getEmail());

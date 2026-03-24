@@ -6,6 +6,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.sgorski.expense_splitter.exceptions.InvalidPasswordException;
+import pl.sgorski.expense_splitter.exceptions.PasswordOperationException;
 import pl.sgorski.expense_splitter.exceptions.UserAlreadyExistsException;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
@@ -56,7 +58,7 @@ public class LocalAuthService {
     @Transactional
     public void setLocalPassword(User user, String rawPassword) {
         if(user.getPasswordHash() != null) {
-            throw new IllegalStateException("User already has a password. If you want to change it, use change password then.");
+            throw new PasswordOperationException("User already has a password. If you want to change it, use change password then.");
         }
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         user.setPasswordForChange(false);
@@ -66,11 +68,11 @@ public class LocalAuthService {
     @Transactional
     public void changePassword(User user, String oldPassword, String newPassword) {
         if(user.getPasswordHash() == null) {
-            throw new IllegalStateException("User doesn't have local password yet.");
+            throw new PasswordOperationException("User doesn't have local password yet.");
         }
 
         if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid current password.");
+            throw new InvalidPasswordException("Invalid current password.");
         }
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
