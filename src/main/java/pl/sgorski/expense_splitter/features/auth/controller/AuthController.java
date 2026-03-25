@@ -17,13 +17,12 @@ import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.local.utils.RefreshTokenExtractor;
-import pl.sgorski.expense_splitter.features.auth.local.utils.TokensResponseEntityCreator;
+import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
-import pl.sgorski.expense_splitter.security.oauth2.AccessTokenCookieResponseHelper;
 
 import java.util.UUID;
 
@@ -39,8 +38,7 @@ public final class AuthController {
     private final RefreshTokenExtractor refreshTokenExtractor;
     private final RefreshTokenService refreshTokenService;
     private final RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
-    private final AccessTokenCookieResponseHelper accessTokenCookieResponseHelper;
-    private final TokensResponseEntityCreator tokensResponseEntityCreator;
+    private final TokenResponseEntityCreator tokensResponseEntityCreator;
 
     @PostMapping("/login")
     @Operation(
@@ -119,11 +117,9 @@ public final class AuthController {
             @Nullable @CookieValue(value = RefreshTokenCookieResponseHelper.REFRESH_TOKEN_COOKIE_KEY, required = false) UUID refreshTokenCookie
     ) {
         var refreshTokenClearCookie = refreshTokenCookieResponseHelper.createClearRefreshTokenCookie();
-        var accessTokenClearCookie = accessTokenCookieResponseHelper.createClearAccessTokenCookie();
         if(refreshTokenCookie != null) refreshTokenService.revokeToken(refreshTokenCookie);
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenClearCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, accessTokenClearCookie.toString())
                 .build();
     }
 }

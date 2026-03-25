@@ -12,6 +12,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public final class RefreshTokenExtractor {
 
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
+
     /**
      * Extracts refresh token from either httpOnly cookie or Authorization header.
      * <br>
@@ -29,9 +32,9 @@ public final class RefreshTokenExtractor {
         }
 
         // Try Authorization header (mobile/desktop clients)
-        var authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            var tokenString = authHeader.substring("Bearer ".length());
+        var authHeader = request.getHeader(AUTHORIZATION_HEADER);
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            var tokenString = authHeader.substring(BEARER_PREFIX.length());
             try {
                 return UUID.fromString(tokenString);
             } catch (IllegalArgumentException e) {

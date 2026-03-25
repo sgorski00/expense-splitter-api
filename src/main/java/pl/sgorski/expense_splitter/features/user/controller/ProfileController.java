@@ -16,7 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
-import pl.sgorski.expense_splitter.features.auth.local.utils.TokensResponseEntityCreator;
+import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
@@ -49,7 +49,7 @@ public final class ProfileController {
     private final UserMapper userMapper;
     private final LocalAuthService localAuthService;
     private final RefreshTokenService refreshTokenService;
-    private final TokensResponseEntityCreator tokensResponseEntityCreator;
+    private final TokenResponseEntityCreator tokensResponseEntityCreator;
 
     @GetMapping
     @Operation(

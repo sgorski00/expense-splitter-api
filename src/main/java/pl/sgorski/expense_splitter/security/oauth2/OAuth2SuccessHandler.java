@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -15,11 +14,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import pl.sgorski.expense_splitter.exceptions.IdentityNotFoundException;
-import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
-import pl.sgorski.expense_splitter.features.auth.local.utils.TokensResponseEntityCreator;
+import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.factory.OAuth2UserInfoFactory;
-import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 
 import java.io.IOException;
@@ -38,7 +35,7 @@ import java.util.Objects;
 public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserIdentityService identityService;
-    private final TokensResponseEntityCreator tokensResponseEntityCreator;
+    private final TokenResponseEntityCreator tokensResponseEntityCreator;
     private final ObjectMapper objectMapper;
 
     @Override
