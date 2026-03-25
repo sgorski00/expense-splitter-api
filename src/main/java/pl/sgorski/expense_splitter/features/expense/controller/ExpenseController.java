@@ -80,7 +80,7 @@ public final class ExpenseController {
             )
     })
     public ResponseEntity<DetailedExpenseResponse> getExpense(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
@@ -101,7 +101,7 @@ public final class ExpenseController {
             )
     })
     public ResponseEntity<DetailedExpenseResponse> updateExpense(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid UpdateExpenseRequest request,
             Authentication authentication
     ) {
@@ -123,8 +123,8 @@ public final class ExpenseController {
                     description = "Expense deleted successfully."
             )
     })
-    public ResponseEntity<DetailedExpenseResponse> deleteExpense(
-            @PathVariable Long id,
+    public ResponseEntity<Void> deleteExpense(
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         // only creator of the expense can delete it
@@ -143,7 +143,7 @@ public final class ExpenseController {
             )
     })
     public ResponseEntity<Page<ExpenseParticipantResponse>> getExpenseParticipants(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Pageable pageable,
             Authentication authentication
     ) {

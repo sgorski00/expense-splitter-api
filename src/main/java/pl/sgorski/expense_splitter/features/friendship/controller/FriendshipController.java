@@ -79,7 +79,7 @@ public final class FriendshipController {
             )
     })
     public ResponseEntity<FriendshipResponse> getFriendship(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         // TODO: implement
@@ -101,7 +101,7 @@ public final class FriendshipController {
             )
     })
     public ResponseEntity<FriendshipResponse> acceptFriendship(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         // TODO: implement
@@ -123,7 +123,7 @@ public final class FriendshipController {
             )
     })
     public ResponseEntity<FriendshipResponse> rejectFriendship(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         // TODO: implement
@@ -145,7 +145,7 @@ public final class FriendshipController {
             )
     })
     public ResponseEntity<Void> endFriendship(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         // TODO: implement

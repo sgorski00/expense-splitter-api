@@ -14,8 +14,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmailAndDeletedAtIsNull(String email);
     @EntityGraph(attributePaths = "identities") Optional<User> findWithIdentitiesByIdAndDeletedAtIsNull(UUID id);
     Optional<User> findByIdAndDeletedAtIsNull(UUID id);
-
-    List<User> Role(Role role);
-
     Long countByRole(Role role);
 }

@@ -39,8 +39,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) {
         return http
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/actuator/**").permitAll()
-                        .requestMatchers("/auth/logout", "/auth/refresh").authenticated()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/actuator/**", "/auth/refresh").permitAll()
+                        .requestMatchers("/auth/logout").authenticated()
                         .requestMatchers("/auth/**").not().authenticated()
                         .requestMatchers("/oauth2/code/**", "/login/auth2/code/**").not().authenticated()
                         .requestMatchers("/expenses/**", "/friendships/**", "/payments/**", "/profile/**").authenticated()

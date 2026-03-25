@@ -26,19 +26,6 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(token);
     }
 
-    /**
-     * Validates the refresh token, throws exception if invalid.
-     *
-     * @param tokenValue the token value
-     * @param user     the user
-     * @throws NotFoundException if token not found or invalid
-     */
-    public void validateToken(UUID tokenValue, User user) {
-        if (!isTokenValid(tokenValue, user)) {
-            throw new NotFoundException("Invalid or expired refresh token");
-        }
-    }
-
     @Transactional
     public void revokeToken(UUID tokenValue) {
         var token = refreshTokenRepository.findByToken(tokenValue)
@@ -62,17 +49,13 @@ public class RefreshTokenService {
         return refreshTokenProperties.expirationTimeInMs() / 1000;
     }
 
-
-    private boolean isTokenValid(UUID tokenValue, User user) {
-        var token = refreshTokenRepository.findByToken(tokenValue)
-                .orElseThrow(() -> new NotFoundException("Token not found"));
-        return !token.isRevoked() &&
-                token.getExpiresAt().isAfter(Instant.now()) &&
-                token.getUser().getId().equals(user.getId());
-    }
-
     @Transactional
     public void deletedInvalidTokens() {
         refreshTokenRepository.deleteAllByExpiresAtBeforeOrIsRevokedTrue(Instant.now());
+    }
+
+    public RefreshToken getToken(UUID refreshToken) {
+        return refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new NotFoundException("Token not found"));
     }
 }

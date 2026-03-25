@@ -5,9 +5,9 @@ CREATE TABLE users (
     role varchar(50) NOT NULL check (role in ('USER', 'ADMIN')),
     first_name VARCHAR(255),
     last_name VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
+    created_at TIMESTAMP with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP with time zone DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP with time zone,
     is_password_for_change boolean not null DEFAULT false
 );
 CREATE UNIQUE INDEX unique_active_email ON users(email) WHERE deleted_at IS NULL;
@@ -21,5 +21,4 @@ CREATE TABLE user_identities (
     UNIQUE(user_id, provider)
 );
 
-CREATE INDEX ix_users_email_active ON users(email) WHERE deleted_at IS NULL;
 CREATE INDEX ix_user_identities_user_id ON user_identities(user_id);

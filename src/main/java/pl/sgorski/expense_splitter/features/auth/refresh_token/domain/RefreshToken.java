@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
+import pl.sgorski.expense_splitter.exceptions.RefreshTokenValidationException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 import java.time.Instant;
@@ -39,5 +40,14 @@ public class RefreshToken {
         this.token = token;
         this.user = user;
         this.expiresAt = Instant.now().plusMillis(expirationTimeInMs);
+    }
+
+    public void validate() {
+        if(this.isRevoked) {
+            throw new RefreshTokenValidationException("Refresh token is revoked");
+        }
+        if(this.expiresAt.isBefore(Instant.now())) {
+            throw new RefreshTokenValidationException("Refresh token is expired");
+        }
     }
 }

@@ -3,7 +3,7 @@ CREATE TABLE refresh_tokens (
     token uuid NOT NULL UNIQUE,
     user_id uuid NOT NULL references users(id) ON DELETE CASCADE,
     is_revoked boolean NOT NULL default false,
-    expires_at TIMESTAMP NOT NULL
+    expires_at TIMESTAMP with time zone NOT NULL
 );
 
 CREATE INDEX ix_refresh_tokens_token ON refresh_tokens(token);

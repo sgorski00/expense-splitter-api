@@ -65,6 +65,10 @@ public final class JwtService {
                 .get(PASSWORD_CHANGE_REQUIRED_CLAIM, Boolean.class));
     }
 
+    public long getExpirationSecond() {
+        return jwtProperties.expirationTimeInMs() / 1000;
+    }
+
     private Claims getClaimsFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(this.secretKey)

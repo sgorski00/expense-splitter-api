@@ -232,6 +232,32 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    /**
+     * Handles RefreshTokenValidationException.
+     * <br>
+     * Thrown when refresh token is expired or revoked.
+     * User must re-authenticate to obtain a new refresh token.
+     */
+    @ExceptionHandler(RefreshTokenValidationException.class)
+    @ApiResponse(
+            responseCode = "401",
+            description = "Refresh token is invalid, expired, or has been revoked.",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = ProblemDetail.class,
+                            description = "RFC 7807 Problem Details response with 401 Unauthorized status."
+                    )
+            )
+    )
+    public ProblemDetail handleRefreshTokenValidationException(RefreshTokenValidationException ex) {
+        var status = HttpStatus.UNAUTHORIZED;
+        var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+        problemDetail.setTitle("Invalid Refresh Token");
+        log.warn("Refresh token validation failed: {}", ex.getMessage());
+        return problemDetail;
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     @ApiResponse(
             responseCode = "401",

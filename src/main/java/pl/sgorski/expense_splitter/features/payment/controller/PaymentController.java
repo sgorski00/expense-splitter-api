@@ -81,7 +81,7 @@ public final class PaymentController {
             )
     })
     public ResponseEntity<PaymentResponse> getPayment(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
@@ -102,7 +102,7 @@ public final class PaymentController {
             )
     })
     public ResponseEntity<PaymentResponse> updatePayment(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid UpdatePaymentRequest request,
             Authentication authentication
     ) {
@@ -123,11 +123,10 @@ public final class PaymentController {
                     description = "Payment deleted successfully."
             )
     })
-    public ResponseEntity<PaymentResponse> deletePayment(
-            @PathVariable Long id,
+    public ResponseEntity<Void> deletePayment(
+            @PathVariable UUID id,
             Authentication authentication
     ) {
-        //...existing code...
         return ResponseEntity.noContent().build();
     }
 }

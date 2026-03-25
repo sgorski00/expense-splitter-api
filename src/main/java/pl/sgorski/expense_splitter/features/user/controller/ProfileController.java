@@ -10,16 +10,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
+import pl.sgorski.expense_splitter.features.auth.local.utils.TokensResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
-import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
@@ -31,7 +30,6 @@ import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
-import pl.sgorski.expense_splitter.security.jwt.JwtService;
 import pl.sgorski.expense_splitter.security.oauth2.session.OAuth2SessionService;
 
 import java.time.Instant;
@@ -50,9 +48,8 @@ public final class ProfileController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final LocalAuthService localAuthService;
-    private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenCookieResponseHelper cookieResponseHelper;
+    private final TokensResponseEntityCreator tokensResponseEntityCreator;
 
     @GetMapping
     @Operation(
@@ -106,7 +103,7 @@ public final class ProfileController {
                     description = "Account deleted successfully."
             )
     })
-    public ResponseEntity<DetailedUserResponse> deleteAccount(
+    public ResponseEntity<Void> deleteAccount(
             Authentication authentication
     ) {
         var user = fetchUser(authentication);
@@ -117,12 +114,12 @@ public final class ProfileController {
     @PutMapping("/password")
     @Operation(
             summary = "Set local password (applicable only if the account was created via OAuth2)",
-            description = "Setting the authenticated user's account password. Returns a new access token after successful password setup."
+            description = "Setting the authenticated user's account password. New access and refresh tokens are issued in cookies and in response body."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Password set successfully. Returns new access token."
+                    description = "Password set successfully. Access and refresh tokens issued in secure httpOnly cookies."
             )
     })
     public ResponseEntity<LoginResponse> setLocalPassword(
@@ -131,18 +128,19 @@ public final class ProfileController {
     ) {
         var user = fetchUser(authentication);
         localAuthService.setLocalPassword(user, request.newPassword());
-        return generateNewTokenResponse(user);
+        refreshTokenService.revokeAllUserTokens(user.getId());
+        return tokensResponseEntityCreator.generate(user);
     }
 
     @PatchMapping("/password")
     @Operation(
             summary = "Change password",
-            description = "Changes the authenticated user's account password. Returns a new access token after successful password change."
+            description = "Changes the authenticated user's account password. New access and refresh tokens are issued in cookies and in response body."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Password changed successfully. Returns new access token."
+                    description = "Password changed successfully. Tokens issued in secure httpOnly cookies and in response body."
             )
     })
     public ResponseEntity<LoginResponse> changePassword(
@@ -151,13 +149,14 @@ public final class ProfileController {
     ) {
         var user = fetchUser(authentication);
         localAuthService.changePassword(user, request.oldPassword(), request.newPassword());
-        return generateNewTokenResponse(user);
+        refreshTokenService.revokeAllUserTokens(user.getId());
+        return tokensResponseEntityCreator.generate(user);
     }
 
     @GetMapping("/link/{provider}")
     @Operation(
             summary = "Link OAuth2 account",
-            description = "Initiates OAuth2 account linking with the specified provider."
+            description = "Initiates OAuth2 account linking with the specified provider"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -165,7 +164,7 @@ public final class ProfileController {
                     description = "Redirecting to OAuth2 provider login."
             )
     })
-    public ResponseEntity<String> linkOAuth2Account(
+    public ResponseEntity<Void> linkOAuth2Account(
             @PathVariable AuthProvider provider,
             HttpServletRequest request,
             Authentication authentication
@@ -204,26 +203,5 @@ public final class ProfileController {
     private User fetchUser(Authentication authentication) {
         var userId = authenticatedUserResolver.requireUserId(authentication);
         return userService.getUser(userId);
-    }
-
-    /**
-     * Helper method to generate new access and refresh tokens after password operation.
-     * Revokes all existing refresh tokens and returns a new token pair.
-     */
-    private ResponseEntity<LoginResponse> generateNewTokenResponse(User user) {
-        user = userService.getUser(user.getId());
-
-        var jwtTokenStr = jwtService.generateAccessToken(user);
-        var jwtToken = new LoginResponse(jwtTokenStr);
-
-        refreshTokenService.revokeAllUserTokens(user.getId());
-        var refreshToken = refreshTokenService.generateRefreshToken(user);
-        var cookie = cookieResponseHelper.createRefreshTokenCookie(
-                refreshToken.getToken(),
-                refreshTokenService.getExpirationSecond());
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(jwtToken);
     }
 }

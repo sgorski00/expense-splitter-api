@@ -2,8 +2,10 @@ package pl.sgorski.expense_splitter.validator.password;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class PasswordValidator implements ConstraintValidator<ValidPassword, PasswordChange> {
@@ -25,12 +27,15 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Pas
             Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^a-zA-Z0-9])(?=\\S+$).{8,}$");
 
     @Override
-    public boolean isValid(PasswordChange request, ConstraintValidatorContext context) {
+    public boolean isValid(@Nullable PasswordChange request, ConstraintValidatorContext context) {
+        if (request == null) {
+            return true;
+        }
 
         if (!request.newPassword().equals(request.repeatNewPassword())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("Passwords do not match")
-                    .addPropertyNode("repeatPassword")
+                    .addPropertyNode("newRepeatPassword")
                     .addConstraintViolation();
             return false;
         }
@@ -39,7 +44,7 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Pas
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
                             "Password must be at least 8 chars, contain uppercase letter, digit and special character"
-                    ).addPropertyNode("password")
+                    ).addPropertyNode("newPassword")
                     .addConstraintViolation();
             return false;
         }
