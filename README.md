@@ -47,9 +47,9 @@ API udostępnia 2 metody uwierzytelniania - lokalnie oraz OAuth2.
 
 Uwierzytelnienie odbywa się na podstawie tokena JWT oraz Refresh Tokena, które są generowane po poprawnym zalogowaniu się do systemu.
 
-Po poprawnym uwierzytelnieniu zarówno token JWT (access token), jak i Refresh Token będą ustawione jako `httpOnly cookie` o nazwach `accessToken` oraz `refreshToken`. 
-
-**Ważne:** HttpOnly cookies są wysyłane **automatycznie** przez przeglądarkę dla każdego żądania HTTP do API.
+Po poprawnym uwierzytelnieniu zarówno token JWT (access token), jak i Refresh Token będą zwracane w ciele odpowiedzi.
+Refresh Token będzie również ustawiany jako `httpOnly cookie` o nazwie `refreshToken`.
+**Jest to zalecany sposób przechowywania Refresh Tokena w aplikacji webowej, ponieważ HttpOnly cookies są niedostępne dla JavaScriptu, co zwiększa bezpieczeństwo przed atakami typu XSS.**
 
 ### Rejestracja
 
@@ -61,18 +61,21 @@ Rejestracja może również odbywć się za pomocą protokołu OAuth2, o ile wcz
 
 Aby uwierzytelnić się lokalnie, należy wykonać następujące kroki:
 1. Wykonaj żądanie POST na endpoint `/api/auth/login` z danymi logowania w formacie JSON.
-2. Po poprawnym zalogowaniu się, tokeny będą automatycznie ustawione jako httpOnly cookies. **Nie ma potrzeby ręcznego przechowywania tokenów**.
+2. Po poprawnym zalogowaniu się, tokeny będą wydane zgodnie z zasadami opisanymi wcześniej.
 
 ### Logowanie OAuth2
 
 Aby uwierzytelnić się za pomocą OAuth2, należy wykonać następujące kroki:
 1. Wykonaj żądanie POST na endpoint `/api/oauth2/authorization/{provider}`, gdzie `{provider}` to nazwa dostawcy OAuth2 (np. `google`, `facebook`).
 2. Nastąpi przekierowanie do strony logowania dostawcy OAuth2, gdzie należy się zalogować i udzielić zgody na dostęp do danych.
-3. Po poprawnym zalogowaniu się, nastąpi przekierowanie z powrotem do adresu url frontendu aplikacji. **Tokeny będą automatycznie ustawione jako httpOnly cookies**.
+3. Po poprawnym zalogowaniu się, tokeny będą wydane zgodnie z zasadami opisanymi wcześniej.
 
 ### Odświeżanie tokenów
 
-Tokeny JWT mają określony czas ważności, po którym wygasają. Aby odświeżyć token JWT, należy wykonać żądanie POST na endpoint `/api/auth/refresh` z Refresh Tokenem w HttpOnly cookie o nazwie `refreshToken`. 
+Tokeny JWT mają określony czas ważności, po którym wygasają. 
+
+Aby odświeżyć token JWT, należy wykonać żądanie POST na endpoint `/api/auth/refresh` z Refresh Tokenem w HttpOnly cookie o nazwie `refreshToken`. 
+Alternatywnym sposobem jest przesłanie Refresh Tokena w wymienionym wyżej endpoincie bez użycia cookie. W tym przypadku refresh token należy przesłać w nagłówku `Authorization` w formacie `Bearer {refreshToken}`.
 Po poprawnym odświeżeniu, otrzymasz nowy token JWT oraz Refresh Token.
 
 ### Wylogowanie
@@ -80,6 +83,11 @@ Po poprawnym odświeżeniu, otrzymasz nowy token JWT oraz Refresh Token.
 Aby wylogować się z systemu, należy wykonać żądanie POST na endpoint `/api/auth/logout`. 
 
 Spowoduje to unieważnienie Refresh Tokena oraz usunięcie HttpOnly cookie `refreshToken` oraz `accessToken`.
+
+### Dodatkowe informacje
+- Przy zmianie/ustawieniu hasła, wszystkie istniejące Refresh Tokeny dla danego użytkownika zostaną unieważnione, co wymusi ponowne logowanie się użytkownika.
+- W przypadku wykorzystania refresh tokena w enpoincie `/api/auth/refresh`, stary refresh token zostanie unieważniony, a nowy będzie ważny do czasu jego wygaśnięcia lub ręcznego unieważnienia (np. poprzez wylogowanie).
+- Refresh Tokeny są cyklicznie usuwane z bazy, jeżeli są przeterminowane lub zużyte.
 
 ---
 

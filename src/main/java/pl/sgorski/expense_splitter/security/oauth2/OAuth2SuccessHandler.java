@@ -26,8 +26,8 @@ import java.util.Objects;
  * OAuth2 authentication success handler for web and mobile clients.
  * <br>
  * Returns tokens in:
- * - JSON response body (for mobile to parse)
- * - httpOnly cookies (for web to use automatically)
+ * - access token - in body
+ * - refresh token - in body and httponly cookie
  */
 @Component
 @RequiredArgsConstructor
