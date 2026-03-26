@@ -10,9 +10,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import pl.sgorski.expense_splitter.exceptions.PasswordChangeRequiredException;
+import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -26,9 +28,6 @@ import java.util.Set;
  */
 @Component
 public final class PasswordChangeRequiredFilter extends OncePerRequestFilter {
-
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
     private final HandlerExceptionResolver resolver;
@@ -48,19 +47,15 @@ public final class PasswordChangeRequiredFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        var header = request.getHeader(AUTHORIZATION_HEADER);
-        String token = null;
-        if (header != null && header.startsWith(BEARER_PREFIX)) {
-            token = header.substring(BEARER_PREFIX.length());
-        }
-
+        var header = request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER);
+        var token = AuthorizationTokenUtils.getTokenFromHeader(header);
         if (token == null || UuidUtils.isValidUuid(token) || !jwtService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            var isPasswordChangeRequired = jwtService.getPasswordChangeClaim(token);
+            var isPasswordChangeRequired = jwtService.getPasswordChangeClaim(Objects.requireNonNull(token));
             if (isPasswordChangeRequired) {
                 var requestPath = request.getRequestURI();
                 boolean isWhitelisted = WHITELISTED_PATHS.stream()
