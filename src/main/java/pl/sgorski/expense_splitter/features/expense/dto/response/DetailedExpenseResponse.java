@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Schema(
         name = "Detailed Expense Response",
@@ -14,9 +15,9 @@ import java.util.List;
 public record DetailedExpenseResponse(
         @Schema(
                 description = "Expense unique identifier.",
-                example = "1"
+                example = "123e4567-e89b-12d3-a456-426614174000"
         )
-        Long id,
+        UUID id,
         @Schema(
                 description = "Expense title.",
                 example = "Dinner in Rome"

@@ -1,49 +1,71 @@
 package pl.sgorski.expense_splitter.features.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
+import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
+import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenExtractor;
+import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
+import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
+import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
+import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
+import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
+import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
 
-import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/auth", version = "1.0.0")
 @Tag(name = "Authentication", description = "Endpoints for user authentication and registration.")
+@RequiredArgsConstructor
 public final class AuthController {
+
+    private final LocalAuthService localAuthService;
+    private final AuthMapper authMapper;
+    private final UserMapper userMapper;
+    private final RefreshTokenExtractor refreshTokenExtractor;
+    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
+    private final TokenResponseEntityCreator tokensResponseEntityCreator;
 
     @PostMapping("/login")
     @Operation(
             summary = "Authenticate user",
-            description = "Authenticates a user with email and password, then returns access and refresh tokens."
+            description = """
+                    Authenticates a user with email and password. Access and refresh tokens are issued in secure httpOnly cookies.<br><br>
+                    If user's password is marked to be changed, the access token will be generated but will allow only to access these endpoints:
+                    - /profile/password (PUT and PATCH for password change/set)<br>
+                    - /auth/logout (allow users to logout)<br>
+                    - /auth/refresh (allow refresh token)<br>
+                    """
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User authenticated successfully."
+                    description = "User authenticated successfully. Access and refresh tokens issued in secure httpOnly cookies and in response body."
             )
     })
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
-        var response = new LoginResponse("jwt-token", "refresh-token"); // TODO: implement
-        return ResponseEntity.ok(response);
+        var user = localAuthService.login(authMapper.toCommand(request));
+        return tokensResponseEntityCreator.generate(user);
     }
 
     @PostMapping("/register")
     @Operation(
             summary = "Register new user",
-            description = "Creates a new user account and returns the location of the created user resource."
+            description = "Creates a new user account and returns the created user resource."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -51,8 +73,53 @@ public final class AuthController {
                     description = "User registered successfully."
             )
     })
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request) {
-        var path = URI.create("/path/to/user"); // TODO: implement
-        return ResponseEntity.created(path).build();
+    public ResponseEntity<UserResponse> register(@RequestBody @Valid RegisterRequest request) {
+        var command = authMapper.toCommand(request);
+        var user = localAuthService.registerUser(command);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userMapper.toResponse(user));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "Refresh access token",
+            description = "Generates a new access token using a valid refresh token. Supports both cookie (web) and Authorization header (mobile/desktop) methods."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Access token refreshed successfully. New tokens issued in secure httpOnly cookies and in response body."
+            )
+    })
+    public ResponseEntity<LoginResponse> refreshToken(
+            @Nullable @CookieValue(value = RefreshTokenCookieResponseHelper.REFRESH_TOKEN_COOKIE_KEY, required = false) UUID refreshTokenCookieValue,
+            HttpServletRequest request
+    ) {
+        var refreshTokenValue = refreshTokenExtractor.extract(refreshTokenCookieValue, request);
+        var existingRefreshToken = refreshTokenService.getToken(refreshTokenValue);
+        existingRefreshToken.validate();
+        refreshTokenService.revokeToken(refreshTokenValue);
+        return tokensResponseEntityCreator.generate(existingRefreshToken.getUser());
+    }
+
+    @PostMapping("/logout")
+    @Operation(
+            summary = "Revoke refresh token",
+            description = "Revokes a refresh token from the cookie, effectively logging the user out."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Refresh token revoked successfully."
+            )
+    })
+    public ResponseEntity<Void> logout(
+            @Nullable @CookieValue(value = RefreshTokenCookieResponseHelper.REFRESH_TOKEN_COOKIE_KEY, required = false) UUID refreshTokenCookie
+    ) {
+        var refreshTokenClearCookie = refreshTokenCookieResponseHelper.createClearRefreshTokenCookie();
+        if(refreshTokenCookie != null) refreshTokenService.revokeToken(refreshTokenCookie);
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenClearCookie.toString())
+                .build();
     }
 }

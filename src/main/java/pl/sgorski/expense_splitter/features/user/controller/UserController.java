@@ -7,16 +7,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.request.CreateUserRequest;
 import pl.sgorski.expense_splitter.features.user.dto.response.DetailedUserResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
-import java.awt.print.Pageable;
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/users", version = "1.0.0")
@@ -37,7 +40,7 @@ public final class UserController {
     public ResponseEntity<Page<UserResponse>> getUsers(
             Pageable pageable
     ) {
-        var result = new PageImpl<>(List.of(new UserResponse(1L, "user@example.com", "USER", Instant.now()))); //TODO: implement
+        var result = new PageImpl<>(List.of(new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now()))); //TODO: implement
         return ResponseEntity.ok(result);
     }
 
@@ -71,9 +74,9 @@ public final class UserController {
             )
     })
     public ResponseEntity<DetailedUserResponse> getUser(
-            @PathVariable Long id
+            @PathVariable UUID id
     ) {
-        var result = new DetailedUserResponse(1L, "user@example.com", "John", "Doe", "USER", Instant.now(), Instant.now(), null); //TODO: implement
+        var result = new DetailedUserResponse(UUID.randomUUID(), "user@example.com", "John", "Doe", Role.USER, Set.of(), Instant.now(), Instant.now(), null); //TODO: implement
         return ResponseEntity.ok(result);
     }
 
@@ -89,7 +92,7 @@ public final class UserController {
             )
     })
     public ResponseEntity<DetailedUserResponse> deactivateUser(
-            @PathVariable Long id
+            @PathVariable UUID id
     ) {
         //TODO: implement
         return ResponseEntity.noContent().build();
@@ -107,10 +110,10 @@ public final class UserController {
             )
     })
     public ResponseEntity<DetailedUserResponse> updateUser(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid CreateUserRequest request
     ) {
-        var result = new DetailedUserResponse(1L, "user@example.com", "John", "Doe", "USER", Instant.now(), Instant.now(), null); //TODO: implement
+        var result = new DetailedUserResponse(UUID.randomUUID(), "user@example.com", "John", "Doe", Role.USER, Set.of(), Instant.now(), Instant.now(), null); //TODO: implement
         return ResponseEntity.ok(result);
     }
 }

@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Schema(
         name = "Friendship Response",
@@ -13,9 +14,9 @@ import java.time.Instant;
 public record FriendshipResponse(
         @Schema(
                 description = "Friendship relation unique identifier.",
-                example = "101"
+                example = "123e4567-e89b-12d3-a456-426614174000"
         )
-        Long id,
+        UUID id,
         @Schema(
                 description = "User who sent the friendship invitation."
         )
