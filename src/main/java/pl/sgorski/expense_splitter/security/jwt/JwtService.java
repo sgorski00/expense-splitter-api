@@ -2,18 +2,18 @@ package pl.sgorski.expense_splitter.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public final class JwtService {
 
     private static final String PASSWORD_CHANGE_REQUIRED_CLAIM = "passwordForChange";
@@ -22,11 +22,6 @@ public final class JwtService {
 
     private final JwtProperties jwtProperties;
     private final SecretKey secretKey;
-
-    public JwtService(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
-        this.secretKey = Keys.hmacShaKeyFor(this.jwtProperties.secretKey().getBytes(StandardCharsets.UTF_8));
-    }
 
     public String generateAccessToken(User user) {
         var now = Instant.now();
@@ -46,12 +41,12 @@ public final class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token) {
+    public boolean isTokenInvalid(String token) {
         try {
             var claims = getClaimsFromToken(token);
-            return claims.getExpiration().after(new Date());
+            return !claims.getExpiration().after(new Date());
         } catch (Exception e) {
-            return false;
+            return true;
         }
     }
 
@@ -63,10 +58,6 @@ public final class JwtService {
     public Boolean getPasswordChangeClaim(String token) {
         return Objects.requireNonNull(getClaimsFromToken(token)
                 .get(PASSWORD_CHANGE_REQUIRED_CLAIM, Boolean.class));
-    }
-
-    public long getExpirationSecond() {
-        return jwtProperties.expirationTimeInMs() / 1000;
     }
 
     private Claims getClaimsFromToken(String token) {

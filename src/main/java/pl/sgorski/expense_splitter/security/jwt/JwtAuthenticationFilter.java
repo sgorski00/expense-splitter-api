@@ -28,7 +28,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var header = request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER);
         var token = AuthorizationTokenUtils.getTokenFromHeader(header);
-        if (token == null || UuidUtils.isValidUuid(token) || !jwtService.isTokenValid(token)) {
+        if (token == null || UuidUtils.isValidUuid(token) || jwtService.isTokenInvalid(token)) {
             filterChain.doFilter(request, response);
             return;
         }
