@@ -226,7 +226,7 @@
 				<configuration>
 					<excludes>
 						<exclude>**/config/**</exclude>
-						<exclude>**/exception/**</exclude>
+						<exclude>**/exceptions/**</exclude>
 						<exclude>**/dto/**</exclude>
 						<exclude>**/mapper/**</exclude>
 						<exclude>**/*Properties.*</exclude>
