@@ -16,7 +16,7 @@ import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
-import pl.sgorski.expense_splitter.features.auth.local.utils.RefreshTokenExtractor;
+import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenExtractor;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;

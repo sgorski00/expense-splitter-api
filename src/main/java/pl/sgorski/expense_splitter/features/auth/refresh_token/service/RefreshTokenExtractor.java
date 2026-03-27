@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.features.auth.local.utils;
+package pl.sgorski.expense_splitter.features.auth.refresh_token.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
