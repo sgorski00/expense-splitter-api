@@ -22,12 +22,11 @@ public class OAuth2AccountLinkService implements OAuth2LoginService {
 
     public OAuth2User handle(OAuth2LoginContext context) {
         var userInfo = context.userInfo();
-        var provider = context.provider();
         var userId = context.linkUserId();
 
         log.debug("Entering OAuth2 account link mode");
         if (userIdentityService.isUserIdentityPresent(userInfo.getProviderId(), userInfo.getProvider())) {
-            log.debug("Someone is using account: {} [{}] already.", userInfo.getEmail(), provider.name());
+            log.debug("Someone is using account: {} [{}] already.", userInfo.getEmail(), userInfo.getProvider().name());
             throw new AccountLinkingException("Account is already linked to another user");
         }
         if (userId == null) {
@@ -35,7 +34,7 @@ public class OAuth2AccountLinkService implements OAuth2LoginService {
             throw new AccountLinkingException("User id is required to link an account");
         }
         var user = userService.getUserWithIdentities(userId);
-        log.debug("Linking new identity {} to existing user {}", provider.name(), user.getEmail());
+        log.debug("Linking new identity {} to existing user {}", userInfo.getProvider().name(), user.getEmail());
         var identity = authMapper.toIdentity(userInfo);
         user.addIdentity(identity);
         userService.save(user);

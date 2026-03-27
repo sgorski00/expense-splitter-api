@@ -23,7 +23,6 @@ public class OAuth2CommonLoginService implements OAuth2LoginService {
 
     public OAuth2User handle(OAuth2LoginContext context) {
         var userInfo = context.userInfo();
-        var provider = context.provider();
         var oauthUser = context.oauthUser();
 
         log.debug("Entering OAuth2 login/register mode");
@@ -41,7 +40,7 @@ public class OAuth2CommonLoginService implements OAuth2LoginService {
         user.setEmail(userInfo.getEmail());
         user.setFirstName(userInfo.getFirstName());
         user.setLastName(userInfo.getLastName());
-        log.debug("New user {} created. Linking identity {}...", user.getEmail(), provider.name());
+        log.debug("New user {} created. Linking identity {}...", user.getEmail(), userInfo.getProvider().name());
         var identity = authMapper.toIdentity(userInfo);
         user.addIdentity(identity);
         userService.save(user);

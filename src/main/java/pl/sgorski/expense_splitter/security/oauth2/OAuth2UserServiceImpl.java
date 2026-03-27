@@ -36,7 +36,6 @@ public final class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
         var session = getSession();
         var context = new OAuth2LoginContext(
                 oauthUser,
-                provider,
                 OAuth2UserInfoFactory.create(provider, oauthUser.getAttributes()),
                 oAuth2SessionService.isLinkMode(session),
                 oAuth2SessionService.getOAuthLinkUserId(session)
