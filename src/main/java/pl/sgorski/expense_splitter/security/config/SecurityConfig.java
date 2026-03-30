@@ -1,6 +1,5 @@
 package pl.sgorski.expense_splitter.security.config;
 
-import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,11 +20,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.sgorski.expense_splitter.security.jwt.JwtAuthenticationFilter;
-import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
 import pl.sgorski.expense_splitter.security.jwt.PasswordChangeRequiredFilter;
-
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 
 @Configuration
 @RequiredArgsConstructor
@@ -39,8 +34,6 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AuthenticationSuccessHandler oauth2SuccessHandler;
     private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
-    private final JwtProperties jwtProperties;
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -75,10 +68,5 @@ public class SecurityConfig {
         var authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authProvider);
-    }
-
-    @Bean("jwtSecretKey")
-    public SecretKey secretKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.secretKey().getBytes(StandardCharsets.UTF_8));
     }
 }

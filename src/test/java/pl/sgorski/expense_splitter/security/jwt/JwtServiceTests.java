@@ -17,8 +17,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtServiceTests {
@@ -42,6 +41,7 @@ public class JwtServiceTests {
         testUser.setId(UUID.randomUUID());
         testUser.setEmail("testuser@example.com");
         testUser.setPasswordForChange(false);
+        testUser.setRole(Role.USER);
     }
 
     @Test
