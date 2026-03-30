@@ -16,6 +16,7 @@
 
 	<properties>
 		<spring.profiles.active>default</spring.profiles.active>
+		<api.port>8080</api.port>
 		<java.version>25</java.version>
 		<openapi.version>3.0.2</openapi.version>
 		<jjwt.version>0.13.0</jjwt.version>
@@ -199,7 +200,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<apiDocsUrl>http://localhost:8080/api/v3/api-docs</apiDocsUrl>
+							<apiDocsUrl>http://localhost:${api.port}/api/v3/api-docs</apiDocsUrl>
 						</configuration>
 					</execution>
 				</executions>
@@ -244,6 +245,7 @@
 			</activation>
 			<properties>
 				<spring.profiles.active>test</spring.profiles.active>
+				<api.port>8089</api.port>
 			</properties>
 		</profile>
 	</profiles>
