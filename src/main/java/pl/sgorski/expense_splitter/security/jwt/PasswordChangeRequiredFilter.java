@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import pl.sgorski.expense_splitter.exceptions.PasswordChangeRequiredException;
+import pl.sgorski.expense_splitter.security.service.WhitelistService;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;
 
@@ -31,18 +32,13 @@ public final class PasswordChangeRequiredFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final HandlerExceptionResolver resolver;
+    private final WhitelistService whitelistService;
 
-    public PasswordChangeRequiredFilter(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver, JwtService jwtService) {
+    public PasswordChangeRequiredFilter(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver, JwtService jwtService, WhitelistService whitelistService) {
         this.jwtService = jwtService;
         this.resolver = resolver;
+        this.whitelistService = whitelistService;
     }
-
-    // Endpoints that are allowed when password change is required
-    private static final Set<String> WHITELISTED_PATHS = Set.of(
-            "/api/profile/password",
-            "/api/auth/logout",
-            "/api/auth/refresh"
-    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -55,13 +51,10 @@ public final class PasswordChangeRequiredFilter extends OncePerRequestFilter {
         }
 
         try {
-            var isPasswordChangeRequired = jwtService.getPasswordChangeClaim(Objects.requireNonNull(token));
+            var isPasswordChangeRequired = jwtService.getPasswordChangeClaim(token);
             if (isPasswordChangeRequired) {
                 var requestPath = request.getRequestURI();
-                boolean isWhitelisted = WHITELISTED_PATHS.stream()
-                        .anyMatch(requestPath::equals);
-
-                if (!isWhitelisted) {
+                if (!whitelistService.isWhitelisted(requestPath)) {
                     resolver.resolveException(request, response, null, new PasswordChangeRequiredException());
                     return;
                 }

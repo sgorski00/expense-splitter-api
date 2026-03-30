@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.service;
+package pl.sgorski.expense_splitter.security.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
