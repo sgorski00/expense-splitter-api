@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/sgorski00/expense-splitter-api/graph/badge.svg?token=364NPEHH4V)](https://codecov.io/gh/sgorski00/expense-splitter-api)
+
 # expense-splitter API
 
 API do wieloplatformowej aplikacji, której zadaniem jest dzielenie, zarządzanie i kontrolowanie wydatków w grupie.
