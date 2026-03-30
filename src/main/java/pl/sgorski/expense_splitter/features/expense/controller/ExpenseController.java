@@ -16,11 +16,13 @@ import pl.sgorski.expense_splitter.features.expense.dto.request.UpdateExpenseReq
 import pl.sgorski.expense_splitter.features.expense.dto.response.DetailedExpenseResponse;
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseParticipantResponse;
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseResponse;
+import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/expenses", version = "1.0.0")
@@ -41,7 +43,7 @@ public final class ExpenseController {
     public ResponseEntity<Page<ExpenseResponse>> getMyExpenses(
             Authentication authentication
     ) {
-        var result = new PageImpl<>(List.of(new ExpenseResponse(1L, "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), Instant.now()))); // TODO: implement
+        var result = new PageImpl<>(List.of(new ExpenseResponse(UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), Instant.now()))); // TODO: implement
         return ResponseEntity.ok(result);
     }
 
@@ -60,9 +62,9 @@ public final class ExpenseController {
             @RequestBody @Valid CreateExpenseRequest request,
             Authentication authentication
     ) {
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
         var participants = List.of(new ExpenseParticipantResponse(user, BigDecimal.valueOf(333.33)));
-        var result = new DetailedExpenseResponse(1L, "Expense no 1", "Description of this expense", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), participants, Instant.now(), Instant.now(), Instant.now(), null); // TODO: implement
+        var result = new DetailedExpenseResponse(UUID.randomUUID(), "Expense no 1", "Description of this expense", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), participants, Instant.now(), Instant.now(), Instant.now(), null); // TODO: implement
         return ResponseEntity.ok(result);
     }
 
@@ -78,12 +80,12 @@ public final class ExpenseController {
             )
     })
     public ResponseEntity<DetailedExpenseResponse> getExpense(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Authentication authentication
     ) {
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
         var participants = List.of(new ExpenseParticipantResponse(user, BigDecimal.valueOf(333.33)));
-        var result = new DetailedExpenseResponse(1L, "Expense no 1", "Description of this expense", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), participants, Instant.now(), Instant.now(), Instant.now(), null); // TODO: implement
+        var result = new DetailedExpenseResponse(UUID.randomUUID(), "Expense no 1", "Description of this expense", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), participants, Instant.now(), Instant.now(), Instant.now(), null); // TODO: implement
         return ResponseEntity.ok(result);
     }
 
@@ -99,14 +101,14 @@ public final class ExpenseController {
             )
     })
     public ResponseEntity<DetailedExpenseResponse> updateExpense(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody @Valid UpdateExpenseRequest request,
             Authentication authentication
     ) {
         // only creator of the expense can update it
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
         var participants = List.of(new ExpenseParticipantResponse(user, BigDecimal.valueOf(333.33)));
-        var result = new DetailedExpenseResponse(1L, "Expense no 1", "Description of this expense", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), participants, Instant.now(), Instant.now(), Instant.now(), null); // TODO: implement
+        var result = new DetailedExpenseResponse(UUID.randomUUID(), "Expense no 1", "Description of this expense", BigDecimal.valueOf(999.99), BigDecimal.valueOf(333.33), participants, Instant.now(), Instant.now(), Instant.now(), null); // TODO: implement
         return ResponseEntity.ok(result);
     }
 
@@ -121,8 +123,8 @@ public final class ExpenseController {
                     description = "Expense deleted successfully."
             )
     })
-    public ResponseEntity<DetailedExpenseResponse> deleteExpense(
-            @PathVariable Long id,
+    public ResponseEntity<Void> deleteExpense(
+            @PathVariable UUID id,
             Authentication authentication
     ) {
         // only creator of the expense can delete it
@@ -141,11 +143,11 @@ public final class ExpenseController {
             )
     })
     public ResponseEntity<Page<ExpenseParticipantResponse>> getExpenseParticipants(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             Pageable pageable,
             Authentication authentication
     ) {
-        var user = new UserResponse(1L, "user@example.com", "USER", Instant.now());
+        var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
         var result = new PageImpl<>(List.of(new ExpenseParticipantResponse(user, BigDecimal.valueOf(333.33))));
         return ResponseEntity.ok(result);
     }

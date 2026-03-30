@@ -16,3 +16,9 @@ rebuild:
 
 logs:
 	docker-compose logs -f
+
+test:
+	mvn clean verify -Ptest
+
+psql:
+	docker-compose exec es-postgres psql -U postgres -d es-db

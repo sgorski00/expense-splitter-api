@@ -2,12 +2,14 @@ package pl.sgorski.expense_splitter.features.user.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
+import pl.sgorski.expense_splitter.validator.password.ValidPassword;
 
-//TODO: validate password
 @Schema(
         name = "Password Change Request",
         description = "Payload used to change user password."
 )
+@ValidPassword
 public record PasswordChangeRequest(
         @Schema(
                 description = "Current password for authentication.",
@@ -24,5 +26,5 @@ public record PasswordChangeRequest(
                 example = "NewP@ssw0rd!"
         )
         @NotBlank String repeatNewPassword
-){}
+) implements PasswordChange {}
 
