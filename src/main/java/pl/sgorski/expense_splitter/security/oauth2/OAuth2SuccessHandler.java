@@ -35,7 +35,7 @@ import java.util.Objects;
 public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserIdentityService identityService;
-    private final TokenResponseEntityCreator tokensResponseEntityCreator;
+    private final TokenResponseEntityCreator tokenResponseEntityCreator;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -48,7 +48,7 @@ public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler 
         try {
             var identity = identityService.findIdentity(userInfo.getProvider(), userInfo.getProviderId());
             var user = identity.getUser();
-            var tokenResponse = tokensResponseEntityCreator.generate(user);
+            var tokenResponse = tokenResponseEntityCreator.generate(user);
 
             setCookies(response, tokenResponse.getHeaders());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -63,7 +63,7 @@ public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler 
         }
     }
 
-    private static void setCookies(HttpServletResponse response, HttpHeaders responseHeaders) {
+    private void setCookies(HttpServletResponse response, HttpHeaders responseHeaders) {
         responseHeaders
                 .getValuesAsList(HttpHeaders.SET_COOKIE)
                 .forEach(cookie -> response.addHeader(HttpHeaders.SET_COOKIE, cookie));

@@ -29,7 +29,7 @@ public final class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         log.debug("Loading user from OAuth2 provider");
-        var oauthUser = super.loadUser(userRequest);
+        var oauthUser = loadUserFromProvider(userRequest);
         var providerStr = userRequest.getClientRegistration().getRegistrationId();
         var provider = AuthProvider.fromString(providerStr);
 
@@ -47,6 +47,10 @@ public final class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
             return oAuth2AccountLinkService.handle(context);
         }
         return oAuth2CommonLoginService.handle(context);
+    }
+
+    public OAuth2User loadUserFromProvider(OAuth2UserRequest userRequest) {
+        return super.loadUser(userRequest);
     }
 
     private HttpSession getSession() {
