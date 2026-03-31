@@ -233,6 +233,27 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(OAuth2InvalidAttributesException.class)
+    @ApiResponse(
+      responseCode = "400",
+      description = "Invalid or missing OAuth2 attributes from provider.",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(
+          implementation = ProblemDetail.class,
+          description = "RFC 7807 Problem Details response indicating invalid OAuth2 provider data."
+        )
+      )
+    )
+    public ProblemDetail handleOAuth2InvalidAttributesException(OAuth2InvalidAttributesException ex) {
+        var status = HttpStatus.BAD_REQUEST;
+        var problemDetail = ProblemDetail.forStatusAndDetail(status,
+          "Invalid data received from OAuth2 provider. Please try logging in again.");
+        problemDetail.setTitle("Invalid OAuth2 Attributes");
+        log.warn("OAuth2 invalid attributes: {}", ex.getMessage(), ex);
+        return problemDetail;
+    }
+
     /**
      * Handles InvalidPasswordException.
      * <br>
