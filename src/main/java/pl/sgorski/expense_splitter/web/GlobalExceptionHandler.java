@@ -10,6 +10,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -384,6 +385,32 @@ public class GlobalExceptionHandler {
         var problemDetail = ProblemDetail.forStatusAndDetail(status, message);
         problemDetail.setTitle("Data Integrity Violation");
         log.error("Database constraint violation: {}", ex.getMessage());
+        return problemDetail;
+    }
+
+    /**
+     * Handles MissingServletRequestParameterException.
+     * <br>
+     * Thrown when required request parameters are missing from the request.
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ApiResponse(
+            responseCode = "400",
+            description = "Required request parameter is missing.",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = ProblemDetail.class,
+                            description = "RFC 7807 Problem Details response with 400 Bad Request status."
+                    )
+            )
+    )
+    public ProblemDetail handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        var status = HttpStatus.BAD_REQUEST;
+        var message = String.format("Required parameter '%s' is missing.", ex.getParameterName());
+        var problemDetail = ProblemDetail.forStatusAndDetail(status, message);
+        problemDetail.setTitle("Missing Request Parameter");
+        log.warn("Missing request parameter: {}", ex.getParameterName());
         return problemDetail;
     }
 
