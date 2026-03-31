@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.features.user.friendship.service;
+package pl.sgorski.expense_splitter.features.friendship.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,6 @@ import pl.sgorski.expense_splitter.exceptions.FriendshipNotFoundException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
 import pl.sgorski.expense_splitter.features.friendship.repository.FriendshipRepository;
-import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
