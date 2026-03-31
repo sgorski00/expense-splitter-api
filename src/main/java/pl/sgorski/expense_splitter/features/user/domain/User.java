@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.sgorski.expense_splitter.exceptions.DuplicateIdentityException;
+import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 
 import java.time.Instant;
 import java.util.*;
@@ -49,6 +50,12 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<UserIdentity> identities = new HashSet<>();
+
+    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Friendship> sentFriendshipRequests = new HashSet<>();
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Friendship> receivedFriendshipRequests = new HashSet<>();
 
     @CreationTimestamp
     private Instant createdAt;
