@@ -159,6 +159,31 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles FriendshipStatusChangeException.
+     * <br>
+     * Thrown when attempting to update friendship status that is not PENDING.
+     */
+    @ExceptionHandler(FriendshipStatusChangeException.class)
+    @ApiResponse(
+            responseCode = "409",
+            description = "Friendship is not in pending status.",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = ProblemDetail.class,
+                            description = "RFC 7807 Problem Details response with 409 Conflict status."
+                    )
+            )
+    )
+    public ProblemDetail handleFriendshipStatusChangeException(FriendshipStatusChangeException ex) {
+        var status = HttpStatus.CONFLICT;
+        var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+        problemDetail.setTitle("Cannot Update Friendship Status");
+        log.warn("Illegal friendship status update request: {}", ex.getMessage());
+        return problemDetail;
+    }
+
+    /**
      * Handles AccountLinkingException.
      * <br>
      * Thrown when account linking operation fails (already linked or missing user ID).
