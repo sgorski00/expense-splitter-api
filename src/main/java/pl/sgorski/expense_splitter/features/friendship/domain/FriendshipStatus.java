@@ -3,7 +3,7 @@ package pl.sgorski.expense_splitter.features.friendship.domain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import pl.sgorski.expense_splitter.exceptions.FriendhipStatusNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.FriendshipStatusNotFoundException;
 
 import java.util.Arrays;
 
@@ -21,6 +21,6 @@ public enum FriendshipStatus {
         return Arrays.stream(values())
                 .filter(status -> status.name().equalsIgnoreCase(value.trim()))
                 .findFirst()
-                .orElseThrow(() -> new FriendhipStatusNotFoundException(value));
+                .orElseThrow(() -> new FriendshipStatusNotFoundException(value));
     }
 }

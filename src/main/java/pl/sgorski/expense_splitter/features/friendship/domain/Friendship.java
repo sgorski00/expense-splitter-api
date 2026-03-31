@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 import java.time.Instant;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE friendships SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class Friendship {
 
     @Id
@@ -41,4 +44,22 @@ public class Friendship {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Nullable
+    private Instant deletedAt;
+
+    public void changeStatus(FriendshipStatus status) {
+        if(this.status == FriendshipStatus.ACCEPTED || this.status == FriendshipStatus.REJECTED) {
+            throw new IllegalStateException("Cannot change status of this friendship");
+        }
+        setStatus(status);
+    }
+
+    private void setStatus(FriendshipStatus status) {
+        this.status = status;
+    }
+
+    public void delete() {
+        this.deletedAt = Instant.now();
+    }
 }

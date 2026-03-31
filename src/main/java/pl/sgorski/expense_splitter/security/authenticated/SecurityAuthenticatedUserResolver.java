@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
+import pl.sgorski.expense_splitter.features.user.service.UserService;
 
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import java.util.UUID;
 public final class SecurityAuthenticatedUserResolver implements AuthenticatedUserResolver {
 
     private final UserIdentityService identityService;
+    private final UserService userService;
 
     @Override
     public UUID requireUserId(Authentication authentication) {
@@ -31,5 +33,11 @@ public final class SecurityAuthenticatedUserResolver implements AuthenticatedUse
         }
 
         throw new IllegalStateException("Unsupported authentication principal");
+    }
+
+    @Override
+    public User requireUser(Authentication authentication) {
+        var userId = requireUserId(authentication);
+        return userService.getUser(userId);
     }
 }

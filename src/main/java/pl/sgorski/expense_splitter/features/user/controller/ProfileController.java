@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,8 +20,7 @@ import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntity
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
-import pl.sgorski.expense_splitter.features.user.domain.Role;
-import pl.sgorski.expense_splitter.features.user.domain.User;
+import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
 import pl.sgorski.expense_splitter.features.user.dto.request.PasswordChangeRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.PasswordSetRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.UpdateUserRequest;
@@ -32,10 +31,7 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
 import pl.sgorski.expense_splitter.security.oauth2.session.OAuth2SessionService;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/profile", version = "1.0.0")
@@ -50,6 +46,7 @@ public final class ProfileController {
     private final LocalAuthService localAuthService;
     private final RefreshTokenService refreshTokenService;
     private final TokenResponseEntityCreator tokensResponseEntityCreator;
+    private final FriendshipService friendshipService;
 
     @GetMapping
     @Operation(
@@ -65,7 +62,7 @@ public final class ProfileController {
     public ResponseEntity<DetailedUserResponse> getMyProfile(
             Authentication authentication
     ) {
-        var user = fetchUser(authentication);
+        var user = authenticatedUserResolver.requireUser(authentication);
         var result = userMapper.toDetailedResponse(user);
         return ResponseEntity.ok(result);
     }
@@ -85,7 +82,7 @@ public final class ProfileController {
             @RequestBody @Valid UpdateUserRequest request,
             Authentication authentication
     ) {
-        var user = fetchUser(authentication);
+        var user = authenticatedUserResolver.requireUser(authentication);
         userMapper.updateUser(request, user);
         user = userService.save(user);
         var result = userMapper.toDetailedResponse(user);
@@ -106,7 +103,7 @@ public final class ProfileController {
     public ResponseEntity<Void> deleteAccount(
             Authentication authentication
     ) {
-        var user = fetchUser(authentication);
+        var user = authenticatedUserResolver.requireUser(authentication);
         userService.deleteUser(user);
         return ResponseEntity.noContent().build();
     }
@@ -126,7 +123,7 @@ public final class ProfileController {
             @RequestBody @Valid PasswordSetRequest request,
             Authentication authentication
     ) {
-        var user = fetchUser(authentication);
+        var user = authenticatedUserResolver.requireUser(authentication);
         localAuthService.setLocalPassword(user, request.newPassword());
         refreshTokenService.revokeAllUserTokens(user.getId());
         return tokensResponseEntityCreator.generate(user);
@@ -147,7 +144,7 @@ public final class ProfileController {
             @RequestBody @Valid PasswordChangeRequest request,
             Authentication authentication
     ) {
-        var user = fetchUser(authentication);
+        var user = authenticatedUserResolver.requireUser(authentication);
         localAuthService.changePassword(user, request.oldPassword(), request.newPassword());
         refreshTokenService.revokeAllUserTokens(user.getId());
         return tokensResponseEntityCreator.generate(user);
@@ -193,15 +190,12 @@ public final class ProfileController {
             )
     })
     public ResponseEntity<Page<UserResponse>> getMyFriends(
+            Pageable pageable,
             Authentication authentication
     ) {
-        var user = fetchUser(authentication);
-        var result = new PageImpl<>(List.of(new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now()))); // TODO: implement
+        var user = authenticatedUserResolver.requireUser(authentication);
+        var result = friendshipService.getFriends(user, pageable)
+                .map(userMapper::toResponse);
         return ResponseEntity.ok(result);
-    }
-
-    private User fetchUser(Authentication authentication) {
-        var userId = authenticatedUserResolver.requireUserId(authentication);
-        return userService.getUser(userId);
     }
 }

@@ -5,26 +5,31 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
 import pl.sgorski.expense_splitter.features.friendship.dto.request.FriendshipRequest;
 import pl.sgorski.expense_splitter.features.friendship.dto.response.FriendshipResponse;
-import pl.sgorski.expense_splitter.features.user.domain.Role;
-import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
+import pl.sgorski.expense_splitter.features.friendship.mapper.FriendshipMapper;
+import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
+import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
 
-import java.net.URI;
-import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/friendships", version = "1.0.0")
 @Tag(name = "Friendships", description = "Endpoints for friendship management and friend requests.")
+@RequiredArgsConstructor
 public final class FriendshipController {
+
+    private final FriendshipMapper friendshipMapper;
+    private final FriendshipService friendshipService;
+    private final AuthenticatedUserResolver authenticatedUserResolver;
 
     @GetMapping
     @Operation(
@@ -39,13 +44,13 @@ public final class FriendshipController {
     })
     public ResponseEntity<Page<FriendshipResponse>> getMyFriendships(
             Pageable pageable,
+            @RequestParam FriendshipStatus status,
             Authentication authentication
     ) {
-        // TODO: implement
-        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
-        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
-        var result = new PageImpl<>(List.of(new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null)));
-        return ResponseEntity.ok(result);
+        var user = authenticatedUserResolver.requireUser(authentication);
+        var friendships = friendshipService.getFriendshipsByStatus(user, status, pageable)
+                .map(friendshipMapper::toResponse);
+        return ResponseEntity.ok(friendships);
     }
 
     @PostMapping
@@ -63,8 +68,13 @@ public final class FriendshipController {
             @RequestBody @Valid FriendshipRequest request,
             Authentication authentication
     ) {
-        var path = URI.create("/path/to/friendship"); // TODO: implement
-        return ResponseEntity.created(path).build();
+        var user = authenticatedUserResolver.requireUser(authentication);
+        var command = friendshipMapper.toCommand(request);
+        var friendship = friendshipService.createFriendshipRequest(user, command);
+        var response = friendshipMapper.toResponse(friendship);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @GetMapping("/{id}")
@@ -82,11 +92,10 @@ public final class FriendshipController {
             @PathVariable UUID id,
             Authentication authentication
     ) {
-        // TODO: implement
-        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
-        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
-        var result = new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
-        return ResponseEntity.ok(result);
+        var user = authenticatedUserResolver.requireUser(authentication);
+        var friendship = friendshipService.getFriendshipForUser(id, user);
+        var response = friendshipMapper.toResponse(friendship);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/accept")
@@ -104,10 +113,9 @@ public final class FriendshipController {
             @PathVariable UUID id,
             Authentication authentication
     ) {
-        // TODO: implement
-        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
-        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
-        var result = new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
+        var user = authenticatedUserResolver.requireUser(authentication);
+        var friendship = friendshipService.updateFriendshipStatus(id, user, FriendshipStatus.ACCEPTED);
+        var result = friendshipMapper.toResponse(friendship);
         return ResponseEntity.ok(result);
     }
 
@@ -126,10 +134,9 @@ public final class FriendshipController {
             @PathVariable UUID id,
             Authentication authentication
     ) {
-        // TODO: implement
-        var requester = new UserResponse(UUID.randomUUID(), "user1@example.com", Role.USER, Instant.now());
-        var recipient = new UserResponse(UUID.randomUUID(), "user2@example.com", Role.USER, Instant.now());
-        var result = new FriendshipResponse(UUID.randomUUID(), requester, recipient, "PENDING", Instant.now(), Instant.now(), null);
+        var user = authenticatedUserResolver.requireUser(authentication);
+        var friendship = friendshipService.updateFriendshipStatus(id, user, FriendshipStatus.REJECTED);
+        var result = friendshipMapper.toResponse(friendship);
         return ResponseEntity.ok(result);
     }
 
@@ -148,7 +155,8 @@ public final class FriendshipController {
             @PathVariable UUID id,
             Authentication authentication
     ) {
-        // TODO: implement
+        var user = authenticatedUserResolver.requireUser(authentication);
+        friendshipService.deleteFriendship(id, user);
         return ResponseEntity.noContent().build();
     }
 }
