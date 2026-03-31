@@ -440,6 +440,31 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles InvalidFriendshipOperationException.
+     * <br>
+     * Thrown when an invalid friendship operation is attempted (e.g., self-request).
+     */
+    @ExceptionHandler(InvalidFriendshipOperationException.class)
+    @ApiResponse(
+            responseCode = "400",
+            description = "Invalid friendship operation.",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = ProblemDetail.class,
+                            description = "RFC 7807 Problem Details response with 400 Bad Request status."
+                    )
+            )
+    )
+    public ProblemDetail handleInvalidFriendshipOperationException(InvalidFriendshipOperationException ex) {
+        var status = HttpStatus.BAD_REQUEST;
+        var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+        problemDetail.setTitle("Invalid Friendship Operation");
+        log.warn("Invalid friendship operation: {}", ex.getMessage());
+        return problemDetail;
+    }
+
+    /**
      * Fallback handler for all unhandled exceptions.
      * <br>
      * Provides a generic 500 response for unexpected errors.

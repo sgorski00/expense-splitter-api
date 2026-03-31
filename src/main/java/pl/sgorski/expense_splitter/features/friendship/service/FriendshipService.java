@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.exceptions.FriendshipNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.InvalidFriendshipOperationException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
 import pl.sgorski.expense_splitter.features.friendship.dto.command.CreateFriendshipCommand;
@@ -51,6 +52,9 @@ public class FriendshipService {
     public Friendship updateFriendshipStatus(UUID id, User user, FriendshipStatus status) {
         log.debug("Updating friendship {} to status: {} by user: {}", id, status, user.getId());
         var friendship = getFriendshipForUser(id, user);
+        if(!friendship.getRecipient().equals(user)) {
+            throw new InvalidFriendshipOperationException("Only the recipient can update the friendship status.");
+        }
         friendship.changeStatus(status);
         var updated = friendshipRepository.save(friendship);
         log.info("Friendship {} status updated to {}", id, status);
@@ -60,6 +64,10 @@ public class FriendshipService {
     @Transactional
     public Friendship createFriendshipRequest(User requester, CreateFriendshipCommand command) {
         log.debug("Creating friendship request from user: {} to user: {}", requester.getId(), command.recipientId());
+        if(requester.getId().equals(command.recipientId())) {
+            log.warn("User {} cannot send friend request to themselves.", requester.getId());
+            throw new InvalidFriendshipOperationException("Cannot send friend request to yourself.");
+        }
         var recipient = userService.getUser(command.recipientId());
         var friendship = new Friendship();
         friendship.setRequester(requester);
