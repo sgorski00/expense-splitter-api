@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.authenticated;
+package pl.sgorski.expense_splitter.security.authenticated.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -8,6 +8,7 @@ import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
+import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
 
 import java.util.UUID;
 
