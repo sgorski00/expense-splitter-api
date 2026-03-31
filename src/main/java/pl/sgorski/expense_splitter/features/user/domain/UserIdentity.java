@@ -18,13 +18,14 @@ import java.util.UUID;
         }
 )
 @Data
-@EqualsAndHashCode(exclude = "user")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class UserIdentity {
 
     @Id
     @GeneratedValue
     @UuidGenerator
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)

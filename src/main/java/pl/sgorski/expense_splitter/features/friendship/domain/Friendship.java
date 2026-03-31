@@ -15,12 +15,13 @@ import java.util.UUID;
 @Entity
 @Table(name = "friendships")
 @Data
-@EqualsAndHashCode(exclude = {"recipient", "requester"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class Friendship {
 
     @Id
     @UuidGenerator
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)

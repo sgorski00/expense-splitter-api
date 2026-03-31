@@ -22,7 +22,7 @@ import java.util.*;
 @Table(name = "users")
 @Data
 @ToString(exclude = {"passwordHash", "identities"})
-@EqualsAndHashCode(exclude = "identities")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class User implements UserDetails {
@@ -30,6 +30,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     @UuidGenerator
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @Column(nullable = false)
