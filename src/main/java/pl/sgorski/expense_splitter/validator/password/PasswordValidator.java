@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintValidatorContext;
 import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
 
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class PasswordValidator implements ConstraintValidator<ValidPassword, PasswordChange> {
