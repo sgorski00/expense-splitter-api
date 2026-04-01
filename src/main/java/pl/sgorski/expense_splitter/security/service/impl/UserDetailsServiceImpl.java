@@ -15,6 +15,10 @@ public final class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userService.getUser(email);
+        try {
+            return userService.getUser(email);
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("User not found with email: " + email, e);
+        }
     }
 }
