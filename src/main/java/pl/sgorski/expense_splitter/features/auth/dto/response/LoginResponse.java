@@ -4,12 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-/**
- * Response returned after successful authentication (login or refresh).
- * <br>
- * Tokens are provided in response body for mobile/desktop clients.
- * Web clients should prefer httpOnly cookies (Set-Cookie headers).
- */
 @Schema(
         name = "Login Response",
         description = "Response returned after successful authentication. Contains JWT access token and refresh token."

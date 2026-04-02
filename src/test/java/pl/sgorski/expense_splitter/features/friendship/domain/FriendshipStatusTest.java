@@ -1,7 +1,7 @@
 package pl.sgorski.expense_splitter.features.friendship.domain;
 
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.FriendshipStatusNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipStatusNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

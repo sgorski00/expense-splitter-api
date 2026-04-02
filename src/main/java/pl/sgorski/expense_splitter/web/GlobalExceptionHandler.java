@@ -16,24 +16,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pl.sgorski.expense_splitter.exceptions.*;
+import pl.sgorski.expense_splitter.exceptions.not_found.NotFoundException;
 
-/**
- * Global exception handler for REST API.
- * <br>
- * Handles custom application exceptions, Spring Security exceptions,
- * and common Spring/Java exceptions.
- * <br>
- * All exceptions are transformed to RFC 7807 Problem Details format.
- */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-    /**
-     * Handles NotFoundException and its subclasses.
-     * <br>
-     * Thrown when a requested resource does not exist.
-     */
     @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})
     @ApiResponse(
             responseCode = "404",
@@ -55,11 +43,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles UserAlreadyExistsException.
-     * <br>
-     * Thrown when attempting to create a user with an email that already exists.
-     */
     @ExceptionHandler(UserAlreadyExistsException.class)
     @ApiResponse(
             responseCode = "409",
@@ -80,13 +63,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles PasswordChangeRequiredException.
-     * <br>
-     * Thrown when a user must change their password before accessing resources.
-     * <br>
-     * The user can only access endpoints related to password change.
-     */
     @ExceptionHandler(PasswordChangeRequiredException.class)
     @ApiResponse(
             responseCode = "403",
@@ -108,11 +84,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles AccountLinkRequiredException.
-     * <br>
-     * Thrown when an OAuth2 user needs to link their account to proceed.
-     */
     @ExceptionHandler(AccountLinkRequiredException.class)
     @ApiResponse(
             responseCode = "403",
@@ -133,11 +104,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles DuplicateIdentityException.
-     * <br>
-     * Thrown when attempting to add a duplicate identity to a user.
-     */
     @ExceptionHandler(DuplicateIdentityException.class)
     @ApiResponse(
             responseCode = "409",
@@ -158,11 +124,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles FriendshipStatusChangeException.
-     * <br>
-     * Thrown when attempting to update friendship status that is not PENDING.
-     */
     @ExceptionHandler(FriendshipStatusChangeException.class)
     @ApiResponse(
             responseCode = "409",
@@ -183,11 +144,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles AccountLinkingException.
-     * <br>
-     * Thrown when account linking operation fails (already linked or missing user ID).
-     */
     @ExceptionHandler(AccountLinkingException.class)
     @ApiResponse(
             responseCode = "400",
@@ -208,11 +164,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles PasswordOperationException.
-     * <br>
-     * Thrown when password operation fails (already has password, missing password, etc.).
-     */
     @ExceptionHandler(PasswordOperationException.class)
     @ApiResponse(
             responseCode = "400",
@@ -254,11 +205,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles InvalidPasswordException.
-     * <br>
-     * Thrown when provided password is incorrect during change operation.
-     */
     @ExceptionHandler(InvalidPasswordException.class)
     @ApiResponse(
             responseCode = "401",
@@ -279,12 +225,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles RefreshTokenValidationException.
-     * <br>
-     * Thrown when refresh token is expired or revoked.
-     * User must re-authenticate to obtain a new refresh token.
-     */
     @ExceptionHandler(RefreshTokenValidationException.class)
     @ApiResponse(
             responseCode = "401",
@@ -326,11 +266,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles AccessDeniedException.
-     * <br>
-     * Thrown when a user lacks necessary permissions/authorities.
-     */
     @ExceptionHandler(AccessDeniedException.class)
     @ApiResponse(
             responseCode = "403",
@@ -352,11 +287,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles MethodArgumentNotValidException.
-     * <br>
-     * Thrown when request body validation fails (invalid DTOs).
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ApiResponse(
             responseCode = "400",
@@ -378,11 +308,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles MethodArgumentTypeMismatchException.
-     * <br>
-     * Thrown when request parameters have incorrect types.
-     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ApiResponse(
             responseCode = "400",
@@ -408,11 +333,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles DataIntegrityViolationException.
-     * <br>
-     * Thrown when database constraint violations occur (unique constraint, foreign key, etc.).
-     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ApiResponse(
             responseCode = "409",
@@ -434,11 +354,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles MissingServletRequestParameterException.
-     * <br>
-     * Thrown when required request parameters are missing from the request.
-     */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ApiResponse(
             responseCode = "400",
@@ -460,11 +375,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Handles InvalidFriendshipOperationException.
-     * <br>
-     * Thrown when an invalid friendship operation is attempted (e.g., self-request).
-     */
     @ExceptionHandler(InvalidFriendshipOperationException.class)
     @ApiResponse(
             responseCode = "400",
@@ -485,11 +395,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Fallback handler for all unhandled exceptions.
-     * <br>
-     * Provides a generic 500 response for unexpected errors.
-     */
     @ExceptionHandler(Exception.class)
     @ApiResponse(
             responseCode = "500",
@@ -511,12 +416,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    /**
-     * Builds a concise validation error message from all field errors.
-     *
-     * @param ex the MethodArgumentNotValidException
-     * @return formatted error message
-     */
     private String buildValidationErrorMessage(MethodArgumentNotValidException ex) {
         var fieldErrors = ex.getBindingResult().getFieldErrors();
         if (fieldErrors.isEmpty()) {
@@ -528,14 +427,6 @@ public class GlobalExceptionHandler {
         return String.join("; ", errorMessages);
     }
 
-    /**
-     * Extracts a user-friendly error message from DataIntegrityViolationException.
-     * <br>
-     * Attempts to detect common constraint violations and provide specific messages.
-     *
-     * @param ex the DataIntegrityViolationException
-     * @return formatted error message
-     */
     private String extractDataIntegrityErrorMessage(DataIntegrityViolationException ex) {
         var cause = ex.getMessage() != null ? ex.getMessage().toLowerCase() : "";
 

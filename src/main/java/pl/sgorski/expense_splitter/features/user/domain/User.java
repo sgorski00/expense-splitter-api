@@ -21,7 +21,7 @@ import java.util.*;
 @Entity
 @Table(name = "users")
 @Data
-@ToString(exclude = {"passwordHash", "identities"})
+@ToString(exclude = {"passwordHash", "identities", "sentFriendshipRequests", "receivedFriendshipRequests"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import pl.sgorski.expense_splitter.exceptions.FriendshipNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipNotFoundException;
 import pl.sgorski.expense_splitter.exceptions.InvalidFriendshipOperationException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
@@ -27,7 +27,7 @@ public class FriendshipService {
 
     public Friendship getFriendshipForUser(UUID id, User user) {
         log.debug("Fetching friendship with id: {} for user: {}", id, user.getId());
-        var friendship = friendshipRepository.findById(id)
+        var friendship = friendshipRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new FriendshipNotFoundException(id));
 
         if(!friendship.getRequester().equals(user) && !friendship.getRecipient().equals(user)) {

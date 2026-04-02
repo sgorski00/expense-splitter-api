@@ -5,9 +5,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-/**
- * Helper class for managing HTTP response cookies (refresh tokens).
- */
 @Component
 public final class RefreshTokenCookieResponseHelper {
 
@@ -17,13 +14,6 @@ public final class RefreshTokenCookieResponseHelper {
     private static final boolean HTTP_ONLY = true;
     private static final boolean SECURE = true;
 
-    /**
-     * Creates a refresh token cookie with secure settings.
-     *
-     * @param tokenValue the token value
-     * @param maxAgeSec  maximum age in seconds
-     * @return configured ResponseCookie
-     */
     public ResponseCookie createRefreshTokenCookie(UUID tokenValue, long maxAgeSec) {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE_KEY, tokenValue.toString())
                 .httpOnly(HTTP_ONLY)
@@ -35,9 +25,7 @@ public final class RefreshTokenCookieResponseHelper {
     }
 
     /**
-     * Creates an empty refresh token cookie (for logout).
-     *
-     * @return configured ResponseCookie for clearing the cookie
+     * Creates an empty refresh token cookie that overrides the present one.
      */
     public ResponseCookie createClearRefreshTokenCookie() {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE_KEY, "")

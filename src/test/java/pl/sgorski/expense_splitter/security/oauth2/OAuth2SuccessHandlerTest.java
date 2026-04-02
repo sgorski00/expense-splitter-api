@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import pl.sgorski.expense_splitter.exceptions.IdentityNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.IdentityNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
@@ -26,7 +26,6 @@ import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
 

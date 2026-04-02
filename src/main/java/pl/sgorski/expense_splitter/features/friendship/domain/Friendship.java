@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,11 +20,13 @@ import java.util.UUID;
 @Table(name = "friendships")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"requester", "recipient"})
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE friendships SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class Friendship {
 
     @Id
+    @GeneratedValue
     @UuidGenerator
     @EqualsAndHashCode.Include
     private UUID id;

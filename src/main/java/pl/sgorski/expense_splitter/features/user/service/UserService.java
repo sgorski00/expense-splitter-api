@@ -3,7 +3,7 @@ package pl.sgorski.expense_splitter.features.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.sgorski.expense_splitter.exceptions.UserNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
