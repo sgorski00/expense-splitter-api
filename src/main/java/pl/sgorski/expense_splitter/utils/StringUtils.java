@@ -14,11 +14,10 @@ public final class StringUtils {
 
   public static String encryptEmail(String email, int visibleChars)
       throws IllegalArgumentException {
-    validateEmail(email);
     if (visibleChars < 0) {
       throw new IllegalArgumentException("visibleChars cannot be negative");
     }
-    var atIndex = email.indexOf('@');
+    var atIndex = requireAtIndex(email);
     var localPart = email.substring(0, atIndex);
     var domainPart = email.substring(atIndex);
     if (localPart.length() <= visibleChars) {
@@ -29,10 +28,12 @@ public final class StringUtils {
     return visiblePart + encryptedPart + domainPart;
   }
 
-  private static void validateEmail(String email) throws InvalidEmailException {
+  private static int requireAtIndex(String email) throws InvalidEmailException {
     requireString(email);
-    if (!email.contains("@")) {
+    var atIndex = email.indexOf('@');
+    if (atIndex <= 0 || atIndex != email.lastIndexOf('@') || atIndex == email.length() - 1) {
       throw new InvalidEmailException(email);
     }
+    return atIndex;
   }
 }

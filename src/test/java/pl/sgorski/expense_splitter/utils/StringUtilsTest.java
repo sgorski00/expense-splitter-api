@@ -9,7 +9,7 @@ import pl.sgorski.expense_splitter.exceptions.InvalidEmailException;
 public class StringUtilsTest {
 
   @Test
-  void require_shouldReturnString_whenNotBlank() {
+  void requireString_shouldReturnString_whenNotBlank() {
     var value = ".";
 
     var result = StringUtils.requireString(value);
@@ -18,21 +18,21 @@ public class StringUtilsTest {
   }
 
   @Test
-  void require_shouldThrowIllegalArgumentException_whenValueIsBlank() {
+  void requireString_shouldThrowIllegalArgumentException_whenValueIsBlank() {
     var value = " ";
 
     assertThrows(IllegalArgumentException.class, () -> StringUtils.requireString(value));
   }
 
   @Test
-  void require_shouldThrowIllegalArgumentException_whenValueIsEmpty() {
+  void requireString_shouldThrowIllegalArgumentException_whenValueIsEmpty() {
     var value = "";
 
     assertThrows(IllegalArgumentException.class, () -> StringUtils.requireString(value));
   }
 
   @Test
-  void require_shouldThrowIllegalArgumentException_whenValueIsNull() {
+  void requireString_shouldThrowIllegalArgumentException_whenValueIsNull() {
     assertThrows(IllegalArgumentException.class, () -> StringUtils.requireString(null));
   }
 
@@ -67,7 +67,24 @@ public class StringUtilsTest {
   }
 
   @Test
-  void encryptEmail_shouldThrow_whenEmailFormatIsIncorrect() {
+  void encryptEmail_shouldThrow_whenNoAtCharacterFound() {
     assertThrows(InvalidEmailException.class, () -> StringUtils.encryptEmail("invalid-email", 3));
+  }
+
+  @Test
+  void encryptEmail_shouldThrow_whenMoreThanOneAtCharacterFound() {
+    assertThrows(
+        InvalidEmailException.class, () -> StringUtils.encryptEmail("invalid@email@pl", 3));
+  }
+
+  @Test
+  void encryptEmail_shouldThrow_whenAtIsLastCharacterFound() {
+    assertThrows(InvalidEmailException.class, () -> StringUtils.encryptEmail("invalid-email@", 3));
+  }
+
+  @Test
+  void encryptEmail_shouldThrow_whenVisibleCharsAreNegative() {
+    assertThrows(
+        IllegalArgumentException.class, () -> StringUtils.encryptEmail("invalid-email@", -1));
   }
 }
