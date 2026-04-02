@@ -29,7 +29,7 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 public class LocalAuthServiceTest {
 
   @Mock private UserService userService;
-  @Mock private AuthMapper authMapper;
+  @Mock private AuthMapper authMapper; // TODO: replace with real mapper
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private AuthenticationManager authenticationManager;
   @InjectMocks private LocalAuthService localAuthService;

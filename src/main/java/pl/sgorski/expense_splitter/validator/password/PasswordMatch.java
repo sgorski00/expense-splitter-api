@@ -6,10 +6,10 @@ import java.lang.annotation.*;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PasswordValidator.class)
+@Constraint(validatedBy = PasswordMatchValidator.class)
 @Documented
-public @interface ValidPassword {
-  String message() default "Invalid password";
+public @interface PasswordMatch {
+  String message() default "Passwords do not match";
 
   Class<?>[] groups() default {};
 

@@ -51,9 +51,13 @@ public class SecurityConfig {
                     .not()
                     .authenticated()
                     .requestMatchers(
-                        "/expenses/**", "/friendships/**", "/payments/**", "/profile/**")
+                        "/expenses/**",
+                        "/friendships/**",
+                        "/payments/**",
+                        "/profile/**",
+                        "/users/**")
                     .authenticated()
-                    .requestMatchers("/users/**")
+                    .requestMatchers("/admin/**")
                     .hasRole("ADMIN")
                     .anyRequest()
                     .denyAll())

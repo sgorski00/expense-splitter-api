@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pl.sgorski.expense_splitter.exceptions.*;
@@ -226,6 +228,26 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+  @ExceptionHandler(InvalidEmailException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Provided email address is invalid.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 400 Bad Request status.")))
+  public ProblemDetail handleInvalidEmailException(InvalidEmailException ex) {
+    var status = HttpStatus.BAD_REQUEST;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("Invalid Email");
+    log.warn("Invalid email provided.");
+    return problemDetail;
+  }
+
   @ExceptionHandler(RefreshTokenValidationException.class)
   @ApiResponse(
       responseCode = "401",
@@ -305,6 +327,28 @@ public class GlobalExceptionHandler {
   public ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
     var status = HttpStatus.BAD_REQUEST;
     var errorMessage = buildValidationErrorMessage(ex);
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, errorMessage);
+    problemDetail.setTitle("Validation Failed");
+    log.warn("Validation error: {}", errorMessage);
+    return problemDetail;
+  }
+
+  @ExceptionHandler(HandlerMethodValidationException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description =
+          "Handler method validation failed. Check the error details for parameter-specific issues.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with validation error details.")))
+  public ProblemDetail handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
+    var status = HttpStatus.BAD_REQUEST;
+    var errorMessage = buildHandlerMethodValidationErrorMessage(ex);
     var problemDetail = ProblemDetail.forStatusAndDetail(status, errorMessage);
     problemDetail.setTitle("Validation Failed");
     log.warn("Validation error: {}", errorMessage);
@@ -431,6 +475,16 @@ public class GlobalExceptionHandler {
         fieldErrors.stream()
             .map(error -> String.format("%s: %s", error.getField(), error.getDefaultMessage()))
             .toList();
+    return String.join("; ", errorMessages);
+  }
+
+  private String buildHandlerMethodValidationErrorMessage(HandlerMethodValidationException ex) {
+    var parameterErrors = ex.getAllErrors();
+    if (parameterErrors.isEmpty()) {
+      return "Validation failed";
+    }
+    var errorMessages =
+        parameterErrors.stream().map(MessageSourceResolvable::getDefaultMessage).toList();
     return String.join("; ", errorMessages);
   }
 
