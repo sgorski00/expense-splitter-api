@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
@@ -230,5 +231,68 @@ public class UserServiceTest {
     when(userRepository.findByIdAndDeletedAtIsNull(eq(userId))).thenReturn(Optional.empty());
 
     assertThrows(UserNotFoundException.class, () -> userService.updateUser(userId, command));
+  }
+
+  @Test
+  void searchUsersAdmin_shouldReturnPage_whenQueryIsPassed() {
+    var query = "John";
+    var role = Role.USER;
+    when(userRepository.findAllByQueryAndRole(anyString(), eq(role), any(Pageable.class)))
+        .thenReturn(Page.empty());
+
+    var result = userService.searchUsersAdmin(query, role, Pageable.unpaged());
+
+    assertNotNull(result);
+    verify(userRepository, times(1)).findAllByQueryAndRole(eq(query), eq(role), any(Pageable.class));
+  }
+
+  @Test
+  void searchUsersAdmin_shouldReturnPage_whenQueryIsNull() {
+    var role = Role.USER;
+    when(userRepository.findAllByQueryAndRole(anyString(), eq(role), any(Pageable.class)))
+      .thenReturn(Page.empty());
+
+    var result = userService.searchUsersAdmin(null, role, Pageable.unpaged());
+
+    assertNotNull(result);
+    verify(userRepository, times(1)).findAllByQueryAndRole(eq(""), eq(role), any(Pageable.class));
+  }
+
+  @Test
+  void searchUsersAdmin_shouldReturnPage_whenRoleIsNull() {
+    when(userRepository.findAllByQueryAndRole(anyString(), nullable(Role.class), any(Pageable.class)))
+      .thenReturn(Page.empty());
+
+    var result = userService.searchUsersAdmin(null, null, Pageable.unpaged());
+
+    assertNotNull(result);
+    verify(userRepository, times(1)).findAllByQueryAndRole(eq(""), isNull(), any(Pageable.class));
+  }
+
+  @Test
+  void changePassword_shouldChangePassword_whenUserExists() {
+    var rawPassword = "password";
+    var encodedPassword = "encodedPassword";
+    var id = UUID.randomUUID();
+    var user = new User();
+    when(userRepository.findByIdAndDeletedAtIsNull(eq(id))).thenReturn(Optional.of(user));
+    when(passwordEncoder.encode(eq(rawPassword))).thenReturn(encodedPassword);
+    when(userRepository.save(any(User.class))).thenReturn(user);
+
+    var result = userService.changePassword(id, rawPassword);
+
+    assertNotNull(result);
+    assertEquals(encodedPassword, user.getPasswordHash());
+    verify(userRepository, times(1)).save(eq(user));
+    verify(passwordEncoder, times(1)).encode(eq(rawPassword));
+  }
+
+  @Test
+  void changePassword_shouldThrow_whenUserDontExists() {
+    var id = UUID.randomUUID();
+    when(userRepository.findByIdAndDeletedAtIsNull(eq(id))).thenReturn(Optional.empty());
+
+    assertThrows(UserNotFoundException.class, () -> userService.changePassword(id, "password"));
+    verify(userRepository, never()).save(eq(user));
   }
 }
