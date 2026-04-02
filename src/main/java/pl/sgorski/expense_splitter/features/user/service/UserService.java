@@ -2,14 +2,19 @@ package pl.sgorski.expense_splitter.features.user.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
+import pl.sgorski.expense_splitter.features.user.dto.command.CreateUserCommand;
+import pl.sgorski.expense_splitter.features.user.dto.command.UpdateUserCommand;
+import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
 import pl.sgorski.expense_splitter.features.user.repository.UserRepository;
 
 @Service
@@ -19,6 +24,8 @@ public class UserService {
   private final UserRepository userRepository;
   private final RefreshTokenService refreshTokenService;
   private final UserIdentityService userIdentityService;
+  private final PasswordEncoder passwordEncoder;
+  private final UserMapper userMapper;
 
   @Transactional
   public User save(User user) {
@@ -58,7 +65,26 @@ public class UserService {
     return userRepository.countByRole(Role.ADMIN) > 0;
   }
 
-  public Page<User> getUsersByQuery(String query, Pageable pageable) {
-    return userRepository.findByQuery(query, pageable);
+  public Page<User> searchUsers(String query, Pageable pageable) {
+    return userRepository.findAllByQuery(query, pageable);
+  }
+
+  public Page<User> searchUsersAdmin(
+      @Nullable String query, @Nullable Role role, Pageable pageable) {
+    var typeSafeQuery = query != null ? query : "";
+    return userRepository.findAllByQueryAndRole(typeSafeQuery, role, pageable);
+  }
+
+  public User createUser(CreateUserCommand command) {
+    var user = userMapper.toUser(command);
+    user.setPasswordHash(passwordEncoder.encode(command.password()));
+    user.setPasswordForChange(true);
+    return userRepository.save(user);
+  }
+
+  public User updateUser(UUID id, UpdateUserCommand command) {
+    var user = getUser(id);
+    userMapper.updateUser(command, user);
+    return userRepository.save(user);
   }
 }

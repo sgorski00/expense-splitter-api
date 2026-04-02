@@ -35,7 +35,7 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Pas
       context.disableDefaultConstraintViolation();
       context
           .buildConstraintViolationWithTemplate("Passwords do not match")
-          .addPropertyNode("newRepeatPassword")
+          .addPropertyNode("repeatNewPassword")
           .addConstraintViolation();
       return false;
     }

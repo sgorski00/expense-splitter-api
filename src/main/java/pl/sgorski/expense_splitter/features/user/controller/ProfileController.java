@@ -24,7 +24,7 @@ import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTo
 import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
 import pl.sgorski.expense_splitter.features.user.dto.request.PasswordChangeRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.PasswordSetRequest;
-import pl.sgorski.expense_splitter.features.user.dto.request.UpdateUserRequest;
+import pl.sgorski.expense_splitter.features.user.dto.request.UpdateProfileRequest;
 import pl.sgorski.expense_splitter.features.user.dto.response.DetailedUserResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
@@ -69,9 +69,9 @@ public final class ProfileController {
   @ApiResponses(
       value = {@ApiResponse(responseCode = "200", description = "Profile updated successfully.")})
   public ResponseEntity<DetailedUserResponse> updateProfile(
-      @RequestBody @Valid UpdateUserRequest request, Authentication authentication) {
+      @RequestBody @Valid UpdateProfileRequest request, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
-    userMapper.updateUser(request, user);
+    userMapper.updateProfile(request, user);
     user = userService.save(user);
     var result = userMapper.toDetailedResponse(user);
     return ResponseEntity.ok(result);

@@ -9,14 +9,18 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
+import pl.sgorski.expense_splitter.features.user.dto.command.CreateUserCommand;
+import pl.sgorski.expense_splitter.features.user.dto.command.UpdateUserCommand;
+import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
 import pl.sgorski.expense_splitter.features.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,7 +29,8 @@ public class UserServiceTest {
   @Mock private UserRepository userRepository;
   @Mock private RefreshTokenService refreshTokenService;
   @Mock private UserIdentityService userIdentityService;
-  @InjectMocks private UserService userService;
+  @Mock private PasswordEncoder passwordEncoder;
+  private UserService userService;
 
   private final String email = "user@example.com";
   private User user;
@@ -37,6 +42,10 @@ public class UserServiceTest {
     user = new User();
     user.setEmail(email);
     user.setId(userId);
+    var userMapper = Mappers.getMapper(UserMapper.class);
+    userService =
+        new UserService(
+            userRepository, refreshTokenService, userIdentityService, passwordEncoder, userMapper);
   }
 
   @Test
@@ -171,13 +180,55 @@ public class UserServiceTest {
   }
 
   @Test
-  void getUsersByQuery_shouldReturnPageOfUsers() {
+  void searchUsers_shouldReturnPageOfUsers() {
     var pageable = Pageable.unpaged();
     var query = "test";
 
-    userService.getUsersByQuery(query, pageable);
+    userService.searchUsers(query, pageable);
 
-    verify(userRepository, times(1)).findByQuery(anyString(), eq(pageable));
+    verify(userRepository, times(1)).findAllByQuery(anyString(), eq(pageable));
     verifyNoMoreInteractions(userRepository);
+  }
+
+  @Test
+  void createUser_shouldReturnSavedUser() {
+    var rawPassword = "password";
+    var command = new CreateUserCommand(email, "John", "Doe", Role.USER, rawPassword);
+    when(passwordEncoder.encode(eq(rawPassword))).thenReturn("encodedPassword");
+    when(userRepository.save(any(User.class))).thenReturn(new User());
+
+    var result = userService.createUser(command);
+
+    assertNotNull(result);
+    verify(userRepository, times(1)).save(any(User.class));
+    verify(passwordEncoder, times(1)).encode(eq(rawPassword));
+  }
+
+  @Test
+  void updateUser_shouldUpdateAndSaveUser_whenRequestIsValid() {
+    var newEmail = "newemail@example.com";
+    var firstName = "First";
+    var lastName = "Name";
+    var command = new UpdateUserCommand(newEmail, firstName, lastName, Role.USER);
+    when(userRepository.findByIdAndDeletedAtIsNull(eq(userId))).thenReturn(Optional.of(user));
+    when(userRepository.save(any(User.class))).thenReturn(user);
+
+    var result = userService.updateUser(userId, command);
+
+    assertNotNull(result);
+    assertEquals(newEmail, user.getEmail());
+    assertEquals(firstName, user.getFirstName());
+    assertEquals(lastName, user.getLastName());
+    assertFalse(user.isPasswordForChange());
+    verify(userRepository, times(1)).save(any(User.class));
+    verifyNoInteractions(passwordEncoder);
+  }
+
+  @Test
+  void updateUser_shouldThrow_whenUserNotFound() {
+    var command = new UpdateUserCommand(email, "John", "Doe", Role.USER);
+    when(userRepository.findByIdAndDeletedAtIsNull(eq(userId))).thenReturn(Optional.empty());
+
+    assertThrows(UserNotFoundException.class, () -> userService.updateUser(userId, command));
   }
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
 import pl.sgorski.expense_splitter.validator.password.ValidPassword;
@@ -21,6 +22,8 @@ public record CreateUserRequest(
             allowableValues = {"USER", "ADMIN"})
         @NotNull
         Role role,
+    @Schema(description = "User first name.", example = "Jane") @Nullable String firstName,
+    @Schema(description = "User last name.", example = "Doe") @Nullable String lastName,
     @Schema(description = "New password provided by the user.", example = "StrongP@ssw0rd!")
         @NotBlank
         String newPassword,

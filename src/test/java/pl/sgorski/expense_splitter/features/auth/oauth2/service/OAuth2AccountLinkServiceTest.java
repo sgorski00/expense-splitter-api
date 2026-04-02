@@ -25,7 +25,7 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
 public class OAuth2AccountLinkServiceTest {
-  @Mock private AuthMapper authMapper;
+  @Mock private AuthMapper authMapper; // TODO: replace with real mapper
   @Mock private UserService userService;
   @Mock private UserIdentityService userIdentityService;
   @InjectMocks private OAuth2AccountLinkService oAuth2AccountLinkService;

@@ -7,6 +7,10 @@ import org.mapstruct.Named;
 import pl.sgorski.expense_splitter.config.CentralMapperConfig;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
+import pl.sgorski.expense_splitter.features.user.dto.command.CreateUserCommand;
+import pl.sgorski.expense_splitter.features.user.dto.command.UpdateUserCommand;
+import pl.sgorski.expense_splitter.features.user.dto.request.CreateUserRequest;
+import pl.sgorski.expense_splitter.features.user.dto.request.UpdateProfileRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.UpdateUserRequest;
 import pl.sgorski.expense_splitter.features.user.dto.response.DetailedUserResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.SimpleUserResponse;
@@ -36,11 +40,40 @@ public interface UserMapper {
   @Mapping(target = "authorities", ignore = true)
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
-  void updateUser(UpdateUserRequest request, @MappingTarget User user);
+  void updateProfile(UpdateProfileRequest request, @MappingTarget User user);
+
+  @Mapping(target = "password", source = "newPassword")
+  CreateUserCommand toCreateCommand(CreateUserRequest request);
+
+  UpdateUserCommand toUpdateCommand(UpdateUserRequest request);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "deletedAt", ignore = true)
+  @Mapping(target = "passwordHash", ignore = true)
+  @Mapping(target = "passwordForChange", ignore = true)
+  @Mapping(target = "identities", ignore = true)
+  @Mapping(target = "authorities", ignore = true)
+  @Mapping(target = "sentFriendshipRequests", ignore = true)
+  @Mapping(target = "receivedFriendshipRequests", ignore = true)
+  void updateUser(UpdateUserCommand command, @MappingTarget User user);
 
   @Named("encryptedEmail")
   static String encryptedEmail(String email) {
     var visibleChars = 3;
     return StringUtils.encryptEmail(email, visibleChars);
   }
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "deletedAt", ignore = true)
+  @Mapping(target = "passwordHash", ignore = true)
+  @Mapping(target = "passwordForChange", ignore = true)
+  @Mapping(target = "identities", ignore = true)
+  @Mapping(target = "authorities", ignore = true)
+  @Mapping(target = "sentFriendshipRequests", ignore = true)
+  @Mapping(target = "receivedFriendshipRequests", ignore = true)
+  User toUser(CreateUserCommand command);
 }

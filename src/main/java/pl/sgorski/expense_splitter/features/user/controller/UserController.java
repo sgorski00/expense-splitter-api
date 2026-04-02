@@ -32,7 +32,7 @@ public final class UserController {
       value = {@ApiResponse(responseCode = "200", description = "Users retrieved successfully.")})
   public ResponseEntity<Page<SimpleUserResponse>> getUsers(
       @RequestParam(name = "query") @NotBlank @Size(min = 3) String query, Pageable pageable) {
-    var result = userService.getUsersByQuery(query, pageable).map(userMapper::toSimpleResponse);
+    var result = userService.searchUsers(query, pageable).map(userMapper::toSimpleResponse);
     return ResponseEntity.ok(result);
   }
 }
