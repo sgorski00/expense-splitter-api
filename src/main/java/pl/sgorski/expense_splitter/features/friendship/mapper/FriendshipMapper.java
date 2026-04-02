@@ -10,7 +10,7 @@ import pl.sgorski.expense_splitter.features.friendship.dto.response.FriendshipRe
 @Mapper(config = CentralMapperConfig.class)
 public interface FriendshipMapper {
 
-    FriendshipResponse toResponse(Friendship friendship);
+  FriendshipResponse toResponse(Friendship friendship);
 
-    CreateFriendshipCommand toCommand(FriendshipRequest request);
+  CreateFriendshipCommand toCommand(FriendshipRequest request);
 }

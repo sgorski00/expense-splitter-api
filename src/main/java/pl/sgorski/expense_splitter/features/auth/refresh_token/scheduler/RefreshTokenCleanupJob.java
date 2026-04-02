@@ -11,11 +11,11 @@ import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTo
 @RequiredArgsConstructor
 public class RefreshTokenCleanupJob {
 
-    private final RefreshTokenService refreshTokenService;
+  private final RefreshTokenService refreshTokenService;
 
-    @Scheduled(cron = "0 0 3 * * *")
-    public void cleanUpInvalidTokens() {
-        log.info("Cleaning up expired and revoked refresh tokens...");
-        refreshTokenService.deletedInvalidTokens();
-    }
+  @Scheduled(cron = "0 0 3 * * *")
+  public void cleanUpInvalidTokens() {
+    log.info("Cleaning up expired and revoked refresh tokens...");
+    refreshTokenService.deletedInvalidTokens();
+  }
 }

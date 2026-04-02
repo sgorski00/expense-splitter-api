@@ -1,5 +1,12 @@
 package pl.sgorski.expense_splitter.features.friendship.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,8 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipNotFoundException;
 import pl.sgorski.expense_splitter.exceptions.InvalidFriendshipOperationException;
+import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipNotFoundException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
 import pl.sgorski.expense_splitter.features.friendship.dto.command.CreateFriendshipCommand;
@@ -18,233 +25,247 @@ import pl.sgorski.expense_splitter.features.friendship.repository.FriendshipRepo
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class FriendshipServiceTest {
 
-    @Mock
-    private FriendshipRepository friendshipRepository;
+  @Mock private FriendshipRepository friendshipRepository;
 
-    @Mock
-    private UserService userService;
+  @Mock private UserService userService;
 
-    @InjectMocks
-    private FriendshipService friendshipService;
+  @InjectMocks private FriendshipService friendshipService;
 
-    private Friendship friendship;
-    private User requester;
-    private User recipient;
+  private Friendship friendship;
+  private User requester;
+  private User recipient;
 
-    @BeforeEach
-    void setUp() {
-        friendship = new Friendship();
-        requester = new User();
-        recipient = new User();
-        friendship.setRequester(requester);
-        friendship.setRecipient(recipient);
-    }
+  @BeforeEach
+  void setUp() {
+    friendship = new Friendship();
+    requester = new User();
+    recipient = new User();
+    friendship.setRequester(requester);
+    friendship.setRecipient(recipient);
+  }
 
-    @Test
-    void getFriendshipForUser_shouldReturnFriendship_whenFriendshipExistsAndUserIsRequester() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
+  @Test
+  void getFriendshipForUser_shouldReturnFriendship_whenFriendshipExistsAndUserIsRequester() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
 
-        var result = friendshipService.getFriendshipForUser(friendship.getId(), requester);
+    var result = friendshipService.getFriendshipForUser(friendship.getId(), requester);
 
-        assertEquals(friendship, result);
-    }
+    assertEquals(friendship, result);
+  }
 
-    @Test
-    void getFriendshipForUser_shouldReturnFriendship_whenFriendshipExistsAndUserIsRecipient() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
+  @Test
+  void getFriendshipForUser_shouldReturnFriendship_whenFriendshipExistsAndUserIsRecipient() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
 
-        var result = friendshipService.getFriendshipForUser(friendship.getId(), recipient);
+    var result = friendshipService.getFriendshipForUser(friendship.getId(), recipient);
 
-        assertEquals(friendship, result);
-    }
+    assertEquals(friendship, result);
+  }
 
-    @Test
-    void getFriendshipForUser_shouldThrowFriendshipNotFoundException_whenFriendshipExistsAndUserIsNotParticipant() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        var otherUser = new User();
-        otherUser.setId(UUID.randomUUID());
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
+  @Test
+  void
+      getFriendshipForUser_shouldThrowFriendshipNotFoundException_whenFriendshipExistsAndUserIsNotParticipant() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    var otherUser = new User();
+    otherUser.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
 
-        assertThrows(FriendshipNotFoundException.class, () -> friendshipService.getFriendshipForUser(friendship.getId(), otherUser));
-    }
+    assertThrows(
+        FriendshipNotFoundException.class,
+        () -> friendshipService.getFriendshipForUser(friendship.getId(), otherUser));
+  }
 
-    @Test
-    void getFriendshipForUser_shouldThrowFriendshipNotFoundException_whenFriendshipNotFound() {
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
+  @Test
+  void getFriendshipForUser_shouldThrowFriendshipNotFoundException_whenFriendshipNotFound() {
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.empty());
 
-        assertThrows(FriendshipNotFoundException.class, () -> friendshipService.getFriendshipForUser(friendship.getId(), recipient));
-    }
+    assertThrows(
+        FriendshipNotFoundException.class,
+        () -> friendshipService.getFriendshipForUser(friendship.getId(), recipient));
+  }
 
-    @Test
-    void getFriendshipsByStatus_shouldReturnFriendships_whenRequestIsValid() {
-        when(friendshipRepository.findFriendshipByUserAndStatus(any(), any(), any())).thenReturn(Page.empty());
+  @Test
+  void getFriendshipsByStatus_shouldReturnFriendships_whenRequestIsValid() {
+    when(friendshipRepository.findFriendshipByUserAndStatus(any(), any(), any()))
+        .thenReturn(Page.empty());
 
-        var result = friendshipService.getFriendshipsByStatus(requester, FriendshipStatus.PENDING, Pageable.unpaged());
+    var result =
+        friendshipService.getFriendshipsByStatus(
+            requester, FriendshipStatus.PENDING, Pageable.unpaged());
 
-        assertNotNull(result);
-    }
+    assertNotNull(result);
+  }
 
-    @Test
-    void getFriends_shouldReturnEmptyUsers_whenNoFriendsFound() {
-        when(friendshipRepository.findFriends(any(), any())).thenReturn(Page.empty());
+  @Test
+  void getFriends_shouldReturnEmptyUsers_whenNoFriendsFound() {
+    when(friendshipRepository.findFriends(any(), any())).thenReturn(Page.empty());
 
-        var result = friendshipService.getFriends(new User(), Pageable.unpaged());
+    var result = friendshipService.getFriends(new User(), Pageable.unpaged());
 
-        assertNotNull(result);
-        assertTrue(result.getContent().isEmpty());
-    }
+    assertNotNull(result);
+    assertTrue(result.getContent().isEmpty());
+  }
 
-    @Test
-    void getFriends_shouldReturnUsers_whenOnlyRequestersArePresent() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        var friendships = List.of(friendship);
-        when(friendshipRepository.findFriends(any(), any())).thenReturn(new PageImpl<>(friendships));
+  @Test
+  void getFriends_shouldReturnUsers_whenOnlyRequestersArePresent() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    var friendships = List.of(friendship);
+    when(friendshipRepository.findFriends(any(), any())).thenReturn(new PageImpl<>(friendships));
 
-        var result = friendshipService.getFriends(requester, Pageable.unpaged());
+    var result = friendshipService.getFriends(requester, Pageable.unpaged());
 
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-    }
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+  }
 
-    @Test
-    void getFriends_shouldReturnUsers_whenOnlyRecipientsArePresent() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        var friendships = List.of(friendship);
-        when(friendshipRepository.findFriends(any(), any())).thenReturn(new PageImpl<>(friendships));
+  @Test
+  void getFriends_shouldReturnUsers_whenOnlyRecipientsArePresent() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    var friendships = List.of(friendship);
+    when(friendshipRepository.findFriends(any(), any())).thenReturn(new PageImpl<>(friendships));
 
-        var result = friendshipService.getFriends(recipient, Pageable.unpaged());
+    var result = friendshipService.getFriends(recipient, Pageable.unpaged());
 
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-    }
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+  }
 
-    @Test
-    void getFriends_shouldReturnUsers_whenBothArePresent() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        var friendship2 = new Friendship();
-        var recipient2 = new User();
-        recipient2.setId(UUID.randomUUID());
-        friendship2.setRequester(recipient);
-        friendship2.setRecipient(recipient2);
-        var friendships = List.of(friendship, friendship2);
-        when(friendshipRepository.findFriends(any(), any())).thenReturn(new PageImpl<>(friendships));
+  @Test
+  void getFriends_shouldReturnUsers_whenBothArePresent() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    var friendship2 = new Friendship();
+    var recipient2 = new User();
+    recipient2.setId(UUID.randomUUID());
+    friendship2.setRequester(recipient);
+    friendship2.setRecipient(recipient2);
+    var friendships = List.of(friendship, friendship2);
+    when(friendshipRepository.findFriends(any(), any())).thenReturn(new PageImpl<>(friendships));
 
-        var result = friendshipService.getFriends(recipient, Pageable.unpaged());
+    var result = friendshipService.getFriends(recipient, Pageable.unpaged());
 
-        assertNotNull(result);
-        assertEquals(2, result.getTotalElements());
-    }
+    assertNotNull(result);
+    assertEquals(2, result.getTotalElements());
+  }
 
-    @Test
-    void updateFriendshipStatus_shouldUpdateStatus_whenRequestIsValid() {
-          requester.setId(UUID.randomUUID());
-          recipient.setId(UUID.randomUUID());
-          when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
-          when(friendshipRepository.save(any())).thenReturn(friendship);
+  @Test
+  void updateFriendshipStatus_shouldUpdateStatus_whenRequestIsValid() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
+    when(friendshipRepository.save(any())).thenReturn(friendship);
 
-          var result = friendshipService.updateFriendshipStatus(friendship.getId(), recipient, FriendshipStatus.ACCEPTED);
+    var result =
+        friendshipService.updateFriendshipStatus(
+            friendship.getId(), recipient, FriendshipStatus.ACCEPTED);
 
-          assertEquals(FriendshipStatus.ACCEPTED, result.getStatus());
-          verify(friendshipRepository, times(1)).save(friendship);
-    }
+    assertEquals(FriendshipStatus.ACCEPTED, result.getStatus());
+    verify(friendshipRepository, times(1)).save(friendship);
+  }
 
-    @Test
-    void updateFriendshipStatus_shouldThrowFriendshipNotFoundException_whenUserIsNotParticipant() {
-        var otherUser = new  User();
-        otherUser.setId(UUID.randomUUID());
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
+  @Test
+  void updateFriendshipStatus_shouldThrowFriendshipNotFoundException_whenUserIsNotParticipant() {
+    var otherUser = new User();
+    otherUser.setId(UUID.randomUUID());
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
 
-        assertThrows(
-          FriendshipNotFoundException.class,
-          () -> friendshipService.updateFriendshipStatus(friendship.getId(), otherUser, FriendshipStatus.ACCEPTED));
-        assertEquals(FriendshipStatus.PENDING, friendship.getStatus());
-        verify(friendshipRepository, never()).save(any(Friendship.class));
-    }
+    assertThrows(
+        FriendshipNotFoundException.class,
+        () ->
+            friendshipService.updateFriendshipStatus(
+                friendship.getId(), otherUser, FriendshipStatus.ACCEPTED));
+    assertEquals(FriendshipStatus.PENDING, friendship.getStatus());
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+  }
 
-    @Test
-    void updateFriendshipStatus_shouldThrowInvalidFriendshipOperationException_whenUserIsRequester() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
+  @Test
+  void updateFriendshipStatus_shouldThrowInvalidFriendshipOperationException_whenUserIsRequester() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
 
-        assertThrows(
-          InvalidFriendshipOperationException.class,
-          () -> friendshipService.updateFriendshipStatus(friendship.getId(), requester, FriendshipStatus.ACCEPTED));
-        assertEquals(FriendshipStatus.PENDING, friendship.getStatus());
-        verify(friendshipRepository, never()).save(any(Friendship.class));
-    }
+    assertThrows(
+        InvalidFriendshipOperationException.class,
+        () ->
+            friendshipService.updateFriendshipStatus(
+                friendship.getId(), requester, FriendshipStatus.ACCEPTED));
+    assertEquals(FriendshipStatus.PENDING, friendship.getStatus());
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+  }
 
-    @Test
-    void createFriendshipRequest_shouldCreateFriendship_whenRequestIsValid() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        var command = new CreateFriendshipCommand(recipient.getId());
-        when(userService.getUser(any(UUID.class))).thenReturn(recipient);
-        when(friendshipRepository.save(any())).thenReturn(friendship);
+  @Test
+  void createFriendshipRequest_shouldCreateFriendship_whenRequestIsValid() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    var command = new CreateFriendshipCommand(recipient.getId());
+    when(userService.getUser(any(UUID.class))).thenReturn(recipient);
+    when(friendshipRepository.save(any())).thenReturn(friendship);
 
-        var result = friendshipService.createFriendshipRequest(requester, command);
+    var result = friendshipService.createFriendshipRequest(requester, command);
 
-        assertEquals(requester, result.getRequester());
-        assertEquals(recipient, result.getRecipient());
-        assertEquals(FriendshipStatus.PENDING, result.getStatus());
-        verify(friendshipRepository, times(1)).save(any(Friendship.class));
-    }
+    assertEquals(requester, result.getRequester());
+    assertEquals(recipient, result.getRecipient());
+    assertEquals(FriendshipStatus.PENDING, result.getStatus());
+    verify(friendshipRepository, times(1)).save(any(Friendship.class));
+  }
 
-    @Test
-    void createFriendshipRequest_shouldThrowInvalidFriendshipOperationException_whenUserIsRequestingThemselves() {
-        requester.setId(UUID.randomUUID());
-        var command = new CreateFriendshipCommand(requester.getId());
+  @Test
+  void
+      createFriendshipRequest_shouldThrowInvalidFriendshipOperationException_whenUserIsRequestingThemselves() {
+    requester.setId(UUID.randomUUID());
+    var command = new CreateFriendshipCommand(requester.getId());
 
-        assertThrows(
-          InvalidFriendshipOperationException.class,
-          () -> friendshipService.createFriendshipRequest(requester, command));
-        verify(friendshipRepository, never()).save(any(Friendship.class));
-    }
+    assertThrows(
+        InvalidFriendshipOperationException.class,
+        () -> friendshipService.createFriendshipRequest(requester, command));
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+  }
 
-    @Test
-    void deleteFriendship_shouldSoftDeleteFriendship_whenRequestIsValid() {
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
-        when(friendshipRepository.save(any())).thenReturn(friendship);
+  @Test
+  void deleteFriendship_shouldSoftDeleteFriendship_whenRequestIsValid() {
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
+    when(friendshipRepository.save(any())).thenReturn(friendship);
 
-        friendshipService.deleteFriendship(friendship.getId(), requester);
+    friendshipService.deleteFriendship(friendship.getId(), requester);
 
-        assertNotNull(friendship.getDeletedAt());
-        verify(friendshipRepository, times(1)).save(friendship);
-    }
+    assertNotNull(friendship.getDeletedAt());
+    verify(friendshipRepository, times(1)).save(friendship);
+  }
 
-    @Test
-    void deleteFriendship_shouldThrowFriendshipNotFoundException_whenUserIsNotParticipant() {
-        var otherUser = new User();
-        otherUser.setId(UUID.randomUUID());
-        requester.setId(UUID.randomUUID());
-        recipient.setId(UUID.randomUUID());
-        when(friendshipRepository.findByIdAndDeletedAtIsNull(any())).thenReturn(Optional.of(friendship));
+  @Test
+  void deleteFriendship_shouldThrowFriendshipNotFoundException_whenUserIsNotParticipant() {
+    var otherUser = new User();
+    otherUser.setId(UUID.randomUUID());
+    requester.setId(UUID.randomUUID());
+    recipient.setId(UUID.randomUUID());
+    when(friendshipRepository.findByIdAndDeletedAtIsNull(any()))
+        .thenReturn(Optional.of(friendship));
 
-        assertThrows(FriendshipNotFoundException.class, () -> friendshipService.deleteFriendship(friendship.getId(), otherUser));
-        assertNull(friendship.getDeletedAt());
-        verify(friendshipRepository, never()).save(any(Friendship.class));
-    }
+    assertThrows(
+        FriendshipNotFoundException.class,
+        () -> friendshipService.deleteFriendship(friendship.getId(), otherUser));
+    assertNull(friendship.getDeletedAt());
+    verify(friendshipRepository, never()).save(any(Friendship.class));
+  }
 }

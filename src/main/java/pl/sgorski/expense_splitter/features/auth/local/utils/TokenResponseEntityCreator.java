@@ -14,23 +14,24 @@ import pl.sgorski.expense_splitter.security.jwt.JwtService;
 @RequiredArgsConstructor
 public final class TokenResponseEntityCreator {
 
-    private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
-    private final RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
+  private final JwtService jwtService;
+  private final RefreshTokenService refreshTokenService;
+  private final RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
 
-    public ResponseEntity<LoginResponse> generate(User user) {
-        //TODO: separate logic for web (access - body, refresh - cookie) and mobile/desktop (both - body)
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshTokenEntity = refreshTokenService.generateRefreshToken(user);
-        var refreshToken = refreshTokenEntity.getToken();
+  public ResponseEntity<LoginResponse> generate(User user) {
+    // TODO: separate logic for web (access - body, refresh - cookie) and mobile/desktop (both -
+    // body)
+    var accessToken = jwtService.generateAccessToken(user);
+    var refreshTokenEntity = refreshTokenService.generateRefreshToken(user);
+    var refreshToken = refreshTokenEntity.getToken();
 
-        var refreshTokenCookie = refreshTokenCookieResponseHelper.createRefreshTokenCookie(
-                refreshToken,
-                refreshTokenService.getExpirationSecond());
+    var refreshTokenCookie =
+        refreshTokenCookieResponseHelper.createRefreshTokenCookie(
+            refreshToken, refreshTokenService.getExpirationSecond());
 
-        var response = new LoginResponse(accessToken, refreshToken);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(response);
-    }
+    var response = new LoginResponse(accessToken, refreshToken);
+    return ResponseEntity.ok()
+        .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+        .body(response);
+  }
 }

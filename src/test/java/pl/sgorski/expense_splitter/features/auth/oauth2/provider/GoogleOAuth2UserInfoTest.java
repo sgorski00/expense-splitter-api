@@ -1,13 +1,12 @@
 package pl.sgorski.expense_splitter.features.auth.oauth2.provider;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.GoogleOAuth2UserInfo;
-
-import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoogleOAuth2UserInfoTest {
 

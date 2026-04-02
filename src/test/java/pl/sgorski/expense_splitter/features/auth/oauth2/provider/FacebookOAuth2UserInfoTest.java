@@ -1,14 +1,13 @@
 package pl.sgorski.expense_splitter.features.auth.oauth2.provider;
 
-import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
-import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.FacebookOAuth2UserInfo;
-
-import java.util.HashMap;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.HashMap;
+import org.junit.jupiter.api.Test;
+import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
+import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.FacebookOAuth2UserInfo;
 
 public class FacebookOAuth2UserInfoTest {
 
@@ -75,5 +74,3 @@ public class FacebookOAuth2UserInfoTest {
     assertThrows(IllegalArgumentException.class, () -> new FacebookOAuth2UserInfo(attributes));
   }
 }
-
-

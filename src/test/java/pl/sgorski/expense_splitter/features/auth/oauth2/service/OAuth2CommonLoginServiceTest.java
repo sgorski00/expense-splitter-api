@@ -1,5 +1,10 @@
 package pl.sgorski.expense_splitter.features.auth.oauth2.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,93 +23,73 @@ import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class OAuth2CommonLoginServiceTest {
-    @Mock private AuthMapper authMapper;
-    @Mock private UserService userService;
-    @Mock private UserIdentityService userIdentityService;
-    @InjectMocks private OAuth2CommonLoginService oAuth2CommonLoginService;
+  @Mock private AuthMapper authMapper;
+  @Mock private UserService userService;
+  @Mock private UserIdentityService userIdentityService;
+  @InjectMocks private OAuth2CommonLoginService oAuth2CommonLoginService;
 
-    private final AuthProvider provider = AuthProvider.FACEBOOK;
-    private final String providerId = "1234567890";
-    private final String email = "user@example.com";
+  private final AuthProvider provider = AuthProvider.FACEBOOK;
+  private final String providerId = "1234567890";
+  private final String email = "user@example.com";
 
-    private UUID linkUserId;
-    private OAuth2User oAuth2User;
-    private OAuth2UserInfo userInfo;
+  private UUID linkUserId;
+  private OAuth2User oAuth2User;
+  private OAuth2UserInfo userInfo;
 
-    @BeforeEach
-    void setUp() {
-        linkUserId = UUID.randomUUID();
+  @BeforeEach
+  void setUp() {
+    linkUserId = UUID.randomUUID();
 
-        oAuth2User = mock(OAuth2User.class);
-        userInfo = mock(OAuth2UserInfo.class);
-        when(userInfo.getProviderId()).thenReturn(providerId);
-        when(userInfo.getProvider()).thenReturn(provider);
-        when(userInfo.getEmail()).thenReturn(email);
-    }
+    oAuth2User = mock(OAuth2User.class);
+    userInfo = mock(OAuth2UserInfo.class);
+    when(userInfo.getProviderId()).thenReturn(providerId);
+    when(userInfo.getProvider()).thenReturn(provider);
+    when(userInfo.getEmail()).thenReturn(email);
+  }
 
-    @Test
-    void handle_shouldRegisterAccount_correctRequestIdentityNotFound() {
-        var context = new OAuth2LoginContext(
-                oAuth2User,
-                userInfo,
-                true,
-                linkUserId
-        );
-        when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
-        when(userService.isUserPresent(eq(email))).thenReturn(false);
-        when(authMapper.toIdentity(eq(userInfo))).thenReturn(new UserIdentity());
+  @Test
+  void handle_shouldRegisterAccount_correctRequestIdentityNotFound() {
+    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
+    when(userService.isUserPresent(eq(email))).thenReturn(false);
+    when(authMapper.toIdentity(eq(userInfo))).thenReturn(new UserIdentity());
 
-        var processedOAuth2User = oAuth2CommonLoginService.handle(context);
+    var processedOAuth2User = oAuth2CommonLoginService.handle(context);
 
-        assertEquals(oAuth2User, processedOAuth2User);
-        verify(userIdentityService, times(1)).isUserIdentityPresent(providerId, provider);
-        verify(userService, times(1)).isUserPresent(email);
-        verify(authMapper, times(1)).toIdentity(userInfo);
-        verify(userService, times(1)).save(any(User.class));
-        verifyNoMoreInteractions(userService, userIdentityService, authMapper);
-    }
+    assertEquals(oAuth2User, processedOAuth2User);
+    verify(userIdentityService, times(1)).isUserIdentityPresent(providerId, provider);
+    verify(userService, times(1)).isUserPresent(email);
+    verify(authMapper, times(1)).toIdentity(userInfo);
+    verify(userService, times(1)).save(any(User.class));
+    verifyNoMoreInteractions(userService, userIdentityService, authMapper);
+  }
 
-    @Test
-    void handle_shouldLoginWithPresentIdentity_correctRequestIdentityFound() {
-        var context = new OAuth2LoginContext(
-                oAuth2User,
-                userInfo,
-                true,
-                linkUserId
-        );
-        when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(true);
+  @Test
+  void handle_shouldLoginWithPresentIdentity_correctRequestIdentityFound() {
+    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(true);
 
-        var logged = oAuth2CommonLoginService.handle(context);
+    var logged = oAuth2CommonLoginService.handle(context);
 
-        assertEquals(oAuth2User, logged);
-        verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
-        verifyNoMoreInteractions(userIdentityService);
-        verifyNoInteractions(userService, authMapper);
-    }
+    assertEquals(oAuth2User, logged);
+    verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
+    verifyNoMoreInteractions(userIdentityService);
+    verifyNoInteractions(userService, authMapper);
+  }
 
-    @Test
-    void handle_shouldThrowException_emailTakenByLocalUser() {
-        var context = new OAuth2LoginContext(
-                oAuth2User,
-                userInfo,
-                true,
-                linkUserId
-        );
-        when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
-        when(userService.isUserPresent(eq(email))).thenReturn(true);
+  @Test
+  void handle_shouldThrowException_emailTakenByLocalUser() {
+    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
+    when(userService.isUserPresent(eq(email))).thenReturn(true);
 
-        assertThrows(AccountLinkRequiredException.class, () -> oAuth2CommonLoginService.handle(context));
-        verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
-        verify(userService, times(1)).isUserPresent(eq(email));
-        verifyNoMoreInteractions(userIdentityService, userService);
-        verifyNoInteractions(authMapper);
-    }
+    assertThrows(
+        AccountLinkRequiredException.class, () -> oAuth2CommonLoginService.handle(context));
+    verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
+    verify(userService, times(1)).isUserPresent(eq(email));
+    verifyNoMoreInteractions(userIdentityService, userService);
+    verifyNoInteractions(authMapper);
+  }
 }

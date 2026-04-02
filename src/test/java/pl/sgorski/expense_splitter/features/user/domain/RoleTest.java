@@ -1,44 +1,44 @@
 package pl.sgorski.expense_splitter.features.user.domain;
 
-import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.not_found.RoleNotFoundException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Test;
+import pl.sgorski.expense_splitter.exceptions.not_found.RoleNotFoundException;
+
 public class RoleTest {
 
-    @Test
-    void fromString_shouldReturnUserRole_whenValueCorrect () {
-        var value = "UsEr";
+  @Test
+  void fromString_shouldReturnUserRole_whenValueCorrect() {
+    var value = "UsEr";
 
-        var result = Role.fromString(value);
+    var result = Role.fromString(value);
 
-        assertEquals(Role.USER, result);
-    }
+    assertEquals(Role.USER, result);
+  }
 
-    @Test
-    void fromString_shouldReturnAdminRole_whenValueCorrect () {
-        var value = "ADMIN";
+  @Test
+  void fromString_shouldReturnAdminRole_whenValueCorrect() {
+    var value = "ADMIN";
 
-        var result = Role.fromString(value);
+    var result = Role.fromString(value);
 
-        assertEquals(Role.ADMIN, result);
-    }
+    assertEquals(Role.ADMIN, result);
+  }
 
-    @Test
-    void fromString_shouldThrow_whenRoleNotFound () {
-        var value = "not-existing";
+  @Test
+  void fromString_shouldThrow_whenRoleNotFound() {
+    var value = "not-existing";
 
-        assertThrows(RoleNotFoundException.class, () -> Role.fromString(value));
-    }
+    assertThrows(RoleNotFoundException.class, () -> Role.fromString(value));
+  }
 
-    @Test
-    void getAuthority_shouldReturnRoleNameWithPrefix () {
-        var role = Role.USER;
+  @Test
+  void getAuthority_shouldReturnRoleNameWithPrefix() {
+    var role = Role.USER;
 
-        var result = role.getAuthority();
+    var result = role.getAuthority();
 
-        assertEquals("ROLE_USER", result);
-    }
+    assertEquals("ROLE_USER", result);
+  }
 }

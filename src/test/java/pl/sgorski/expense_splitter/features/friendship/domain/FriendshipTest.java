@@ -1,10 +1,10 @@
 package pl.sgorski.expense_splitter.features.friendship.domain;
 
-import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.FriendshipStatusChangeException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+import pl.sgorski.expense_splitter.exceptions.FriendshipStatusChangeException;
 
 public class FriendshipTest {
 
@@ -34,7 +34,9 @@ public class FriendshipTest {
     var friendship = new Friendship();
     friendship.changeStatus(status);
 
-    assertThrows(FriendshipStatusChangeException.class, () ->friendship.changeStatus(FriendshipStatus.REJECTED));
+    assertThrows(
+        FriendshipStatusChangeException.class,
+        () -> friendship.changeStatus(FriendshipStatus.REJECTED));
   }
 
   @Test
@@ -43,6 +45,8 @@ public class FriendshipTest {
     var friendship = new Friendship();
     friendship.changeStatus(status);
 
-    assertThrows(FriendshipStatusChangeException.class, () ->friendship.changeStatus(FriendshipStatus.PENDING));
+    assertThrows(
+        FriendshipStatusChangeException.class,
+        () -> friendship.changeStatus(FriendshipStatus.PENDING));
   }
 }

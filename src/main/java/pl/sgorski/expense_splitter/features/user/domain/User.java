@@ -1,6 +1,8 @@
 package pl.sgorski.expense_splitter.features.user.domain;
 
 import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,109 +17,117 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pl.sgorski.expense_splitter.exceptions.DuplicateIdentityException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 
-import java.time.Instant;
-import java.util.*;
-
 @Entity
 @Table(name = "users")
 @Data
-@ToString(exclude = {"passwordHash", "identities", "sentFriendshipRequests", "receivedFriendshipRequests"})
+@ToString(
+    exclude = {
+      "passwordHash",
+      "identities",
+      "sentFriendshipRequests",
+      "receivedFriendshipRequests"
+    })
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue
-    @UuidGenerator
-    @EqualsAndHashCode.Include
-    private UUID id;
+  @Id @GeneratedValue @UuidGenerator @EqualsAndHashCode.Include private UUID id;
 
-    @Column(nullable = false)
-    private String email;
+  @Column(nullable = false)
+  private String email;
 
-    @Nullable
-    private String passwordHash;
+  @Nullable private String passwordHash;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role = Role.USER;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Role role = Role.USER;
 
-    @Nullable
-    private String firstName;
+  @Nullable private String firstName;
 
-    @Nullable
-    private String lastName;
+  @Nullable private String lastName;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<UserIdentity> identities = new HashSet<>();
+  @OneToMany(
+      mappedBy = "user",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private Set<UserIdentity> identities = new HashSet<>();
 
-    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Friendship> sentFriendshipRequests = new HashSet<>();
+  @OneToMany(
+      mappedBy = "requester",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private Set<Friendship> sentFriendshipRequests = new HashSet<>();
 
-    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<Friendship> receivedFriendshipRequests = new HashSet<>();
+  @OneToMany(
+      mappedBy = "recipient",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private Set<Friendship> receivedFriendshipRequests = new HashSet<>();
 
-    @CreationTimestamp
-    private Instant createdAt;
+  @CreationTimestamp private Instant createdAt;
 
-    @UpdateTimestamp
-    private Instant updatedAt;
+  @UpdateTimestamp private Instant updatedAt;
 
-    @Nullable
-    private Instant deletedAt;
+  @Nullable private Instant deletedAt;
 
-    @Column(nullable = false)
-    private boolean isPasswordForChange = false;
+  @Column(nullable = false)
+  private boolean isPasswordForChange = false;
 
-    public void addIdentity(UserIdentity identity) {
-        identities.stream()
-                .filter(i -> i.getProvider().equals(identity.getProvider()))
-                .findFirst()
-                .ifPresentOrElse(
-                        i -> { throw new DuplicateIdentityException("User already has identity for provider: " + i.getProvider()); },
-                        () -> {
-                            identities.add(identity);
-                            identity.setUser(this);
-                        });
-    }
+  public void addIdentity(UserIdentity identity) {
+    identities.stream()
+        .filter(i -> i.getProvider().equals(identity.getProvider()))
+        .findFirst()
+        .ifPresentOrElse(
+            i -> {
+              throw new DuplicateIdentityException(
+                  "User already has identity for provider: " + i.getProvider());
+            },
+            () -> {
+              identities.add(identity);
+              identity.setUser(this);
+            });
+  }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(role);
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(role);
+  }
 
-    @Override
-    public @Nullable String getPassword() {
-        return this.passwordHash;
-    }
+  @Override
+  public @Nullable String getPassword() {
+    return this.passwordHash;
+  }
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return this.deletedAt == null;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return this.deletedAt == null;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return this.deletedAt == null;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return this.deletedAt == null;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return this.deletedAt == null;
-    }
+  @Override
+  public boolean isEnabled() {
+    return this.deletedAt == null;
+  }
 
-    public void delete() {
-        this.deletedAt = Instant.now();
-    }
+  public void delete() {
+    this.deletedAt = Instant.now();
+  }
 }

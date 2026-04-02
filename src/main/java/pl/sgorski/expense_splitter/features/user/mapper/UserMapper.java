@@ -13,22 +13,22 @@ import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 @Mapper(config = CentralMapperConfig.class)
 public interface UserMapper {
-    UserResponse toResponse(User user);
+  UserResponse toResponse(User user);
 
-    DetailedUserResponse toDetailedResponse(User user);
+  DetailedUserResponse toDetailedResponse(User user);
 
-    UserIdentityResponse toIdentityResponse(UserIdentity identity);
+  UserIdentityResponse toIdentityResponse(UserIdentity identity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "role", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "passwordForChange", ignore = true)
-    @Mapping(target = "identities", ignore = true)
-    @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "sentFriendshipRequests", ignore = true)
-    @Mapping(target = "receivedFriendshipRequests", ignore = true)
-    void updateUser(UpdateUserRequest request, @MappingTarget User user);
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "role", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "deletedAt", ignore = true)
+  @Mapping(target = "passwordHash", ignore = true)
+  @Mapping(target = "passwordForChange", ignore = true)
+  @Mapping(target = "identities", ignore = true)
+  @Mapping(target = "authorities", ignore = true)
+  @Mapping(target = "sentFriendshipRequests", ignore = true)
+  @Mapping(target = "receivedFriendshipRequests", ignore = true)
+  void updateUser(UpdateUserRequest request, @MappingTarget User user);
 }

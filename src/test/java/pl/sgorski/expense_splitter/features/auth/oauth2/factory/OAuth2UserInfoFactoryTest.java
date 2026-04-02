@@ -1,15 +1,14 @@
 package pl.sgorski.expense_splitter.features.auth.oauth2.factory;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import pl.sgorski.expense_splitter.exceptions.OAuth2InvalidAttributesException;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.FacebookOAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.GoogleOAuth2UserInfo;
-
-import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OAuth2UserInfoFactoryTest {
 
@@ -42,6 +41,8 @@ public class OAuth2UserInfoFactoryTest {
     var attributes = new HashMap<String, Object>();
     var provider = AuthProvider.FACEBOOK;
 
-    assertThrows(OAuth2InvalidAttributesException.class, () -> OAuth2UserInfoFactory.create(provider, attributes));
+    assertThrows(
+        OAuth2InvalidAttributesException.class,
+        () -> OAuth2UserInfoFactory.create(provider, attributes));
   }
 }

@@ -8,15 +8,11 @@ import pl.sgorski.expense_splitter.features.auth.refresh_token.config.RefreshTok
 import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({
-		JwtProperties.class,
-		RefreshTokenProperties.class
-})
+@EnableConfigurationProperties({JwtProperties.class, RefreshTokenProperties.class})
 @EnableScheduling
 public class ExpenseSplitterApplication {
 
-	static void main(String[] args) {
-		SpringApplication.run(ExpenseSplitterApplication.class, args);
-	}
-
+  static void main(String[] args) {
+    SpringApplication.run(ExpenseSplitterApplication.class, args);
+  }
 }

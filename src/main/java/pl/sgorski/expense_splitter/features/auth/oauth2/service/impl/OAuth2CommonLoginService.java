@@ -17,33 +17,40 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 @RequiredArgsConstructor
 public class OAuth2CommonLoginService implements OAuth2LoginService {
 
-    private final AuthMapper authMapper;
-    private final UserService userService;
-    private final UserIdentityService userIdentityService;
+  private final AuthMapper authMapper;
+  private final UserService userService;
+  private final UserIdentityService userIdentityService;
 
-    public OAuth2User handle(OAuth2LoginContext context) {
-        var userInfo = context.userInfo();
-        var oauthUser = context.oauthUser();
+  public OAuth2User handle(OAuth2LoginContext context) {
+    var userInfo = context.userInfo();
+    var oauthUser = context.oauthUser();
 
-        log.debug("Entering OAuth2 login/register mode");
-        if (userIdentityService.isUserIdentityPresent(userInfo.getProviderId(), userInfo.getProvider())) {
-            log.debug("Existing oauth user identity detected: {}, {}. Logging in...", userInfo.getEmail(), userInfo.getProvider().name());
-            return oauthUser;
-        }
-
-        if (userService.isUserPresent(userInfo.getEmail())) {
-            log.warn("Local user with email {} already exists. OAuthLogin blocked", userInfo.getEmail());
-            throw new AccountLinkRequiredException();
-        }
-
-        var user = new User();
-        user.setEmail(userInfo.getEmail());
-        user.setFirstName(userInfo.getFirstName());
-        user.setLastName(userInfo.getLastName());
-        log.debug("New user {} created. Linking identity {}...", user.getEmail(), userInfo.getProvider().name());
-        var identity = authMapper.toIdentity(userInfo);
-        user.addIdentity(identity);
-        userService.save(user);
-        return oauthUser;
+    log.debug("Entering OAuth2 login/register mode");
+    if (userIdentityService.isUserIdentityPresent(
+        userInfo.getProviderId(), userInfo.getProvider())) {
+      log.debug(
+          "Existing oauth user identity detected: {}, {}. Logging in...",
+          userInfo.getEmail(),
+          userInfo.getProvider().name());
+      return oauthUser;
     }
+
+    if (userService.isUserPresent(userInfo.getEmail())) {
+      log.warn("Local user with email {} already exists. OAuthLogin blocked", userInfo.getEmail());
+      throw new AccountLinkRequiredException();
+    }
+
+    var user = new User();
+    user.setEmail(userInfo.getEmail());
+    user.setFirstName(userInfo.getFirstName());
+    user.setLastName(userInfo.getLastName());
+    log.debug(
+        "New user {} created. Linking identity {}...",
+        user.getEmail(),
+        userInfo.getProvider().name());
+    var identity = authMapper.toIdentity(userInfo);
+    user.addIdentity(identity);
+    userService.save(user);
+    return oauthUser;
+  }
 }

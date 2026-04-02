@@ -1,5 +1,8 @@
 package pl.sgorski.expense_splitter.security.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,36 +14,32 @@ import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.security.service.impl.UserDetailsServiceImpl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class UserDetailsServiceTest {
 
-    @Mock
-    private UserService userService;
+  @Mock private UserService userService;
 
-    @InjectMocks
-    private UserDetailsServiceImpl userDetailsService;
+  @InjectMocks private UserDetailsServiceImpl userDetailsService;
 
-    @Test
-    void loadUserByUsername_shouldLoadUserDetails() {
-        var email = "user@example.com";
-        var user = new User();
-        user.setEmail(email);
-        when(userService.getUser(email)).thenReturn(user);
+  @Test
+  void loadUserByUsername_shouldLoadUserDetails() {
+    var email = "user@example.com";
+    var user = new User();
+    user.setEmail(email);
+    when(userService.getUser(email)).thenReturn(user);
 
-        var userDetails = userDetailsService.loadUserByUsername(email);
+    var userDetails = userDetailsService.loadUserByUsername(email);
 
-        assertNotNull(userDetails);
-        assertEquals(email, userDetails.getUsername());
-    }
+    assertNotNull(userDetails);
+    assertEquals(email, userDetails.getUsername());
+  }
 
-    @Test
-    void loadUserByUsername_shouldThrowException_whenUserNotFound() {
-        var email = "user@example.com";
-        when(userService.getUser(email)).thenThrow(UserNotFoundException.class);
+  @Test
+  void loadUserByUsername_shouldThrowException_whenUserNotFound() {
+    var email = "user@example.com";
+    when(userService.getUser(email)).thenThrow(UserNotFoundException.class);
 
-        assertThrows(UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername(email));
-    }
+    assertThrows(
+        UsernameNotFoundException.class, () -> userDetailsService.loadUserByUsername(email));
+  }
 }

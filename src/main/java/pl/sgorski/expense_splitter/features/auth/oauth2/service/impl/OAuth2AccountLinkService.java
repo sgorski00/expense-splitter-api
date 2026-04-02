@@ -16,28 +16,35 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 @RequiredArgsConstructor
 public class OAuth2AccountLinkService implements OAuth2LoginService {
 
-    private final AuthMapper authMapper;
-    private final UserService userService;
-    private final UserIdentityService userIdentityService;
+  private final AuthMapper authMapper;
+  private final UserService userService;
+  private final UserIdentityService userIdentityService;
 
-    public OAuth2User handle(OAuth2LoginContext context) {
-        var userInfo = context.userInfo();
-        var userId = context.linkUserId();
+  public OAuth2User handle(OAuth2LoginContext context) {
+    var userInfo = context.userInfo();
+    var userId = context.linkUserId();
 
-        log.debug("Entering OAuth2 account link mode");
-        if (userIdentityService.isUserIdentityPresent(userInfo.getProviderId(), userInfo.getProvider())) {
-            log.debug("Someone is using account: {} [{}] already.", userInfo.getEmail(), userInfo.getProvider().name());
-            throw new AccountLinkingException("Account is already linked to another user");
-        }
-        if (userId == null) {
-            log.error("There is no user id in the session! Cannot link an oauth2 account");
-            throw new AccountLinkingException("User id is required to link an account");
-        }
-        var user = userService.getUserWithIdentities(userId);
-        log.debug("Linking new identity {} to existing user {}", userInfo.getProvider().name(), user.getEmail());
-        var identity = authMapper.toIdentity(userInfo);
-        user.addIdentity(identity);
-        userService.save(user);
-        return context.oauthUser();
+    log.debug("Entering OAuth2 account link mode");
+    if (userIdentityService.isUserIdentityPresent(
+        userInfo.getProviderId(), userInfo.getProvider())) {
+      log.debug(
+          "Someone is using account: {} [{}] already.",
+          userInfo.getEmail(),
+          userInfo.getProvider().name());
+      throw new AccountLinkingException("Account is already linked to another user");
     }
+    if (userId == null) {
+      log.error("There is no user id in the session! Cannot link an oauth2 account");
+      throw new AccountLinkingException("User id is required to link an account");
+    }
+    var user = userService.getUserWithIdentities(userId);
+    log.debug(
+        "Linking new identity {} to existing user {}",
+        userInfo.getProvider().name(),
+        user.getEmail());
+    var identity = authMapper.toIdentity(userInfo);
+    user.addIdentity(identity);
+    userService.save(user);
+    return context.oauthUser();
+  }
 }
