@@ -243,6 +243,7 @@
 					<java>
 						<googleJavaFormat/>
 					</java>
+					<lineEndings>UNIX</lineEndings>
 				</configuration>
 			</plugin>
 		</plugins>
