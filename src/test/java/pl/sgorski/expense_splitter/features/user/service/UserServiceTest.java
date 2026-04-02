@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
@@ -166,6 +167,17 @@ public class UserServiceTest {
 
     assertFalse(exists);
     verify(userRepository, times(1)).countByRole(eq(Role.ADMIN));
+    verifyNoMoreInteractions(userRepository);
+  }
+
+  @Test
+  void getUsersByQuery_shouldReturnPageOfUsers() {
+    var pageable = Pageable.unpaged();
+    var query = "test";
+
+    userService.getUsersByQuery(query, pageable);
+
+    verify(userRepository, times(1)).findByQuery(anyString(), eq(pageable));
     verifyNoMoreInteractions(userRepository);
   }
 }

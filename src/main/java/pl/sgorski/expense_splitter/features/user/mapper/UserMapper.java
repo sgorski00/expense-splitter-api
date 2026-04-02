@@ -8,11 +8,14 @@ import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
 import pl.sgorski.expense_splitter.features.user.dto.request.UpdateUserRequest;
 import pl.sgorski.expense_splitter.features.user.dto.response.DetailedUserResponse;
+import pl.sgorski.expense_splitter.features.user.dto.response.SimpleUserResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserIdentityResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 @Mapper(config = CentralMapperConfig.class)
 public interface UserMapper {
+  SimpleUserResponse toSimpleResponse(User user);
+
   UserResponse toResponse(User user);
 
   DetailedUserResponse toDetailedResponse(User user);

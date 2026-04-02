@@ -2,6 +2,8 @@ package pl.sgorski.expense_splitter.features.user.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
@@ -54,5 +56,9 @@ public class UserService {
 
   public boolean isAdminPresent() {
     return userRepository.countByRole(Role.ADMIN) > 0;
+  }
+
+  public Page<User> getUsersByQuery(String query, Pageable pageable) {
+    return userRepository.findByQuery(query, pageable);
   }
 }

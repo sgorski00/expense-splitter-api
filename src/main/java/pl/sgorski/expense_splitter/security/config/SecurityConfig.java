@@ -55,7 +55,7 @@ public class SecurityConfig {
                         "/friendships/**",
                         "/payments/**",
                         "/profile/**",
-                        "/users/search")
+                        "/users")
                     .authenticated()
                     .requestMatchers("/admin/**")
                     .hasRole("ADMIN")

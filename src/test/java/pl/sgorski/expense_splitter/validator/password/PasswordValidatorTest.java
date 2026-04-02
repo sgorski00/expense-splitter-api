@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.features.validator.password;
+package pl.sgorski.expense_splitter.validator.password;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
