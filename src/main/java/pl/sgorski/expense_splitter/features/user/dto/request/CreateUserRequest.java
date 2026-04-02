@@ -7,12 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
-import pl.sgorski.expense_splitter.validator.password.ValidPassword;
+import pl.sgorski.expense_splitter.validator.password.PasswordMatch;
+import pl.sgorski.expense_splitter.validator.password.StrongPassword;
 
 @Schema(
     name = "Create User Request",
     description = "Payload used to create a new user account by an admin.")
-@ValidPassword
+@PasswordMatch
 public record CreateUserRequest(
     @Schema(description = "User email address.", example = "john.doe@example.com") @NotBlank @Email
         String email,
@@ -25,6 +26,7 @@ public record CreateUserRequest(
     @Schema(description = "User first name.", example = "Jane") @Nullable String firstName,
     @Schema(description = "User last name.", example = "Doe") @Nullable String lastName,
     @Schema(description = "New password provided by the user.", example = "StrongP@ssw0rd!")
+        @StrongPassword
         @NotBlank
         String newPassword,
     @Schema(

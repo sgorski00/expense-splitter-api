@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.request.CreateUserRequest;
+import pl.sgorski.expense_splitter.features.user.dto.request.PasswordSetRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.UpdateUserRequest;
 import pl.sgorski.expense_splitter.features.user.dto.response.DetailedUserResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
@@ -95,6 +96,11 @@ public final class AdminUserController {
     return ResponseEntity.ok(response);
   }
 
-  // TODO: add endpoint with password reset/change for admin to set new password for user without
-  // knowing old one
+  @PatchMapping("/{id}/password")
+  public ResponseEntity<DetailedUserResponse> changePassword(
+      @PathVariable UUID id, @RequestBody @Valid PasswordSetRequest request) {
+    var result = userService.changePassword(id, request.newPassword());
+    var response = userMapper.toDetailedResponse(result);
+    return ResponseEntity.ok(response);
+  }
 }

@@ -1,5 +1,6 @@
 package pl.sgorski.expense_splitter.features.user.service;
 
+import jakarta.validation.constraints.NotBlank;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -75,6 +76,7 @@ public class UserService {
     return userRepository.findAllByQueryAndRole(typeSafeQuery, role, pageable);
   }
 
+  @Transactional
   public User createUser(CreateUserCommand command) {
     var user = userMapper.toUser(command);
     user.setPasswordHash(passwordEncoder.encode(command.password()));
@@ -82,9 +84,17 @@ public class UserService {
     return userRepository.save(user);
   }
 
+  @Transactional
   public User updateUser(UUID id, UpdateUserCommand command) {
     var user = getUser(id);
     userMapper.updateUser(command, user);
+    return userRepository.save(user);
+  }
+
+  @Transactional
+  public User changePassword(UUID id, @NotBlank String rawPassword) {
+    var user = getUser(id);
+    user.setPasswordHash(passwordEncoder.encode(rawPassword));
     return userRepository.save(user);
   }
 }

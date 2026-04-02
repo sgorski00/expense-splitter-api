@@ -4,9 +4,6 @@ import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.exceptions.InvalidEmailException;
 
 public final class StringUtils {
-  public static boolean isBlank(@Nullable String value) {
-    return value == null || value.isBlank();
-  }
 
   public static String requireString(@Nullable String value) {
     if (value == null || value.isBlank()) {

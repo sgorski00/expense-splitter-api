@@ -1,7 +1,9 @@
 package pl.sgorski.expense_splitter.features.user.dto.contract;
 
-public interface PasswordChange {
-  String newPassword();
+import org.jspecify.annotations.Nullable;
 
-  String repeatNewPassword();
+public interface PasswordChange {
+  @Nullable String newPassword();
+
+  @Nullable String repeatNewPassword();
 }
