@@ -22,40 +22,41 @@ import pl.sgorski.expense_splitter.security.oauth2.session.OAuth2SessionService;
 @Slf4j
 public final class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
 
-    private final OAuth2CommonLoginService oAuth2CommonLoginService;
-    private final OAuth2AccountLinkService oAuth2AccountLinkService;
-    private final OAuth2SessionService oAuth2SessionService;
+  private final OAuth2CommonLoginService oAuth2CommonLoginService;
+  private final OAuth2AccountLinkService oAuth2AccountLinkService;
+  private final OAuth2SessionService oAuth2SessionService;
 
-    @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        log.debug("Loading user from OAuth2 provider");
-        var oauthUser = loadUserFromProvider(userRequest);
-        var providerStr = userRequest.getClientRegistration().getRegistrationId();
-        var provider = AuthProvider.fromString(providerStr);
+  @Override
+  public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+    log.debug("Loading user from OAuth2 provider");
+    var oauthUser = loadUserFromProvider(userRequest);
+    var providerStr = userRequest.getClientRegistration().getRegistrationId();
+    var provider = AuthProvider.fromString(providerStr);
 
-        var session = getSession();
-        var context = new OAuth2LoginContext(
-                oauthUser,
-                OAuth2UserInfoFactory.create(provider, oauthUser.getAttributes()),
-                oAuth2SessionService.isLinkMode(session),
-                oAuth2SessionService.getOAuthLinkUserId(session)
-        );
-        oAuth2SessionService.clearOAuthAttributes(session);
+    var session = getSession();
+    var context =
+        new OAuth2LoginContext(
+            oauthUser,
+            OAuth2UserInfoFactory.create(provider, oauthUser.getAttributes()),
+            oAuth2SessionService.isLinkMode(session),
+            oAuth2SessionService.getOAuthLinkUserId(session));
+    oAuth2SessionService.clearOAuthAttributes(session);
 
-        log.debug("Processing user {} from OAuth2 provider: {}", context.userInfo().getEmail(), providerStr);
-        if (context.linkMode()) {
-            return oAuth2AccountLinkService.handle(context);
-        }
-        return oAuth2CommonLoginService.handle(context);
+    log.debug(
+        "Processing user {} from OAuth2 provider: {}", context.userInfo().getEmail(), providerStr);
+    if (context.linkMode()) {
+      return oAuth2AccountLinkService.handle(context);
     }
+    return oAuth2CommonLoginService.handle(context);
+  }
 
-    public OAuth2User loadUserFromProvider(OAuth2UserRequest userRequest) {
-        return super.loadUser(userRequest);
-    }
+  public OAuth2User loadUserFromProvider(OAuth2UserRequest userRequest) {
+    return super.loadUser(userRequest);
+  }
 
-    private HttpSession getSession() {
-        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                .getRequest()
-                .getSession(true);
-    }
+  private HttpSession getSession() {
+    return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+        .getRequest()
+        .getSession(true);
+  }
 }

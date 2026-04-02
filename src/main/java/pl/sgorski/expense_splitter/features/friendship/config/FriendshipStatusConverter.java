@@ -6,8 +6,8 @@ import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
 
 @Component
 public final class FriendshipStatusConverter implements Converter<String, FriendshipStatus> {
-    @Override
-    public FriendshipStatus convert(String source) {
-        return FriendshipStatus.fromString(source);
-    }
+  @Override
+  public FriendshipStatus convert(String source) {
+    return FriendshipStatus.fromString(source);
+  }
 }

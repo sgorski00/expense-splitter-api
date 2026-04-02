@@ -12,18 +12,25 @@ import pl.sgorski.expense_splitter.features.user.repository.UserIdentityReposito
 @RequiredArgsConstructor
 public final class UserIdentityService {
 
-    private final UserIdentityRepository userIdentityRepository;
+  private final UserIdentityRepository userIdentityRepository;
 
-    public boolean isUserIdentityPresent(String providerId, AuthProvider authProvider) {
-        return userIdentityRepository.existsByProviderAndProviderId(authProvider, providerId);
-    }
+  public boolean isUserIdentityPresent(String providerId, AuthProvider authProvider) {
+    return userIdentityRepository.existsByProviderAndProviderId(authProvider, providerId);
+  }
 
-    public UserIdentity findIdentity(AuthProvider provider, String providerId) {
-        return userIdentityRepository.findWithUserByProviderAndProviderId(provider, providerId)
-                .orElseThrow(() -> new IdentityNotFoundException("User identity not found for provider: " + provider.name() + ", providerId: " + providerId));
-    }
+  public UserIdentity findIdentity(AuthProvider provider, String providerId) {
+    return userIdentityRepository
+        .findWithUserByProviderAndProviderId(provider, providerId)
+        .orElseThrow(
+            () ->
+                new IdentityNotFoundException(
+                    "User identity not found for provider: "
+                        + provider.name()
+                        + ", providerId: "
+                        + providerId));
+  }
 
-    public void removeAllUserIdentities(User user) {
-        userIdentityRepository.deleteAllByUser(user);
-    }
+  public void removeAllUserIdentities(User user) {
+    userIdentityRepository.deleteAllByUser(user);
+  }
 }

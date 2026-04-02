@@ -12,14 +12,14 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 @Service
 public final class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        try {
-            return userService.getUser(email);
-        } catch (UserNotFoundException e) {
-            throw new UsernameNotFoundException("User not found with email: " + email, e);
-        }
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    try {
+      return userService.getUser(email);
+    } catch (UserNotFoundException e) {
+      throw new UsernameNotFoundException("User not found with email: " + email, e);
     }
+  }
 }

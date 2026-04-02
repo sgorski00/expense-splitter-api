@@ -6,8 +6,8 @@ import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 
 @Component
 public final class AuthProviderConverter implements Converter<String, AuthProvider> {
-    @Override
-    public AuthProvider convert(String source) {
-        return AuthProvider.fromString(source);
-    }
+  @Override
+  public AuthProvider convert(String source) {
+    return AuthProvider.fromString(source);
+  }
 }

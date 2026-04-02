@@ -11,14 +11,18 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @Component
 public final class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
-    private final HandlerExceptionResolver resolver;
+  private final HandlerExceptionResolver resolver;
 
-    public AuthenticationEntryPointImpl(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
-        this.resolver = resolver;
-    }
+  public AuthenticationEntryPointImpl(
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    this.resolver = resolver;
+  }
 
-    @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        resolver.resolveException(request, response, null, authException);
-    }
+  @Override
+  public void commence(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      AuthenticationException authException) {
+    resolver.resolveException(request, response, null, authException);
+  }
 }

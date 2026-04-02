@@ -14,24 +14,24 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 @RequiredArgsConstructor
 public final class AdminSeeder implements ApplicationRunner {
 
-    private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
+  private final UserService userService;
+  private final PasswordEncoder passwordEncoder;
 
-    @Value("${es.first-admin.password}")
-    private String password;
+  @Value("${es.first-admin.password}")
+  private String password;
 
-    @Value("${es.first-admin.email}")
-    private String email;
+  @Value("${es.first-admin.email}")
+  private String email;
 
-    @Override
-    public void run(ApplicationArguments args) {
-        if(!userService.isAdminPresent()) {
-            var admin = new User();
-            admin.setEmail(email);
-            admin.setPasswordHash(passwordEncoder.encode(password));
-            admin.setPasswordForChange(true);
-            admin.setRole(Role.ADMIN);
-            userService.save(admin);
-        }
+  @Override
+  public void run(ApplicationArguments args) {
+    if (!userService.isAdminPresent()) {
+      var admin = new User();
+      admin.setEmail(email);
+      admin.setPasswordHash(passwordEncoder.encode(password));
+      admin.setPasswordForChange(true);
+      admin.setRole(Role.ADMIN);
+      userService.save(admin);
     }
+  }
 }
