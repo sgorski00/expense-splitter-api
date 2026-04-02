@@ -24,4 +24,4 @@ psql:
 	docker-compose exec es-postgres psql -U postgres -d es-db
 
 lint:
-	mvn checkstyle:apply
+	mvn spotless:apply
