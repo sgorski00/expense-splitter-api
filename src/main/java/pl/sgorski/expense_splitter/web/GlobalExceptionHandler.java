@@ -228,6 +228,26 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+  @ExceptionHandler(InvalidEmailException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Provided email address is invalid.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 400 Bad Request status.")))
+  public ProblemDetail handleInvalidEmailException(InvalidEmailException ex) {
+    var status = HttpStatus.BAD_REQUEST;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("Invalid Email");
+    log.warn("Invalid email provided: {}", ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(RefreshTokenValidationException.class)
   @ApiResponse(
       responseCode = "401",
@@ -316,7 +336,8 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HandlerMethodValidationException.class)
   @ApiResponse(
       responseCode = "400",
-      description = "Handler method validation failed. Check the error details for parameter-specific issues.",
+      description =
+          "Handler method validation failed. Check the error details for parameter-specific issues.",
       content =
           @Content(
               mediaType = "application/json",
@@ -463,9 +484,7 @@ public class GlobalExceptionHandler {
       return "Validation failed";
     }
     var errorMessages =
-        parameterErrors.stream()
-            .map(MessageSourceResolvable::getDefaultMessage)
-            .toList();
+        parameterErrors.stream().map(MessageSourceResolvable::getDefaultMessage).toList();
     return String.join("; ", errorMessages);
   }
 

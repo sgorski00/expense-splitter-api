@@ -3,6 +3,7 @@ package pl.sgorski.expense_splitter.features.user.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import pl.sgorski.expense_splitter.config.CentralMapperConfig;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
@@ -11,9 +12,11 @@ import pl.sgorski.expense_splitter.features.user.dto.response.DetailedUserRespon
 import pl.sgorski.expense_splitter.features.user.dto.response.SimpleUserResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserIdentityResponse;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
+import pl.sgorski.expense_splitter.utils.StringUtils;
 
 @Mapper(config = CentralMapperConfig.class)
 public interface UserMapper {
+  @Mapping(target = "email", source = "email", qualifiedByName = "encryptedEmail")
   SimpleUserResponse toSimpleResponse(User user);
 
   UserResponse toResponse(User user);
@@ -34,4 +37,10 @@ public interface UserMapper {
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
   void updateUser(UpdateUserRequest request, @MappingTarget User user);
+
+  @Named("encryptedEmail")
+  static String encryptedEmail(String email) {
+    var visibleChars = 3;
+    return StringUtils.encryptEmail(email, visibleChars);
+  }
 }

@@ -11,7 +11,6 @@ import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.sgorski.expense_splitter.features.user.dto.contract.PasswordChange;
-import pl.sgorski.expense_splitter.validator.password.PasswordValidator;
 
 public class PasswordValidatorTest {
 
