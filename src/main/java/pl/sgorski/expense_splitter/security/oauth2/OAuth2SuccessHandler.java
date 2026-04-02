@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import pl.sgorski.expense_splitter.exceptions.IdentityNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.IdentityNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.factory.OAuth2UserInfoFactory;
@@ -22,13 +22,6 @@ import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 import java.io.IOException;
 import java.util.Objects;
 
-/**
- * OAuth2 authentication success handler for web and mobile clients.
- * <br>
- * Returns tokens in:
- * - access token - in body
- * - refresh token - in body and httponly cookie
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

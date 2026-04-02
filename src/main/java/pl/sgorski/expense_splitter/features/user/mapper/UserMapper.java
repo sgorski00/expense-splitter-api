@@ -28,5 +28,7 @@ public interface UserMapper {
     @Mapping(target = "passwordForChange", ignore = true)
     @Mapping(target = "identities", ignore = true)
     @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "sentFriendshipRequests", ignore = true)
+    @Mapping(target = "receivedFriendshipRequests", ignore = true)
     void updateUser(UpdateUserRequest request, @MappingTarget User user);
 }

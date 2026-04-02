@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.features.auth.config;
+package pl.sgorski.expense_splitter.features.auth.oauth2.config;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;

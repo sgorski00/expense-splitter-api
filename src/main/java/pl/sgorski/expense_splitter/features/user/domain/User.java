@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.sgorski.expense_splitter.exceptions.DuplicateIdentityException;
+import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 
 import java.time.Instant;
 import java.util.*;
@@ -20,8 +21,8 @@ import java.util.*;
 @Entity
 @Table(name = "users")
 @Data
-@ToString(exclude = {"passwordHash", "identities"})
-@EqualsAndHashCode(exclude = "identities")
+@ToString(exclude = {"passwordHash", "identities", "sentFriendshipRequests", "receivedFriendshipRequests"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 public class User implements UserDetails {
@@ -29,6 +30,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     @UuidGenerator
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @Column(nullable = false)
@@ -49,6 +51,12 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<UserIdentity> identities = new HashSet<>();
+
+    @OneToMany(mappedBy = "requester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Friendship> sentFriendshipRequests = new HashSet<>();
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Friendship> receivedFriendshipRequests = new HashSet<>();
 
     @CreationTimestamp
     private Instant createdAt;

@@ -1,7 +1,7 @@
 package pl.sgorski.expense_splitter.features.user.domain;
 
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.RoleNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.RoleNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

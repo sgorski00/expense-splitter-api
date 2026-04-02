@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import pl.sgorski.expense_splitter.exceptions.RoleNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.RoleNotFoundException;
 
 import java.util.Arrays;
 

@@ -12,7 +12,11 @@ public final class OAuth2SessionService {
     public final static String OAUTH_LINK_USER_ID_KEY = "oauth_link_user_id";
 
     public boolean isLinkMode(HttpSession session) {
-        return "link".equals(session.getAttribute(OAUTH_MODE_KEY));
+        var mode = session.getAttribute(OAUTH_MODE_KEY);
+        if (mode instanceof String m) {
+            return "link".equalsIgnoreCase(m.trim());
+        }
+        return false;
     }
 
     public @Nullable UUID getOAuthLinkUserId(HttpSession session) {

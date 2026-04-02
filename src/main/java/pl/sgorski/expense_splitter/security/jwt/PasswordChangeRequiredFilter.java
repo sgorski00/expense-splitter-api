@@ -15,18 +15,7 @@ import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;
 
 import java.io.IOException;
-import java.util.Objects;
-import java.util.Set;
 
-/**
- * Filter that enforces password change when a user has isPasswordForChange flag set to true.
- * <br>
- * Blocks access to all endpoints except:
- * - /profile/password (PUT and PATCH for password change/set)
- * - /auth/logout (allow users to logout)
- * - /auth/refresh (allow refresh token)
- * - Swagger/OpenAPI documentation endpoints
- */
 @Component
 public final class PasswordChangeRequiredFilter extends OncePerRequestFilter {
 

@@ -15,17 +15,7 @@ import java.util.UUID;
 @Slf4j
 public final class RefreshTokenExtractor {
 
-    /**
-     * Extracts refresh token from either httpOnly cookie or Authorization header.
-     * <br>
-     * Web clients send token in cookie, mobile/desktop clients send in Authorization header.
-     *
-     * @param refreshTokenCookie refresh token from cookie (nullable)
-     * @param request HTTP request
-     * @return UUID of refresh token
-     * @throws IllegalArgumentException if token not found in either source
-     */
-    public UUID extract(@Nullable UUID refreshTokenCookie, HttpServletRequest request) {
+    public UUID extract(@Nullable UUID refreshTokenCookie, HttpServletRequest request) throws RefreshTokenValidationException {
         // Try cookie (web clients)
         if (refreshTokenCookie != null) {
             log.debug("Extracted refresh token from cookie");

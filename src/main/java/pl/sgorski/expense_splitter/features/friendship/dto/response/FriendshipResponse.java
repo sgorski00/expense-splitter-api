@@ -2,6 +2,7 @@ package pl.sgorski.expense_splitter.features.friendship.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.jspecify.annotations.Nullable;
+import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 import java.time.Instant;
@@ -29,7 +30,7 @@ public record FriendshipResponse(
                 description = "Current friendship status.",
                 example = "PENDING"
         )
-        String status, //todo: change to enum/entity
+        FriendshipStatus status,
         @Schema(
                 description = "Creation timestamp.",
                 example = "2026-03-18T10:15:30Z"
@@ -41,8 +42,9 @@ public record FriendshipResponse(
         )
         Instant updatedAt,
         @Schema(
-                description = "Soft-delete timestamp when relation was removed (optional).",
-                example = "2026-03-19T09:00:00Z"
+                description = "Soft delete timestamp. Null if not deleted.",
+                example = "2026-03-19T12:30:00Z"
         )
-        @Nullable Instant deletedAt
+        @Nullable
+        Instant deletedAt
 ) {}

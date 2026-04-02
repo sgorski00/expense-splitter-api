@@ -1,7 +1,7 @@
 package pl.sgorski.expense_splitter.features.auth.oauth2;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import pl.sgorski.expense_splitter.exceptions.ProviderNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.not_found.ProviderNotFoundException;
 
 import java.util.Arrays;
 
