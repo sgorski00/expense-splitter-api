@@ -243,14 +243,15 @@ public class UserServiceTest {
     var result = userService.searchUsersAdmin(query, role, Pageable.unpaged());
 
     assertNotNull(result);
-    verify(userRepository, times(1)).findAllByQueryAndRole(eq(query), eq(role), any(Pageable.class));
+    verify(userRepository, times(1))
+        .findAllByQueryAndRole(eq(query), eq(role), any(Pageable.class));
   }
 
   @Test
   void searchUsersAdmin_shouldReturnPage_whenQueryIsNull() {
     var role = Role.USER;
     when(userRepository.findAllByQueryAndRole(anyString(), eq(role), any(Pageable.class)))
-      .thenReturn(Page.empty());
+        .thenReturn(Page.empty());
 
     var result = userService.searchUsersAdmin(null, role, Pageable.unpaged());
 
@@ -260,8 +261,9 @@ public class UserServiceTest {
 
   @Test
   void searchUsersAdmin_shouldReturnPage_whenRoleIsNull() {
-    when(userRepository.findAllByQueryAndRole(anyString(), nullable(Role.class), any(Pageable.class)))
-      .thenReturn(Page.empty());
+    when(userRepository.findAllByQueryAndRole(
+            anyString(), nullable(Role.class), any(Pageable.class)))
+        .thenReturn(Page.empty());
 
     var result = userService.searchUsersAdmin(null, null, Pageable.unpaged());
 
