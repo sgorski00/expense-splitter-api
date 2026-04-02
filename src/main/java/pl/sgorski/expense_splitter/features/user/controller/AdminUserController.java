@@ -76,7 +76,7 @@ public final class AdminUserController {
       description = "Deletes a user account, preventing login but preserving data.")
   @ApiResponses(
       value = {@ApiResponse(responseCode = "204", description = "User deactivated successfully.")})
-  public ResponseEntity<DetailedUserResponse> deactivateUser(@PathVariable UUID id) {
+  public ResponseEntity<Void> deactivateUser(@PathVariable UUID id) {
     var user = userService.getUser(id);
     userService.deleteUser(user);
     return ResponseEntity.noContent().build();

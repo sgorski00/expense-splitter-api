@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Email;
 import org.jspecify.annotations.Nullable;
 
 @Schema(
-    name = "Update User Request",
+    name = "Update Profile Request",
     description =
         "Payload used to update user profile fields. All fields are optional. If a field is not provided, the corresponding user attribute will remain unchanged.")
 public record UpdateProfileRequest(

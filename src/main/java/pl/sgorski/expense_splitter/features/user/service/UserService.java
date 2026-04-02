@@ -1,6 +1,5 @@
 package pl.sgorski.expense_splitter.features.user.service;
 
-import jakarta.validation.constraints.NotBlank;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -92,9 +91,10 @@ public class UserService {
   }
 
   @Transactional
-  public User changePassword(UUID id, @NotBlank String rawPassword) {
+  public User changePassword(UUID id, String rawPassword) {
     var user = getUser(id);
     user.setPasswordHash(passwordEncoder.encode(rawPassword));
+    user.setPasswordForChange(true);
     return userRepository.save(user);
   }
 }

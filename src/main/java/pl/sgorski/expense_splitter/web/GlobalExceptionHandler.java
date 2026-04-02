@@ -244,7 +244,7 @@ public class GlobalExceptionHandler {
     var status = HttpStatus.BAD_REQUEST;
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Invalid Email");
-    log.warn("Invalid email provided: {}", ex.getMessage());
+    log.warn("Invalid email provided.");
     return problemDetail;
   }
 

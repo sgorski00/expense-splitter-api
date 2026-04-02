@@ -51,7 +51,11 @@ public class SecurityConfig {
                     .not()
                     .authenticated()
                     .requestMatchers(
-                        "/expenses/**", "/friendships/**", "/payments/**", "/profile/**", "/users")
+                        "/expenses/**",
+                        "/friendships/**",
+                        "/payments/**",
+                        "/profile/**",
+                        "/users/**")
                     .authenticated()
                     .requestMatchers("/admin/**")
                     .hasRole("ADMIN")
