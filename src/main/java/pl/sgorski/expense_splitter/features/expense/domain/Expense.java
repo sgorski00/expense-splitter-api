@@ -53,8 +53,8 @@ public class Expense {
   @UpdateTimestamp private Instant updatedAt;
 
   public void addShare(ExpenseShare share) {
-    shares.add(share);
     share.setExpense(this);
+    shares.add(share);
   }
 
   public boolean isParticipant(User user) {

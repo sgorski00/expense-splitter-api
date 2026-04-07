@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
@@ -14,10 +15,11 @@ import pl.sgorski.expense_splitter.features.user.domain.User;
 @Table(name = "refresh_tokens")
 @Data
 @ToString(exclude = "user")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class RefreshToken {
 
-  @Id @GeneratedValue @UuidGenerator private UUID id;
+  @Id @GeneratedValue @UuidGenerator @EqualsAndHashCode.Include private UUID id;
 
   @Column(nullable = false, unique = true)
   private UUID token;

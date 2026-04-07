@@ -22,10 +22,12 @@ public class ExpenseShare {
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "expense_id", nullable = false)
+  @EqualsAndHashCode.Include
   private Expense expense;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "user_id", nullable = false)
+  @EqualsAndHashCode.Include
   private User user;
 
   @Column(nullable = false)
