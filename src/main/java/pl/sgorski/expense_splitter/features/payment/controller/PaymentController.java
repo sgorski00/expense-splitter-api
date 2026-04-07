@@ -37,11 +37,7 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(),
-            "Expense no 1",
-            BigDecimal.valueOf(999.99),
-            BigDecimal.valueOf(33.33),
-            Instant.now());
+            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
     var result =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
@@ -60,11 +56,7 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(),
-            "Expense no 1",
-            BigDecimal.valueOf(999.99),
-            BigDecimal.valueOf(33.33),
-            Instant.now());
+            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
     var Payment =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
@@ -83,11 +75,7 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(),
-            "Expense no 1",
-            BigDecimal.valueOf(999.99),
-            BigDecimal.valueOf(33.33),
-            Instant.now());
+            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
     var Payment =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
@@ -105,11 +93,7 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(),
-            "Expense no 1",
-            BigDecimal.valueOf(999.99),
-            BigDecimal.valueOf(33.33),
-            Instant.now());
+            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
     var Payment =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());

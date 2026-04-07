@@ -1,6 +1,8 @@
 package pl.sgorski.expense_splitter.features.user.repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
@@ -42,4 +44,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
               )
           """)
   Page<User> findAllByQueryAndRole(@Nullable String query, @Nullable Role role, Pageable pageable);
+
+  @Query(
+      """
+              select u FROM User u WHERE u.id IN :ids AND u.deletedAt IS NULL
+          """)
+  List<User> findAllByIdAndDeletedAtIsNull(Set<UUID> ids);
 }

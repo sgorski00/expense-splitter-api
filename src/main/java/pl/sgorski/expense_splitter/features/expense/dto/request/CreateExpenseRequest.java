@@ -19,7 +19,7 @@ public record CreateExpenseRequest(
     @Schema(description = "Total expense amount.", example = "999.99") @NotNull @Positive
         BigDecimal amount,
     @Schema(description = "Set of participants and their shares.")
-        @Nullable Set<ExpenseParticipantRequest> participantIds,
+        @Nullable Set<ExpenseParticipantRequest> participants,
     @Schema(
             description = "Date and time when expense was incurred.",
             example = "2026-03-18T20:00:00Z")

@@ -1,5 +1,6 @@
 package pl.sgorski.expense_splitter.features.friendship.repository;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -27,4 +28,13 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
             WHERE (f.requester = :user OR f.recipient = :user) AND f.status = 'ACCEPTED' AND f.deletedAt IS NULL
             """)
   Page<Friendship> findFriends(User user, Pageable pageable);
+
+  @Query(
+"""
+    select count(f) from Friendship f
+    where f.status = 'ACCEPTED' AND
+    f.deletedAt IS NULL AND
+    (f.requester = :user and f.recipient.id in :ids or f.recipient = :user and f.requester.id in :ids)
+""")
+  long countAcceptedFriends(User user, Collection<UUID> ids);
 }

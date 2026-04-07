@@ -14,11 +14,6 @@ public record ExpenseResponse(
     @Schema(description = "Expense title.", example = "Dinner in Rome") String title,
     @Schema(description = "Total expense amount.", example = "999.99") BigDecimal amountTotal,
     @Schema(
-            description =
-                "Amount owed (as a expense participant) or already received (as a expense creator).",
-            example = "333.33")
-        BigDecimal myBalance,
-    @Schema(
             description = "Date and time when expense was incurred.",
             example = "2026-03-18T20:00:00Z")
         Instant expenseDate) {}
