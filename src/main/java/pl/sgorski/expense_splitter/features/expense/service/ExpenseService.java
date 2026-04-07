@@ -59,7 +59,11 @@ public class ExpenseService {
   }
 
   public Page<Expense> getExpenses(User user, @Nullable ExpenseRole role, Pageable pageable) {
-    return expenseRepository.findByUserAndRole(user, role, pageable);
+    return switch (role) {
+      case PARTICIPANT -> expenseRepository.findByParticipant(user, pageable);
+      case PAYER -> expenseRepository.findByPayer(user, pageable);
+      case null -> expenseRepository.findByUser(user, pageable);
+    };
   }
 
   @Transactional

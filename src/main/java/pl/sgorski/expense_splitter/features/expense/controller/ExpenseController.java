@@ -46,7 +46,9 @@ public final class ExpenseController {
       Pageable pageable) {
     var user = authenticatedUserResolver.requireUser(authentication);
     var result = expenseService.getExpenses(user, role, pageable);
-    var response = result.map(expenseMapper::toResponse);
+    var response =
+        result.map(
+            expense -> expenseMapper.toResponse(expense, ExpenseRole.fromExpense(user, expense)));
     return ResponseEntity.ok(response);
   }
 
@@ -61,7 +63,7 @@ public final class ExpenseController {
     var user = authenticatedUserResolver.requireUser(authentication);
     var command = expenseMapper.toCreateExpenseCommand(request);
     var result = expenseService.createExpense(user, command);
-    var response = expenseMapper.toDetailedResponse(result);
+    var response = expenseMapper.toDetailedResponse(result, ExpenseRole.fromExpense(user, result));
     return ResponseEntity.ok(response);
   }
 
@@ -76,7 +78,7 @@ public final class ExpenseController {
       @PathVariable UUID id, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
     var result = expenseService.getExpense(id, user);
-    var response = expenseMapper.toDetailedResponse(result);
+    var response = expenseMapper.toDetailedResponse(result, ExpenseRole.fromExpense(user, result));
     return ResponseEntity.ok(response);
   }
 
@@ -94,7 +96,7 @@ public final class ExpenseController {
     var user = authenticatedUserResolver.requireUser(authentication);
     var command = expenseMapper.toUpdateExpenseCommand(request);
     var result = expenseService.updateExpense(id, user, command);
-    var response = expenseMapper.toDetailedResponse(result);
+    var response = expenseMapper.toDetailedResponse(result, ExpenseRole.fromExpense(user, result));
     return ResponseEntity.ok(response);
   }
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.features.expense.domain.SplitType;
+import pl.sgorski.expense_splitter.features.expense.dto.filter.ExpenseRole;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 @Schema(
@@ -22,6 +23,8 @@ public record DetailedExpenseResponse(
             description = "Detailed description of the expense (optional).",
             example = "Team dinner after conference")
         @Nullable String description,
+    @Schema(description = "Role of the user in the expense", example = "PARTICIPANT")
+        ExpenseRole role,
     @Schema(description = "User who paid for the expense.", implementation = UserResponse.class)
         UserResponse payer,
     @Schema(description = "Total expense amount.", example = "999.99") BigDecimal amountTotal,

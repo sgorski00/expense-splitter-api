@@ -9,6 +9,7 @@ import pl.sgorski.expense_splitter.features.expense.domain.ExpenseShare;
 import pl.sgorski.expense_splitter.features.expense.dto.command.CreateExpenseCommand;
 import pl.sgorski.expense_splitter.features.expense.dto.command.ParticipantCommand;
 import pl.sgorski.expense_splitter.features.expense.dto.command.UpdateExpenseCommand;
+import pl.sgorski.expense_splitter.features.expense.dto.filter.ExpenseRole;
 import pl.sgorski.expense_splitter.features.expense.dto.request.CreateExpenseRequest;
 import pl.sgorski.expense_splitter.features.expense.dto.request.ExpenseParticipantRequest;
 import pl.sgorski.expense_splitter.features.expense.dto.request.UpdateExpenseRequest;
@@ -47,7 +48,7 @@ public interface ExpenseMapper {
 
   ExpenseShareResponse toShareResponse(ExpenseShare share);
 
-  ExpenseResponse toResponse(Expense expense);
+  ExpenseResponse toResponse(Expense expense, ExpenseRole role);
 
-  DetailedExpenseResponse toDetailedResponse(Expense expense);
+  DetailedExpenseResponse toDetailedResponse(Expense expense, ExpenseRole role);
 }

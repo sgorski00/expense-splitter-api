@@ -57,10 +57,10 @@ public class Expense {
     share.setExpense(this);
   }
 
-  private void setShares(Set<ExpenseShare> shares) {}
-
   public boolean isParticipant(User user) {
     return this.getPayer().equals(user)
         || shares.stream().anyMatch(share -> share.getUser().equals(user));
   }
+
+  private void setShares(Set<ExpenseShare> shares) {}
 }

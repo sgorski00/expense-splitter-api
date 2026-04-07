@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.sgorski.expense_splitter.features.expense.dto.filter.ExpenseRole;
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseResponse;
 import pl.sgorski.expense_splitter.features.payment.dto.request.CreatePaymentRequest;
 import pl.sgorski.expense_splitter.features.payment.dto.request.UpdatePaymentRequest;
@@ -37,7 +38,11 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
+            UUID.randomUUID(),
+            "Expense no 1",
+            ExpenseRole.PARTICIPANT,
+            BigDecimal.valueOf(999.99),
+            Instant.now());
     var result =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
@@ -56,7 +61,11 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
+            UUID.randomUUID(),
+            "Expense no 1",
+            ExpenseRole.PARTICIPANT,
+            BigDecimal.valueOf(999.99),
+            Instant.now());
     var Payment =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
@@ -75,7 +84,11 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
+            UUID.randomUUID(),
+            "Expense no 1",
+            ExpenseRole.PARTICIPANT,
+            BigDecimal.valueOf(999.99),
+            Instant.now());
     var Payment =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
@@ -93,7 +106,11 @@ public final class PaymentController {
     var user = new UserResponse(UUID.randomUUID(), "user@example.com", Role.USER, Instant.now());
     var expense =
         new ExpenseResponse(
-            UUID.randomUUID(), "Expense no 1", BigDecimal.valueOf(999.99), Instant.now());
+            UUID.randomUUID(),
+            "Expense no 1",
+            ExpenseRole.PARTICIPANT,
+            BigDecimal.valueOf(999.99),
+            Instant.now());
     var Payment =
         new PaymentResponse(
             UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
