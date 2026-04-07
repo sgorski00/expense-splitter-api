@@ -14,4 +14,3 @@ public class NullOrNotBlankValidator implements ConstraintValidator<NullOrNotBla
     return !value.isBlank();
   }
 }
-
