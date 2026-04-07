@@ -55,7 +55,7 @@ public class FriendshipService {
 
   public boolean areFriends(User user, Collection<UUID> ids) {
     log.debug("Checking friendship status between user: {} and users: {}", user.getId(), ids);
-    if (!CollectionUtils.isEmpty(ids)) return true;
+    if (CollectionUtils.isEmpty(ids)) return true;
     var count = friendshipRepository.countAcceptedFriends(user, ids);
     return count == ids.size();
   }

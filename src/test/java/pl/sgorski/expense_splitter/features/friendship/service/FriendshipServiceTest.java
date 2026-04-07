@@ -268,4 +268,31 @@ public class FriendshipServiceTest {
     assertNull(friendship.getDeletedAt());
     verify(friendshipRepository, never()).save(any(Friendship.class));
   }
+
+  @Test
+  void areFriends_shouldReturnTrue_whenIdsAreEmpty() {
+    var result = friendshipService.areFriends(new User(), List.of());
+
+    assertTrue(result);
+  }
+
+  @Test
+  void areFriends_shouldReturnTrue_whenAllIdsAreFriends() {
+    when(friendshipRepository.countAcceptedFriends(any(), any())).thenReturn(2L);
+
+    var result =
+        friendshipService.areFriends(new User(), List.of(UUID.randomUUID(), UUID.randomUUID()));
+
+    assertTrue(result);
+  }
+
+  @Test
+  void areFriends_shouldReturnFalse_whenNotAllIdsAreFriends() {
+    when(friendshipRepository.countAcceptedFriends(any(), any())).thenReturn(1L);
+
+    var result =
+        friendshipService.areFriends(new User(), List.of(UUID.randomUUID(), UUID.randomUUID()));
+
+    assertFalse(result);
+  }
 }

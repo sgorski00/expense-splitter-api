@@ -33,7 +33,7 @@ public class ExpenseService {
   @Transactional
   public Expense createExpense(User user, CreateExpenseCommand command) {
     var participants = command.participants();
-    if (!CollectionUtils.isEmpty(participants)) {
+    if (CollectionUtils.isEmpty(participants)) {
       throw new ExpenseValidationException(
           "At least one participant of the expense must be specified.");
     }
