@@ -12,10 +12,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
 
   @Query(
       """
-        SELECT e FROM Expense e
+        SELECT DISTINCT e FROM Expense e
         LEFT JOIN e.shares s
         WHERE (e.payer = :user OR s.user = :user)
-        GROUP BY e.id
     """)
   Page<Expense> findByUser(User user, Pageable pageable);
 

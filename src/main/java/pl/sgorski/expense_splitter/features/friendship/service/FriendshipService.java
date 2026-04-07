@@ -5,10 +5,10 @@ import java.util.Collection;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.flywaydb.core.internal.util.CollectionsUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pl.sgorski.expense_splitter.exceptions.InvalidFriendshipOperationException;
 import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipNotFoundException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
@@ -55,7 +55,7 @@ public class FriendshipService {
 
   public boolean areFriends(User user, Collection<UUID> ids) {
     log.debug("Checking friendship status between user: {} and users: {}", user.getId(), ids);
-    if (!CollectionsUtils.hasItems(ids)) return true;
+    if (!CollectionUtils.isEmpty(ids)) return true;
     var count = friendshipRepository.countAcceptedFriends(user, ids);
     return count == ids.size();
   }

@@ -10,7 +10,9 @@ import org.hibernate.annotations.UuidGenerator;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Entity
-@Table(name = "expense_shares")
+@Table(
+    name = "expense_shares",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"expense_id", "user_id"}))
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @Data

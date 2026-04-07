@@ -101,6 +101,6 @@ public class UserService {
   }
 
   public List<User> getUsers(Set<UUID> ids) {
-    return userRepository.findAllByIdAndDeletedAtIsNull(ids);
+    return userRepository.findAllByIdInAndDeletedAtIsNull(ids);
   }
 }

@@ -6,6 +6,7 @@ import org.mapstruct.MappingTarget;
 import pl.sgorski.expense_splitter.config.CentralMapperConfig;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
 import pl.sgorski.expense_splitter.features.expense.domain.ExpenseShare;
+import pl.sgorski.expense_splitter.features.expense.domain.SplitType;
 import pl.sgorski.expense_splitter.features.expense.dto.command.CreateExpenseCommand;
 import pl.sgorski.expense_splitter.features.expense.dto.command.ParticipantCommand;
 import pl.sgorski.expense_splitter.features.expense.dto.command.UpdateExpenseCommand;
@@ -17,7 +18,7 @@ import pl.sgorski.expense_splitter.features.expense.dto.response.DetailedExpense
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseResponse;
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseShareResponse;
 
-@Mapper(config = CentralMapperConfig.class)
+@Mapper(config = CentralMapperConfig.class, imports = SplitType.class)
 public interface ExpenseMapper {
   // NOTE: amount and percentage are ignored until other split types are not implemented
   @Mapping(target = "amount", ignore = true)
@@ -31,7 +32,7 @@ public interface ExpenseMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "payer", ignore = true)
-  @Mapping(target = "amountTotal", source = "amount")
+  @Mapping(target = "amountTotal", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "shares", ignore = true)

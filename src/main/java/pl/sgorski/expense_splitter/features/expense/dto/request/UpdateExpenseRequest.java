@@ -1,8 +1,6 @@
 package pl.sgorski.expense_splitter.features.expense.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Positive;
-import java.math.BigDecimal;
 import java.time.Instant;
 import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.validator.text.NullOrNotBlank;
@@ -18,8 +16,6 @@ public record UpdateExpenseRequest(
         String title,
     @Schema(description = "Updated expense description.", example = "Team lunch meeting")
         @Nullable String description,
-    @Schema(description = "Updated total expense amount.", example = "750.50") @Nullable @Positive
-        BigDecimal amount,
     @Schema(
             description = "Date and time when expense was incurred.",
             example = "2026-03-18T20:00:00Z")

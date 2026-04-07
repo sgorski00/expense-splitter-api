@@ -15,6 +15,10 @@ public final class SplitStrategyFactory {
   }
 
   public SplitStrategy get(SplitType type) {
-    return strategies.get(type);
+    var strategy = strategies.get(type);
+    if (strategy == null) {
+      throw new IllegalArgumentException("Unregistered split type: " + type);
+    }
+    return strategy;
   }
 }

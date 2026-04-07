@@ -1,7 +1,7 @@
 package pl.sgorski.expense_splitter.features.expense.dto.command;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 
 public record UpdateExpenseCommand(
-    String title, String description, BigDecimal amount, Instant expenseDate) {}
+    @Nullable String title, @Nullable String description, @Nullable Instant expenseDate) {}

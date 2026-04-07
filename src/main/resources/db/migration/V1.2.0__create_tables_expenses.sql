@@ -25,4 +25,3 @@ CREATE TABLE expense_shares (
 CREATE UNIQUE INDEX unique_expense_user ON expense_shares(expense_id, user_id);
 CREATE INDEX idx_expense_shares_expense_id ON expense_shares(expense_id);
 CREATE INDEX idx_expense_shares_user_id ON expense_shares(user_id);
-CREATE INDEX idx_expense_shares_user_expense ON expense_shares(user_id, expense_id);

@@ -45,9 +45,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
           """)
   Page<User> findAllByQueryAndRole(@Nullable String query, @Nullable Role role, Pageable pageable);
 
-  @Query(
-      """
-              select u FROM User u WHERE u.id IN :ids AND u.deletedAt IS NULL
-          """)
-  List<User> findAllByIdAndDeletedAtIsNull(Set<UUID> ids);
+  List<User> findAllByIdInAndDeletedAtIsNull(Set<UUID> ids);
 }

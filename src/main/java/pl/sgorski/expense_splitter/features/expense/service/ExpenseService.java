@@ -3,11 +3,11 @@ package pl.sgorski.expense_splitter.features.expense.service;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.internal.util.CollectionsUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pl.sgorski.expense_splitter.exceptions.ExpenseValidationException;
 import pl.sgorski.expense_splitter.exceptions.not_found.ExpenseNotFoundException;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
@@ -33,7 +33,7 @@ public class ExpenseService {
   @Transactional
   public Expense createExpense(User user, CreateExpenseCommand command) {
     var participants = command.participants();
-    if (!CollectionsUtils.hasItems(participants)) {
+    if (!CollectionUtils.isEmpty(participants)) {
       throw new ExpenseValidationException(
           "At least one participant of the expense must be specified.");
     }
