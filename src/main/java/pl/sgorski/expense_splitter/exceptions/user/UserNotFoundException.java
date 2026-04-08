@@ -1,8 +1,7 @@
 package pl.sgorski.expense_splitter.exceptions.user;
 
-import pl.sgorski.expense_splitter.exceptions.NotFoundException;
-
 import java.util.UUID;
+import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 
 public final class UserNotFoundException extends NotFoundException {
   public UserNotFoundException(String email) {

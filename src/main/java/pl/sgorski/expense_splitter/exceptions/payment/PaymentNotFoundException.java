@@ -1,8 +1,7 @@
 package pl.sgorski.expense_splitter.exceptions.payment;
 
-import pl.sgorski.expense_splitter.exceptions.NotFoundException;
-
 import java.util.UUID;
+import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 
 public final class PaymentNotFoundException extends NotFoundException {
 

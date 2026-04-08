@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -296,5 +298,12 @@ public class UserServiceTest {
 
     assertThrows(UserNotFoundException.class, () -> userService.changePassword(id, "password"));
     verify(userRepository, never()).save(eq(user));
+  }
+
+  @Test
+  void getUsers_shouldFindAllByIds() {
+    when(userRepository.findAllByIdInAndDeletedAtIsNull(anySet())).thenReturn(List.of());
+
+    assertNotNull(userService.getUsers(Set.of(UUID.randomUUID())));
   }
 }
