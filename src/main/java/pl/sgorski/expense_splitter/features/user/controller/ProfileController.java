@@ -21,7 +21,11 @@ import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
+import pl.sgorski.expense_splitter.features.expense.dto.filter.ExpenseRole;
 import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
+import pl.sgorski.expense_splitter.features.payment.dto.response.PaymentResponse;
+import pl.sgorski.expense_splitter.features.payment.mapper.PaymentMapper;
+import pl.sgorski.expense_splitter.features.payment.service.PaymentService;
 import pl.sgorski.expense_splitter.features.user.dto.request.PasswordChangeRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.PasswordSetRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.UpdateProfileRequest;
@@ -48,6 +52,8 @@ public final class ProfileController {
   private final RefreshTokenService refreshTokenService;
   private final TokenResponseEntityCreator tokensResponseEntityCreator;
   private final FriendshipService friendshipService;
+  private final PaymentService paymentService;
+  private final PaymentMapper paymentMapper;
 
   @GetMapping
   @Operation(
@@ -167,6 +173,27 @@ public final class ProfileController {
       Pageable pageable, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
     var result = friendshipService.getFriends(user, pageable).map(userMapper::toResponse);
+    return ResponseEntity.ok(result);
+  }
+
+  @GetMapping("/payments")
+  @Operation(
+      summary = "List my payments",
+      description = "Retrieves a paginated list of the authenticated user's payments.")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Payments list retrieved successfully.")
+      })
+  public ResponseEntity<Page<PaymentResponse>> getMyPayments(
+      Pageable pageable, Authentication authentication) {
+    var user = authenticatedUserResolver.requireUser(authentication);
+    var result =
+        paymentService
+            .getPaymentsForUser(user, pageable)
+            .map(
+                payment ->
+                    paymentMapper.toResponse(
+                        payment, ExpenseRole.fromExpense(user, payment.getExpense())));
     return ResponseEntity.ok(result);
   }
 }

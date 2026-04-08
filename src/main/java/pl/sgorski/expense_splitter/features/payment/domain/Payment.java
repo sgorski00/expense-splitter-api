@@ -36,4 +36,8 @@ public class Payment {
   @CreationTimestamp private Instant createdAt;
 
   @UpdateTimestamp private Instant updatedAt;
+
+  public boolean isParticipant(User currentUser) {
+    return payer.equals(currentUser) || expense.isParticipant(currentUser);
+  }
 }

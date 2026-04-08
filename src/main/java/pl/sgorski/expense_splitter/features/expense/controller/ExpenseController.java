@@ -20,6 +20,9 @@ import pl.sgorski.expense_splitter.features.expense.dto.response.DetailedExpense
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseResponse;
 import pl.sgorski.expense_splitter.features.expense.mapper.ExpenseMapper;
 import pl.sgorski.expense_splitter.features.expense.service.ExpenseService;
+import pl.sgorski.expense_splitter.features.payment.dto.response.PaymentResponse;
+import pl.sgorski.expense_splitter.features.payment.mapper.PaymentMapper;
+import pl.sgorski.expense_splitter.features.payment.service.PaymentService;
 import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
 
 @RestController
@@ -31,6 +34,8 @@ public final class ExpenseController {
   private final AuthenticatedUserResolver authenticatedUserResolver;
   private final ExpenseService expenseService;
   private final ExpenseMapper expenseMapper;
+  private final PaymentService paymentService;
+  private final PaymentMapper paymentMapper;
 
   @GetMapping
   @Operation(
@@ -110,5 +115,26 @@ public final class ExpenseController {
     var user = authenticatedUserResolver.requireUser(authentication);
     expenseService.deleteExpense(id, user);
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/{id}/payments")
+  @Operation(
+      summary = "List of expense payments",
+      description = "Retrieves a paginated list of the selected expense payments.")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Payments list retrieved successfully.")
+      })
+  public ResponseEntity<Page<PaymentResponse>> getPaymentsForExpense(
+      @PathVariable UUID id, Pageable pageable, Authentication authentication) {
+    var user = authenticatedUserResolver.requireUser(authentication);
+    var expense = expenseService.getExpense(id, user);
+    var result =
+        paymentService
+            .getPaymentsForExpense(expense, pageable)
+            .map(
+                payment ->
+                    paymentMapper.toResponse(payment, ExpenseRole.fromExpense(user, expense)));
+    return ResponseEntity.ok(result);
   }
 }
