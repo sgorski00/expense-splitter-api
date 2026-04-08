@@ -188,7 +188,7 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(50.00));
 
     when(expenseService.getExpense(eq(expenseId), eq(payer))).thenReturn(expense);
-    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.ZERO);
+    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer))).thenReturn(BigDecimal.ZERO);
     when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
     var result = paymentService.createPayment(command, payer);
@@ -199,7 +199,7 @@ public class PaymentServiceTest {
     assertEquals(expense, result.getExpense());
     assertEquals(command.amount(), result.getAmount());
     verify(expenseService, times(1)).getExpense(eq(expenseId), eq(payer));
-    verify(paymentRepository, times(1)).sumByExpense(eq(expense));
+    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
     verify(paymentRepository, times(1)).save(any(Payment.class));
   }
 
@@ -208,14 +208,15 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(50.00));
 
     when(expenseService.getExpense(eq(expenseId), eq(payer))).thenReturn(expense);
-    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.valueOf(30.00));
+    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer)))
+        .thenReturn(BigDecimal.valueOf(30.00));
     when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
     var result = paymentService.createPayment(command, payer);
 
     assertNotNull(result);
     verify(expenseService, times(1)).getExpense(eq(expenseId), eq(payer));
-    verify(paymentRepository, times(1)).sumByExpense(eq(expense));
+    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
     verify(paymentRepository, times(1)).save(any(Payment.class));
   }
 
@@ -228,14 +229,13 @@ public class PaymentServiceTest {
     nonObligatedUser.setRole(Role.USER);
 
     when(expenseService.getExpense(eq(expenseId), eq(nonObligatedUser))).thenReturn(expense);
-    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.ZERO);
 
     assertThrows(
         PaymentValidationException.class,
         () -> paymentService.createPayment(command, nonObligatedUser));
 
     verify(expenseService, times(1)).getExpense(eq(expenseId), eq(nonObligatedUser));
-    verify(paymentRepository, times(1)).sumByExpense(eq(expense));
+    verify(paymentRepository, never()).sumByExpenseAndUser(any(Expense.class), any(User.class));
     verify(paymentRepository, never()).save(any(Payment.class));
   }
 
@@ -244,13 +244,14 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(75.00));
 
     when(expenseService.getExpense(eq(expenseId), eq(payer))).thenReturn(expense);
-    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.valueOf(50.00));
+    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer)))
+        .thenReturn(BigDecimal.valueOf(50.00));
 
     assertThrows(
         PaymentValidationException.class, () -> paymentService.createPayment(command, payer));
 
     verify(expenseService, times(1)).getExpense(eq(expenseId), eq(payer));
-    verify(paymentRepository, times(1)).sumByExpense(eq(expense));
+    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
     verify(paymentRepository, never()).save(any(Payment.class));
   }
 
@@ -259,13 +260,13 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(100.01));
 
     when(expenseService.getExpense(eq(expenseId), eq(payer))).thenReturn(expense);
-    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.ZERO);
+    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer))).thenReturn(BigDecimal.ZERO);
 
     assertThrows(
         PaymentValidationException.class, () -> paymentService.createPayment(command, payer));
 
     verify(expenseService, times(1)).getExpense(eq(expenseId), eq(payer));
-    verify(paymentRepository, times(1)).sumByExpense(eq(expense));
+    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
     verify(paymentRepository, never()).save(any(Payment.class));
   }
 
@@ -274,7 +275,7 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(100.00));
 
     when(expenseService.getExpense(eq(expenseId), eq(payer))).thenReturn(expense);
-    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.ZERO);
+    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer))).thenReturn(BigDecimal.ZERO);
     when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
     var result = paymentService.createPayment(command, payer);
@@ -288,7 +289,7 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.ZERO);
 
     when(expenseService.getExpense(eq(expenseId), eq(payer))).thenReturn(expense);
-    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.ZERO);
+    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer))).thenReturn(BigDecimal.ZERO);
     when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
     var result = paymentService.createPayment(command, payer);

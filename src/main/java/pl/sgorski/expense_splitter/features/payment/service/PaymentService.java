@@ -44,11 +44,11 @@ public class PaymentService {
   @Transactional
   public Payment createPayment(CreatePaymentCommand command, User currentUser) {
     var expense = expenseService.getExpense(command.expenseId(), currentUser);
-    validateOverpaidExpense(expense, command.amount());
     if (!expense.isObligatedToPay(currentUser)) {
       throw new PaymentValidationException(
           "Only users obligated to pay for the expense can record payments");
     }
+    validateOverpaidExpense(expense, currentUser, command.amount());
 
     var payment = new Payment();
     payment.setAmount(command.amount());
@@ -66,12 +66,15 @@ public class PaymentService {
     paymentRepository.delete(payment);
   }
 
-  private void validateOverpaidExpense(Expense expense, BigDecimal paymentAmount) {
-    var totalPaid = paymentRepository.sumByExpense(expense);
-    var remainingBalance = expense.getAmountTotal().subtract(totalPaid);
+  private void validateOverpaidExpense(
+      Expense expense, User paymentPayer, BigDecimal paymentAmount) {
+    var totalPaid = paymentRepository.sumByExpenseAndUser(expense, paymentPayer);
+    var paymentPayerShare = expense.getExpenseShare(paymentPayer);
+    var remainingBalance = paymentPayerShare.getAmount().subtract(totalPaid);
     if (paymentAmount.compareTo(remainingBalance) > 0) {
       throw new PaymentValidationException(
-          "Payment amount exceeds the remaining balance of the expense");
+          "Payment amount exceeds the remaining balance of the expense. Remaining balance: "
+              + remainingBalance);
     }
   }
 }

@@ -15,6 +15,7 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
   Page<Payment> findByExpense(Expense expense, Pageable pageable);
 
-  @Query("select coalesce(sum(p.amount), 0) from Payment p where p.expense = :expense")
-  BigDecimal sumByExpense(Expense expense);
+  @Query(
+      "select coalesce(sum(p.amount), 0) from Payment p where p.expense = :expense and p.payer = :user")
+  BigDecimal sumByExpenseAndUser(Expense expense, User user);
 }
