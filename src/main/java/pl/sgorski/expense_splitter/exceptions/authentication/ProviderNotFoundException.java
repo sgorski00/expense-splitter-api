@@ -1,4 +1,6 @@
-package pl.sgorski.expense_splitter.exceptions.not_found;
+package pl.sgorski.expense_splitter.exceptions.authentication;
+
+import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 
 public final class ProviderNotFoundException extends NotFoundException {
   public ProviderNotFoundException(String role) {

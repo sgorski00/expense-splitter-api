@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipStatusNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusNotFoundException;
 
 public class FriendshipStatusTest {
 

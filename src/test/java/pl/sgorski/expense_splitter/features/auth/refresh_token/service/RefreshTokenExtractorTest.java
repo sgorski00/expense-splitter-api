@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.RefreshTokenValidationException;
+import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenValidationException;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 
 public class RefreshTokenExtractorTest {

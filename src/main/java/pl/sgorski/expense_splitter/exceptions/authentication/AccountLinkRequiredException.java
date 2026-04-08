@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.exceptions;
+package pl.sgorski.expense_splitter.exceptions.authentication;
 
 /**
  * Thrown when oauth2 link mode is required to perform an action <br>

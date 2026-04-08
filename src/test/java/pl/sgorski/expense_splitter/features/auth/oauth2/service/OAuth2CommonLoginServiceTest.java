@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import pl.sgorski.expense_splitter.exceptions.AccountLinkRequiredException;
+import pl.sgorski.expense_splitter.exceptions.authentication.AccountLinkRequiredException;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.dto.OAuth2LoginContext;

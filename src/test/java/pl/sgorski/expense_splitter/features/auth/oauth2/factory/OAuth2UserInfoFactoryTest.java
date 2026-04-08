@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.OAuth2InvalidAttributesException;
+import pl.sgorski.expense_splitter.exceptions.authentication.OAuth2InvalidAttributesException;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.FacebookOAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.GoogleOAuth2UserInfo;

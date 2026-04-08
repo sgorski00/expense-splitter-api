@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.exceptions;
+package pl.sgorski.expense_splitter.exceptions.user;
 
 public final class InvalidEmailException extends RuntimeException {
   public InvalidEmailException(String email) {

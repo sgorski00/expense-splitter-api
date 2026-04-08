@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.DuplicateIdentityException;
+import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 
 public class UserTest {

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import pl.sgorski.expense_splitter.exceptions.not_found.RoleNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.user.RoleNotFoundException;
 
 @AllArgsConstructor
 @Getter

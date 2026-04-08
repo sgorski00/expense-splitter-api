@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.exceptions;
+package pl.sgorski.expense_splitter.exceptions.authentication;
 
 /**
  * Thrown when an account linking operation fails due to invalid state. <br>

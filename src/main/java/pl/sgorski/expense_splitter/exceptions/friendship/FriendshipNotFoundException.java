@@ -1,4 +1,6 @@
-package pl.sgorski.expense_splitter.exceptions.not_found;
+package pl.sgorski.expense_splitter.exceptions.friendship;
+
+import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 
 import java.util.UUID;
 

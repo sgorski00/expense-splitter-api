@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.exceptions;
+package pl.sgorski.expense_splitter.exceptions.authentication;
 
 /**
  * Thrown when an operation on user password fails due to invalid state. <br>

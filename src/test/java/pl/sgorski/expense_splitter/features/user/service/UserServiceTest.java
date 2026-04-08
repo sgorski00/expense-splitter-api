@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;

@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.sgorski.expense_splitter.exceptions.not_found.RefreshTokenNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.config.RefreshTokenProperties;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.domain.RefreshToken;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.repository.RefreshTokenRepository;

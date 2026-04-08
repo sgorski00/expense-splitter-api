@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import pl.sgorski.expense_splitter.exceptions.PasswordChangeRequiredException;
+import pl.sgorski.expense_splitter.exceptions.authentication.PasswordChangeRequiredException;
 import pl.sgorski.expense_splitter.security.service.WhitelistService;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;

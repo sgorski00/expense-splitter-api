@@ -8,8 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import pl.sgorski.expense_splitter.exceptions.PaymentValidationException;
-import pl.sgorski.expense_splitter.exceptions.not_found.PaymentNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.payment.PaymentNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.payment.PaymentValidationException;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
 import pl.sgorski.expense_splitter.features.expense.service.ExpenseService;
 import pl.sgorski.expense_splitter.features.payment.domain.Payment;
@@ -56,7 +56,7 @@ public class PaymentService {
   public void deletePayment(UUID paymentId, User currentUser) {
     var payment = getPayment(paymentId, currentUser);
     if (!payment.getPayer().equals(currentUser)) {
-      throw new PaymentValidationException("Only the payer can delete the payment");
+      throw new AccessDeniedException("Only the payer can delete the payment");
     }
     paymentRepository.delete(payment);
   }

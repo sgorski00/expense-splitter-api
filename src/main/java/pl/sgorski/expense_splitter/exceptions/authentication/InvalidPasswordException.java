@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.exceptions;
+package pl.sgorski.expense_splitter.exceptions.authentication;
 
 /** Occurs when user provides wrong current password during password change. */
 public final class InvalidPasswordException extends RuntimeException {

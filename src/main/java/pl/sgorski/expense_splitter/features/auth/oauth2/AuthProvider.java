@@ -2,7 +2,7 @@ package pl.sgorski.expense_splitter.features.auth.oauth2;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Arrays;
-import pl.sgorski.expense_splitter.exceptions.not_found.ProviderNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.authentication.ProviderNotFoundException;
 
 public enum AuthProvider {
   GOOGLE,

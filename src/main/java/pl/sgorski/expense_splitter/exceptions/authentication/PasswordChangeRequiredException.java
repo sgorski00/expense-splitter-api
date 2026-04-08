@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.exceptions;
+package pl.sgorski.expense_splitter.exceptions.authentication;
 
 /**
  * Thrown when account is marked as password changed required and trying to visit endpoints that are

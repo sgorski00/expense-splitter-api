@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.security.service.impl.UserDetailsServiceImpl;
