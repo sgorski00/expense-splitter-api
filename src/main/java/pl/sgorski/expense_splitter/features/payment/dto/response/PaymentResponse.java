@@ -14,4 +14,6 @@ public record PaymentResponse(
     @Schema(description = "Expense for which the payment was made.") ExpenseResponse expense,
     @Schema(description = "Payment amount.", example = "300.00") BigDecimal amount,
     @Schema(description = "Payment creation timestamp.", example = "2026-03-18T12:30:00Z")
-        Instant createdAt) {}
+        Instant createdAt,
+    @Schema(description = "Payment update timestamp.", example = "2026-03-19T12:35:00Z")
+        Instant updatedAt) {}

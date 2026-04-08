@@ -45,7 +45,12 @@ public final class PaymentController {
             Instant.now());
     var result =
         new PaymentResponse(
-            UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
+            UUID.randomUUID(),
+            user,
+            expense,
+            BigDecimal.valueOf(300),
+            Instant.now(),
+            Instant.now());
     return ResponseEntity.ok(result);
   }
 
@@ -68,7 +73,12 @@ public final class PaymentController {
             Instant.now());
     var Payment =
         new PaymentResponse(
-            UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
+            UUID.randomUUID(),
+            user,
+            expense,
+            BigDecimal.valueOf(300),
+            Instant.now(),
+            Instant.now());
     var result = new PageImpl<>(List.of(Payment));
     return ResponseEntity.ok(result);
   }
@@ -91,7 +101,12 @@ public final class PaymentController {
             Instant.now());
     var Payment =
         new PaymentResponse(
-            UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
+            UUID.randomUUID(),
+            user,
+            expense,
+            BigDecimal.valueOf(300),
+            Instant.now(),
+            Instant.now());
     return ResponseEntity.ok(Payment);
   }
 
@@ -113,7 +128,12 @@ public final class PaymentController {
             Instant.now());
     var Payment =
         new PaymentResponse(
-            UUID.randomUUID(), user, expense, BigDecimal.valueOf(300), Instant.now());
+            UUID.randomUUID(),
+            user,
+            expense,
+            BigDecimal.valueOf(300),
+            Instant.now(),
+            Instant.now());
     return ResponseEntity.ok(Payment);
   }
 
