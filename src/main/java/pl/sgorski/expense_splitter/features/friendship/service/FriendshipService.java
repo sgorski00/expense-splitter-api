@@ -1,12 +1,14 @@
 package pl.sgorski.expense_splitter.features.friendship.service;
 
 import jakarta.transaction.Transactional;
+import java.util.Collection;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import pl.sgorski.expense_splitter.exceptions.InvalidFriendshipOperationException;
 import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipNotFoundException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
@@ -49,6 +51,13 @@ public class FriendshipService {
     return friendshipRepository
         .findFriends(user, pageable)
         .map(f -> f.getRequester().equals(user) ? f.getRecipient() : f.getRequester());
+  }
+
+  public boolean areFriends(User user, Collection<UUID> ids) {
+    log.debug("Checking friendship status between user: {} and users: {}", user.getId(), ids);
+    if (CollectionUtils.isEmpty(ids)) return true;
+    var count = friendshipRepository.countAcceptedFriends(user, ids);
+    return count == ids.size();
   }
 
   @Transactional

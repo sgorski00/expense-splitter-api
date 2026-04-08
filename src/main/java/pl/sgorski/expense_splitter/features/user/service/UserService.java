@@ -1,5 +1,7 @@
 package pl.sgorski.expense_splitter.features.user.service;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -96,5 +98,9 @@ public class UserService {
     user.setPasswordHash(passwordEncoder.encode(rawPassword));
     user.setPasswordForChange(true);
     return userRepository.save(user);
+  }
+
+  public List<User> getUsers(Set<UUID> ids) {
+    return userRepository.findAllByIdInAndDeletedAtIsNull(ids);
   }
 }

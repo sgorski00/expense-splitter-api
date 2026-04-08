@@ -146,6 +146,25 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+  @ExceptionHandler(ExpenseValidationException.class)
+  @ApiResponse(
+      responseCode = "409",
+      description = "Provided expense is not valid.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description = "RFC 7807 Problem Details response with 409 Conflict status.")))
+  public ProblemDetail handleExpenseValidationException(ExpenseValidationException ex) {
+    var status = HttpStatus.CONFLICT;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("Cannot create or update expense");
+    log.warn("Illegal expense create/update request: {}", ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(AccountLinkingException.class)
   @ApiResponse(
       responseCode = "400",

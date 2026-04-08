@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 
 @Schema(
-    name = "Expense Participant Response",
-    description = "Participant settlement view for an expense.")
-public record ExpenseParticipantResponse(
+    name = "Expense Share Response",
+    description = "Share of an expense for single participant.")
+public record ExpenseShareResponse(
     @Schema(description = "Participant basic user data.") UserResponse user,
     @Schema(description = "Amount owed by this participant.", example = "333.33")
-        BigDecimal amountOwed) {}
+        BigDecimal amount) {}
