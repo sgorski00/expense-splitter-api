@@ -58,8 +58,11 @@ public class Expense {
   }
 
   public boolean isParticipant(User user) {
-    return this.getPayer().equals(user)
-        || shares.stream().anyMatch(share -> share.getUser().equals(user));
+    return this.getPayer().equals(user) || isObligatedToPay(user);
+  }
+
+  public boolean isObligatedToPay(User user) {
+    return shares.stream().anyMatch(share -> share.getUser().equals(user));
   }
 
   private void setShares(Set<ExpenseShare> shares) {}

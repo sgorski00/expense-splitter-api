@@ -22,6 +22,7 @@ import org.springframework.security.access.AccessDeniedException;
 import pl.sgorski.expense_splitter.exceptions.payment.PaymentNotFoundException;
 import pl.sgorski.expense_splitter.exceptions.payment.PaymentValidationException;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
+import pl.sgorski.expense_splitter.features.expense.domain.ExpenseShare;
 import pl.sgorski.expense_splitter.features.expense.domain.SplitType;
 import pl.sgorski.expense_splitter.features.expense.service.ExpenseService;
 import pl.sgorski.expense_splitter.features.payment.domain.Payment;
@@ -68,6 +69,10 @@ public class PaymentServiceTest {
     expense.setPayer(payer);
     expense.setExpenseDate(Instant.now());
     expense.setSplitType(SplitType.EQUAL);
+    var payerShare = new ExpenseShare();
+    payerShare.setUser(payer);
+    payerShare.setAmount(BigDecimal.valueOf(100.00));
+    expense.addShare(payerShare);
 
     payment = new Payment();
     payment.setId(paymentId);
@@ -212,6 +217,26 @@ public class PaymentServiceTest {
     verify(expenseService, times(1)).getExpense(eq(expenseId), eq(payer));
     verify(paymentRepository, times(1)).sumByExpense(eq(expense));
     verify(paymentRepository, times(1)).save(any(Payment.class));
+  }
+
+  @Test
+  void createPayment_shouldThrowPaymentValidationException_whenUserNotObligatedToPay() {
+    var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(50.00));
+    var nonObligatedUser = new User();
+    nonObligatedUser.setId(UUID.randomUUID());
+    nonObligatedUser.setEmail("nonobligated@example.com");
+    nonObligatedUser.setRole(Role.USER);
+
+    when(expenseService.getExpense(eq(expenseId), eq(nonObligatedUser))).thenReturn(expense);
+    when(paymentRepository.sumByExpense(eq(expense))).thenReturn(BigDecimal.ZERO);
+
+    assertThrows(
+        PaymentValidationException.class,
+        () -> paymentService.createPayment(command, nonObligatedUser));
+
+    verify(expenseService, times(1)).getExpense(eq(expenseId), eq(nonObligatedUser));
+    verify(paymentRepository, times(1)).sumByExpense(eq(expense));
+    verify(paymentRepository, never()).save(any(Payment.class));
   }
 
   @Test

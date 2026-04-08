@@ -45,6 +45,11 @@ public class PaymentService {
   public Payment createPayment(CreatePaymentCommand command, User currentUser) {
     var expense = expenseService.getExpense(command.expenseId(), currentUser);
     validateOverpaidExpense(expense, command.amount());
+    if (!expense.isObligatedToPay(currentUser)) {
+      throw new PaymentValidationException(
+          "Only users obligated to pay for the expense can record payments");
+    }
+
     var payment = new Payment();
     payment.setAmount(command.amount());
     payment.setPayer(currentUser);

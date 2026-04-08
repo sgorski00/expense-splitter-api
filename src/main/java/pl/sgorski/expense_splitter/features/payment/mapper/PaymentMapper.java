@@ -1,8 +1,8 @@
 package pl.sgorski.expense_splitter.features.payment.mapper;
 
-import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.sgorski.expense_splitter.config.CentralMapperConfig;
 import pl.sgorski.expense_splitter.features.expense.dto.filter.ExpenseRole;
 import pl.sgorski.expense_splitter.features.expense.mapper.ExpenseMapper;
@@ -13,7 +13,7 @@ import pl.sgorski.expense_splitter.features.payment.dto.response.PaymentResponse
 
 @Mapper(config = CentralMapperConfig.class)
 public abstract class PaymentMapper {
-  @Nullable protected ExpenseMapper expenseMapper;
+  @Autowired protected ExpenseMapper expenseMapper;
 
   @Mapping(
       target = "expense",

@@ -104,4 +104,29 @@ public class ExpenseTest {
 
     assertTrue(expense.isParticipant(payer));
   }
+
+  @Test
+  void isObligatedToPay_shouldReturnTrue_whenUserIsShareholder() {
+    var share = new ExpenseShare();
+    share.setUser(participant);
+    share.setAmount(BigDecimal.valueOf(50.00));
+    expense.addShare(share);
+
+    assertTrue(expense.isObligatedToPay(participant));
+  }
+
+  @Test
+  void isObligatedToPay_shouldReturnFalse_whenUserIsNotShareholder() {
+    var otherUser = new User();
+    otherUser.setId(UUID.randomUUID());
+    otherUser.setEmail("other@example.com");
+    otherUser.setRole(Role.USER);
+
+    assertFalse(expense.isObligatedToPay(otherUser));
+  }
+
+  @Test
+  void isObligatedToPay_shouldReturnFalse_whenUserIsPayerButNotShareholder() {
+    assertFalse(expense.isObligatedToPay(payer));
+  }
 }
