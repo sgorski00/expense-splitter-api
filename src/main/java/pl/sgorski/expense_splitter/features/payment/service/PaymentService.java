@@ -8,10 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import pl.sgorski.expense_splitter.exceptions.expense.ExpenseNotFoundException;
 import pl.sgorski.expense_splitter.exceptions.payment.PaymentNotFoundException;
 import pl.sgorski.expense_splitter.exceptions.payment.PaymentValidationException;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
-import pl.sgorski.expense_splitter.features.expense.service.ExpenseService;
+import pl.sgorski.expense_splitter.features.expense.repository.ExpenseRepository;
 import pl.sgorski.expense_splitter.features.payment.domain.Payment;
 import pl.sgorski.expense_splitter.features.payment.dto.command.CreatePaymentCommand;
 import pl.sgorski.expense_splitter.features.payment.repository.PaymentRepository;
@@ -21,7 +22,7 @@ import pl.sgorski.expense_splitter.features.user.domain.User;
 @RequiredArgsConstructor
 public class PaymentService {
 
-  private final ExpenseService expenseService;
+  private final ExpenseRepository expenseRepository;
   private final PaymentRepository paymentRepository;
 
   public Payment getPayment(UUID id, User currentUser) {
@@ -43,11 +44,13 @@ public class PaymentService {
 
   @Transactional
   public Payment createPayment(CreatePaymentCommand command, User currentUser) {
-    var expense = expenseService.getExpense(command.expenseId(), currentUser);
-    if (!expense.isObligatedToPay(currentUser)) {
-      throw new PaymentValidationException(
-          "Only users obligated to pay for the expense can record payments");
-    }
+    var expense =
+        expenseRepository
+            .findByIdForUpdate(command.expenseId())
+            .orElseThrow(() -> new ExpenseNotFoundException(command.expenseId()));
+
+    validateIsUserObliged(expense, currentUser);
+    validateAmountValue(command.amount());
     validateOverpaidExpense(expense, currentUser, command.amount());
 
     var payment = new Payment();
@@ -75,6 +78,19 @@ public class PaymentService {
       throw new PaymentValidationException(
           "Payment amount exceeds the remaining balance of the expense. Remaining balance: "
               + remainingBalance);
+    }
+  }
+
+  private void validateAmountValue(BigDecimal amount) {
+    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new PaymentValidationException("Payment amount must be greater than zero");
+    }
+  }
+
+  private void validateIsUserObliged(Expense expense, User user) {
+    if (!expense.isObligatedToPay(user)) {
+      throw new PaymentValidationException(
+          "Only users obligated to pay for the expense can record payments");
     }
   }
 }

@@ -302,8 +302,13 @@ public class UserServiceTest {
 
   @Test
   void getUsers_shouldFindAllByIds() {
-    when(userRepository.findAllByIdInAndDeletedAtIsNull(anySet())).thenReturn(List.of());
+    var ids = Set.of(UUID.randomUUID(), UUID.randomUUID());
+    var expectedUsers = List.of(new User(), new User());
+    when(userRepository.findAllByIdInAndDeletedAtIsNull(ids)).thenReturn(expectedUsers);
 
-    assertNotNull(userService.getUsers(Set.of(UUID.randomUUID())));
+    var result = userService.getUsers(ids);
+
+    assertEquals(expectedUsers, result);
+    verify(userRepository).findAllByIdInAndDeletedAtIsNull(ids);
   }
 }
