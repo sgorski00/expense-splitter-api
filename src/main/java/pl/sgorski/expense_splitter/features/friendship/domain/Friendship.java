@@ -12,7 +12,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.jspecify.annotations.Nullable;
-import pl.sgorski.expense_splitter.exceptions.FriendshipStatusChangeException;
+import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusChangeException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Entity

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import pl.sgorski.expense_splitter.exceptions.AccountLinkingException;
+import pl.sgorski.expense_splitter.exceptions.authentication.AccountLinkingException;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.oauth2.dto.OAuth2LoginContext;
 import pl.sgorski.expense_splitter.features.auth.oauth2.service.OAuth2LoginService;

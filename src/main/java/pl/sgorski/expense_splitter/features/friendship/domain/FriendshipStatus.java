@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import pl.sgorski.expense_splitter.exceptions.not_found.FriendshipStatusNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusNotFoundException;
 
 @Getter
 @AllArgsConstructor

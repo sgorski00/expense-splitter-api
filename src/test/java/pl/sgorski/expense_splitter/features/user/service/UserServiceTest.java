@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.sgorski.expense_splitter.exceptions.not_found.UserNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
@@ -296,5 +298,17 @@ public class UserServiceTest {
 
     assertThrows(UserNotFoundException.class, () -> userService.changePassword(id, "password"));
     verify(userRepository, never()).save(eq(user));
+  }
+
+  @Test
+  void getUsers_shouldFindAllByIds() {
+    var ids = Set.of(UUID.randomUUID(), UUID.randomUUID());
+    var expectedUsers = List.of(new User(), new User());
+    when(userRepository.findAllByIdInAndDeletedAtIsNull(ids)).thenReturn(expectedUsers);
+
+    var result = userService.getUsers(ids);
+
+    assertEquals(expectedUsers, result);
+    verify(userRepository).findAllByIdInAndDeletedAtIsNull(ids);
   }
 }

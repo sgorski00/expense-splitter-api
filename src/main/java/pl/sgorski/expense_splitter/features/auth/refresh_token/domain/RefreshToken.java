@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
-import pl.sgorski.expense_splitter.exceptions.RefreshTokenValidationException;
+import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenValidationException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Entity

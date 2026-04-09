@@ -17,8 +17,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import pl.sgorski.expense_splitter.exceptions.*;
-import pl.sgorski.expense_splitter.exceptions.not_found.NotFoundException;
+import pl.sgorski.expense_splitter.exceptions.DomainObjectValidationException;
+import pl.sgorski.expense_splitter.exceptions.NotFoundException;
+import pl.sgorski.expense_splitter.exceptions.authentication.*;
+import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusChangeException;
+import pl.sgorski.expense_splitter.exceptions.friendship.InvalidFriendshipOperationException;
+import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
+import pl.sgorski.expense_splitter.exceptions.user.InvalidEmailException;
+import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
 
 @RestControllerAdvice
 @Slf4j
@@ -146,10 +152,10 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
-  @ExceptionHandler(ExpenseValidationException.class)
+  @ExceptionHandler(DomainObjectValidationException.class)
   @ApiResponse(
       responseCode = "409",
-      description = "Provided expense is not valid.",
+      description = "Provided domain object is not valid.",
       content =
           @Content(
               mediaType = "application/json",
@@ -157,11 +163,11 @@ public class GlobalExceptionHandler {
                   @Schema(
                       implementation = ProblemDetail.class,
                       description = "RFC 7807 Problem Details response with 409 Conflict status.")))
-  public ProblemDetail handleExpenseValidationException(ExpenseValidationException ex) {
+  public ProblemDetail handleDomainObjectValidationException(DomainObjectValidationException ex) {
     var status = HttpStatus.CONFLICT;
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
-    problemDetail.setTitle("Cannot create or update expense");
-    log.warn("Illegal expense create/update request: {}", ex.getMessage());
+    problemDetail.setTitle("Cannot create or update an object");
+    log.warn("Illegal domain object create/update request: {}", ex.getMessage());
     return problemDetail;
   }
 

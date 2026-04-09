@@ -1,7 +1,7 @@
 package pl.sgorski.expense_splitter.utils;
 
 import org.jspecify.annotations.Nullable;
-import pl.sgorski.expense_splitter.exceptions.InvalidEmailException;
+import pl.sgorski.expense_splitter.exceptions.user.InvalidEmailException;
 
 public final class StringUtils {
 

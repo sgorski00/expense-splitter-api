@@ -14,7 +14,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pl.sgorski.expense_splitter.exceptions.DuplicateIdentityException;
+import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 
 @Entity

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.RefreshTokenValidationException;
+import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenValidationException;
 
 public class RefreshTokenTest {
 

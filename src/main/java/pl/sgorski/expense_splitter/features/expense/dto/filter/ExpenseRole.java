@@ -2,7 +2,7 @@ package pl.sgorski.expense_splitter.features.expense.dto.filter;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Arrays;
-import pl.sgorski.expense_splitter.exceptions.not_found.ExpenseRoleNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.expense.ExpenseRoleNotFoundException;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
-import pl.sgorski.expense_splitter.exceptions.InvalidEmailException;
+import pl.sgorski.expense_splitter.exceptions.user.InvalidEmailException;
 
 public class StringUtilsTest {
 

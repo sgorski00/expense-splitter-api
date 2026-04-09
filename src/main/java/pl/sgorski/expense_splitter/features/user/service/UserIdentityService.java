@@ -2,7 +2,7 @@ package pl.sgorski.expense_splitter.features.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.sgorski.expense_splitter.exceptions.not_found.IdentityNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.user.IdentityNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;

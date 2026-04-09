@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import pl.sgorski.expense_splitter.exceptions.PasswordChangeRequiredException;
+import pl.sgorski.expense_splitter.exceptions.authentication.PasswordChangeRequiredException;
 import pl.sgorski.expense_splitter.security.service.WhitelistService;
 
 @ExtendWith(MockitoExtension.class)

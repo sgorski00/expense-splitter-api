@@ -1,7 +1,7 @@
 package pl.sgorski.expense_splitter.features.auth.oauth2.factory;
 
 import java.util.Map;
-import pl.sgorski.expense_splitter.exceptions.OAuth2InvalidAttributesException;
+import pl.sgorski.expense_splitter.exceptions.authentication.OAuth2InvalidAttributesException;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.OAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.impl.FacebookOAuth2UserInfo;
