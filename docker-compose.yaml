@@ -32,11 +32,23 @@ services:
     depends_on:
       es-postgres:
         condition: service_healthy
+      es-mailhog:
+        condition: service_started
     networks:
       - es-network
 
+  es-mailhog:
+    image: mailhog/mailhog
+    container_name: es-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - network
+
 volumes:
-  es-postgres-data:
+  es-network:
 
 networks:
   es-network:
