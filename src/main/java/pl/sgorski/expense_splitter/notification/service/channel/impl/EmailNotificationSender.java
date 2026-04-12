@@ -9,7 +9,7 @@ import pl.sgorski.expense_splitter.notification.service.channel.NotificationSend
 
 @Component
 @RequiredArgsConstructor
-public class EmailNotificationSender implements NotificationSender {
+public final class EmailNotificationSender implements NotificationSender {
 
   private final EmailSender emailSender;
 
@@ -21,7 +21,8 @@ public class EmailNotificationSender implements NotificationSender {
   @Override
   public void send(NotificationCommand command) {
     if (command.email() == null) {
-      throw new NotificationOperationException("Email address is required to sen email notification");
+      throw new NotificationOperationException(
+          "Email address is required to sen email notification");
     }
 
     emailSender.send(command.email(), command.title(), command.content());

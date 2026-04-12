@@ -11,7 +11,7 @@ import pl.sgorski.expense_splitter.notification.infrastructure.email.EmailSender
 @Profile("!test")
 @Component
 @RequiredArgsConstructor
-public class SmtpEmailSender implements EmailSender {
+public final class SmtpEmailSender implements EmailSender {
 
   private final MailProperties mailProperties;
   private final JavaMailSender javaMailSender;

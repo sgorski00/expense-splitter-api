@@ -9,7 +9,7 @@ import pl.sgorski.expense_splitter.notification.service.channel.NotificationSend
 
 @Service
 @RequiredArgsConstructor
-public class NotificationServiceImpl implements NotificationService {
+public final class NotificationServiceImpl implements NotificationService {
 
   private final List<NotificationSender> senders;
 
