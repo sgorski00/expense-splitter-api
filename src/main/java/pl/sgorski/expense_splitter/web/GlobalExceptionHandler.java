@@ -22,6 +22,7 @@ import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 import pl.sgorski.expense_splitter.exceptions.authentication.*;
 import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusChangeException;
 import pl.sgorski.expense_splitter.exceptions.friendship.InvalidFriendshipOperationException;
+import pl.sgorski.expense_splitter.exceptions.notification.NotificationOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
 import pl.sgorski.expense_splitter.exceptions.user.InvalidEmailException;
 import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
@@ -465,6 +466,26 @@ public class GlobalExceptionHandler {
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Invalid Friendship Operation");
     log.warn("Invalid friendship operation: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(NotificationOperationException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Notification operation failed due to missing or invalid data.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 400 Bad Request status.")))
+  public ProblemDetail handleNotificationOperationException(NotificationOperationException ex) {
+    var status = HttpStatus.BAD_REQUEST;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("Notification Operation Failed");
+    log.warn("Notification operation error: {}", ex.getMessage());
     return problemDetail;
   }
 
