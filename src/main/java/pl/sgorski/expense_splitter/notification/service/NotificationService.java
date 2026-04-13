@@ -12,8 +12,8 @@ import pl.sgorski.expense_splitter.exceptions.notification.NotificationNotFoundE
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
-import pl.sgorski.expense_splitter.notification.dto.NotificationChannel;
-import pl.sgorski.expense_splitter.notification.dto.NotificationCommand;
+import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
+import pl.sgorski.expense_splitter.notification.dto.command.NotificationCommand;
 import pl.sgorski.expense_splitter.notification.repository.NotificationRepository;
 
 @Service
@@ -46,7 +46,7 @@ public class NotificationService {
     notification.setUser(user);
     notification.setTitle(command.title());
     notification.setBody(command.content());
-    notification.setRead(false);
+    notification.setIsRead(false);
     return repository.save(notification);
   }
 
@@ -57,7 +57,7 @@ public class NotificationService {
             .findById(id)
             .filter(n -> n.getUser().equals(user))
             .orElseThrow(() -> new NotificationNotFoundException(id));
-    notification.setRead(true);
+    notification.setIsRead(true);
     return repository.save(notification);
   }
 

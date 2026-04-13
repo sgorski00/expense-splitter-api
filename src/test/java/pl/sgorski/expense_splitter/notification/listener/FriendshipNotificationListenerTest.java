@@ -15,8 +15,8 @@ import pl.sgorski.expense_splitter.features.friendship.event.FriendshipCreateEve
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
-import pl.sgorski.expense_splitter.notification.dto.NotificationChannel;
-import pl.sgorski.expense_splitter.notification.dto.NotificationCommand;
+import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
+import pl.sgorski.expense_splitter.notification.dto.command.NotificationCommand;
 import pl.sgorski.expense_splitter.notification.service.NotificationService;
 
 @ExtendWith(MockitoExtension.class)

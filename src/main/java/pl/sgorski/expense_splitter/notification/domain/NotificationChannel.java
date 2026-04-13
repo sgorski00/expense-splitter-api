@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.notification.dto;
+package pl.sgorski.expense_splitter.notification.domain;
 
 public enum NotificationChannel {
   EMAIL,

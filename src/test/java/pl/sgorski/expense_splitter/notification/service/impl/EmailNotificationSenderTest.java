@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
-import pl.sgorski.expense_splitter.notification.dto.NotificationChannel;
+import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
 import pl.sgorski.expense_splitter.notification.infrastructure.email.EmailSender;
 
 @ExtendWith(MockitoExtension.class)

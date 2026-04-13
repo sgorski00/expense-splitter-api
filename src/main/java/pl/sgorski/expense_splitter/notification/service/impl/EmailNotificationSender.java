@@ -3,7 +3,7 @@ package pl.sgorski.expense_splitter.notification.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
-import pl.sgorski.expense_splitter.notification.dto.NotificationChannel;
+import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
 import pl.sgorski.expense_splitter.notification.infrastructure.email.EmailSender;
 import pl.sgorski.expense_splitter.notification.service.NotificationSender;
 

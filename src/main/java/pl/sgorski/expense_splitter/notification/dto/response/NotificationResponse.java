@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.notification.dto;
+package pl.sgorski.expense_splitter.notification.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;

@@ -27,8 +27,8 @@ public class Notification {
   @Column(nullable = false)
   private String body;
 
-  @Column(nullable = false)
-  private Boolean read = false;
+  @Column(nullable = false, name = "read")
+  private Boolean isRead = false;
 
   @CreationTimestamp private Instant createdAt;
 }

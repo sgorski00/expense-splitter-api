@@ -18,8 +18,8 @@ import pl.sgorski.expense_splitter.exceptions.notification.NotificationNotFoundE
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
-import pl.sgorski.expense_splitter.notification.dto.NotificationChannel;
-import pl.sgorski.expense_splitter.notification.dto.NotificationCommand;
+import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
+import pl.sgorski.expense_splitter.notification.dto.command.NotificationCommand;
 import pl.sgorski.expense_splitter.notification.repository.NotificationRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +45,7 @@ public class NotificationServiceTest {
     notification.setUser(user);
     notification.setTitle("Test Title");
     notification.setBody("Test Body");
-    notification.setRead(false);
+    notification.setIsRead(false);
   }
 
   @Test
@@ -70,7 +70,7 @@ public class NotificationServiceTest {
 
     var result = notificationService.markAsRead(notification.getId(), user);
 
-    assertTrue(result.getRead());
+    assertTrue(result.getIsRead());
     verify(repository, times(1)).findById(notification.getId());
     verify(repository, times(1)).save(notification);
   }

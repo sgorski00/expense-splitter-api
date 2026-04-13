@@ -3,15 +3,21 @@ package pl.sgorski.expense_splitter.notification.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.sgorski.expense_splitter.notification.dto.NotificationResponse;
+import pl.sgorski.expense_splitter.notification.dto.request.UpdateNotificationPreferenceRequest;
+import pl.sgorski.expense_splitter.notification.dto.response.NotificationPreferenceResponse;
+import pl.sgorski.expense_splitter.notification.dto.response.NotificationResponse;
+import pl.sgorski.expense_splitter.notification.mapper.NotificationMapper;
+import pl.sgorski.expense_splitter.notification.service.NotificationPreferenceService;
 import pl.sgorski.expense_splitter.notification.service.NotificationService;
 import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
 
@@ -23,6 +29,8 @@ public class NotificationController {
 
   private final AuthenticatedUserResolver authenticatedUserResolver;
   private final NotificationService notificationService;
+  private final NotificationPreferenceService preferenceService;
+  private final NotificationMapper mapper;
 
   @PatchMapping("{id}/read")
   @Operation(
@@ -33,12 +41,23 @@ public class NotificationController {
       @PathVariable UUID id, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
     var notification = notificationService.markAsRead(id, user);
-    return ResponseEntity.ok(
-        new NotificationResponse(
-            user.getId(),
-            notification.getTitle(),
-            notification.getBody(),
-            notification.getRead(),
-            notification.getCreatedAt()));
+    var response = mapper.toResponse(notification);
+    return ResponseEntity.ok(response);
+  }
+
+  @PatchMapping("/preferences")
+  @Operation(
+      summary = "Update notification preferences",
+      description =
+          "Updates the authenticated user's notification channel preferences. All fields are optional.")
+  @ApiResponse(responseCode = "200", description = "Preferences updated successfully.")
+  public ResponseEntity<NotificationPreferenceResponse> updatePreferences(
+      @RequestBody @Valid UpdateNotificationPreferenceRequest request,
+      Authentication authentication) {
+    var user = authenticatedUserResolver.requireUser(authentication);
+    var command = mapper.toUpdateCommand(request);
+    var preferences = preferenceService.updatePreferences(user, command);
+    var response = mapper.toPreferenceResponse(preferences);
+    return ResponseEntity.ok(response);
   }
 }
