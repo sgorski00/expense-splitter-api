@@ -2,7 +2,6 @@ package pl.sgorski.expense_splitter.notification.service;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,7 @@ public class NotificationService {
   }
 
   @Transactional
-  public Notification markAsRead(@NotNull UUID id) {
+  public Notification markAsRead(UUID id) {
     var notification = getNotification(id);
     notification.setRead(true);
     return repository.save(notification);
