@@ -1,11 +1,11 @@
-package pl.sgorski.expense_splitter.notification.service.channel.impl;
+package pl.sgorski.expense_splitter.notification.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.sgorski.expense_splitter.exceptions.notification.NotificationOperationException;
 import pl.sgorski.expense_splitter.notification.dto.NotificationCommand;
 import pl.sgorski.expense_splitter.notification.infrastructure.email.EmailSender;
-import pl.sgorski.expense_splitter.notification.service.channel.NotificationSender;
+import pl.sgorski.expense_splitter.notification.service.NotificationSender;
 
 @Component
 @RequiredArgsConstructor

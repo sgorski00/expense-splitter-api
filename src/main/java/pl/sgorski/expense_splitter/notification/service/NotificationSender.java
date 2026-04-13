@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.notification.service.channel;
+package pl.sgorski.expense_splitter.notification.service;
 
 import pl.sgorski.expense_splitter.notification.dto.NotificationCommand;
 
