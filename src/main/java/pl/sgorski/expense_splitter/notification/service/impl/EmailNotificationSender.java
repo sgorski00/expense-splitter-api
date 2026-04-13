@@ -2,8 +2,8 @@ package pl.sgorski.expense_splitter.notification.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import pl.sgorski.expense_splitter.exceptions.notification.NotificationOperationException;
-import pl.sgorski.expense_splitter.notification.dto.NotificationCommand;
+import pl.sgorski.expense_splitter.notification.domain.Notification;
+import pl.sgorski.expense_splitter.notification.dto.NotificationChannel;
 import pl.sgorski.expense_splitter.notification.infrastructure.email.EmailSender;
 import pl.sgorski.expense_splitter.notification.service.NotificationSender;
 
@@ -14,17 +14,13 @@ public final class EmailNotificationSender implements NotificationSender {
   private final EmailSender emailSender;
 
   @Override
-  public boolean supports(NotificationCommand.Channel channel) {
-    return channel == NotificationCommand.Channel.EMAIL;
+  public boolean supports(NotificationChannel channel) {
+    return channel == NotificationChannel.EMAIL;
   }
 
   @Override
-  public void send(NotificationCommand command) {
-    if (command.email() == null) {
-      throw new NotificationOperationException(
-          "Email address is required to sen email notification");
-    }
-
-    emailSender.send(command.email(), command.title(), command.content());
+  public void send(Notification notification) {
+    emailSender.send(
+        notification.getUser().getEmail(), notification.getTitle(), notification.getBody());
   }
 }

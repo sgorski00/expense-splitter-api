@@ -12,9 +12,4 @@ public record NotificationCommand(
     @Nullable @NullOrNotBlank String email,
     @NotBlank String title,
     @NotBlank String content,
-    @NotNull Set<Channel> channels) {
-  public enum Channel {
-    EMAIL,
-    WEBSOCKET
-  }
-}
+    @NotNull Set<NotificationChannel> channels) {}
