@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import pl.sgorski.expense_splitter.exceptions.friendship.InvalidFriendshipOperat
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 import pl.sgorski.expense_splitter.features.friendship.domain.FriendshipStatus;
 import pl.sgorski.expense_splitter.features.friendship.dto.command.CreateFriendshipCommand;
+import pl.sgorski.expense_splitter.features.friendship.event.FriendshipCreateEvent;
 import pl.sgorski.expense_splitter.features.friendship.repository.FriendshipRepository;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
@@ -23,6 +25,7 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 @Slf4j
 public class FriendshipService {
 
+  private final ApplicationEventPublisher eventPublisher;
   private final FriendshipRepository friendshipRepository;
   private final UserService userService;
 
@@ -89,6 +92,8 @@ public class FriendshipService {
     friendship.setRequester(requester);
     friendship.setRecipient(recipient);
     var created = friendshipRepository.save(friendship);
+    eventPublisher.publishEvent(
+        new FriendshipCreateEvent(created.getId(), requester.getId(), recipient.getId()));
     log.info(
         "Friendship request created. ID: {}, from: {}, to: {}",
         created.getId(),
