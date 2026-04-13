@@ -44,14 +44,12 @@ public class NotificationService {
   }
 
   @Transactional
-  public Notification markAsRead(UUID id) {
-    var notification = getNotification(id);
+  public Notification markAsRead(UUID id, User user) {
+    var notification = repository.findById(id)
+            .filter(n -> n.getUser().equals(user))
+            .orElseThrow(() -> new NotificationNotFoundException(id));
     notification.setRead(true);
     return repository.save(notification);
-  }
-
-  public Notification getNotification(UUID id) {
-    return repository.findById(id).orElseThrow(() -> new NotificationNotFoundException(id));
   }
 
   public NotificationCommand getNewFriendRequestCommand(User user) {
