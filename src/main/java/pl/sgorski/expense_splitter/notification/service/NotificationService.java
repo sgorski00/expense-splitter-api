@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.exceptions.notification.NotificationNotFoundException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
@@ -17,6 +18,7 @@ import pl.sgorski.expense_splitter.notification.repository.NotificationRepositor
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationService {
 
   private final List<NotificationSender> senders;
@@ -25,6 +27,11 @@ public class NotificationService {
   private final UserService userService;
 
   public void send(Notification notification, Set<NotificationChannel> channels) {
+    log.debug(
+        "Sending notification {} to user {} via channels: {}",
+        notification.getId(),
+        notification.getUser().getId(),
+        channels);
     channels.forEach(
         channel ->
             senders.stream()

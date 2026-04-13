@@ -21,6 +21,7 @@ public class FriendshipNotificationListener {
   @Async
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(FriendshipCreateEvent event) {
+    log.debug("Handling new friend request for friendship {}", event.friendshipId());
     try {
       var recipient = userService.getUser(event.recipientId());
       var command = notificationService.getNewFriendRequestCommand(recipient);
