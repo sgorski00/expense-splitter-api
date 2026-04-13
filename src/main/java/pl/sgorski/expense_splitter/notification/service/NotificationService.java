@@ -45,7 +45,9 @@ public class NotificationService {
 
   @Transactional
   public Notification markAsRead(UUID id, User user) {
-    var notification = repository.findById(id)
+    var notification =
+        repository
+            .findById(id)
             .filter(n -> n.getUser().equals(user))
             .orElseThrow(() -> new NotificationNotFoundException(id));
     notification.setRead(true);
