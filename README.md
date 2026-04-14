@@ -23,7 +23,7 @@ W tym celu należy wykonać następujące kroki:
 1. Przejdź do katalogu projektu w terminalu.
 2. Jeśli to pierwsze uruchomienie, wykonaj polecenie `cp .env.example .env` w celu utworzenia pliku konfiguracyjnego.
 3. Uruchom swój ulubiony edytor tekstowy i otwórz plik `.env`, dostosuj ustawienia, które tego wymagają (np. dane do bazy danych).
-4. W terminalu, będąc w katalogu projektu, wykonaj polecenie `docker-compose up --build -d` w celu zbudowania i uruchomienia kontenerów Dockera.
+4. W terminalu, będąc w katalogu projektu, wykonaj polecenie `make xxx-up` w celu zbudowania i uruchomienia kontenerów Dockera.
 
 ---
 
@@ -31,15 +31,43 @@ W tym celu należy wykonać następujące kroki:
 1. Otwórz PowerShell i przejdź do katalogu projektu.
 2. Jeśli to pierwsze uruchomienie, wykonaj polecenie `Copy-Item .env.example -Destination .env` w celu utworzenia pliku konfiguracyjnego.
 3. Otwórz plik `.env` w edytorze tekstowym i dostosuj ustawienia, które tego wymagają (np. dane do bazy danych).
-4. W PowerShell, będąc w katalogu projektu, wykonaj polecenie `docker-compose up --build -d` w celu zbudowania i uruchomienia kontenerów Dockera.
+4. W PowerShell, będąc w katalogu projektu, wykonaj polecenie `make xxx-up` w celu zbudowania i uruchomienia kontenerów Dockera.
 
 ---
 
 Po zakończeniu procesu, API będzie dostępne pod adresem `http://localhost:8080`.
 
-Logi aplikacji można podejrzeć za pomocą polecenia `docker-compose logs -f` w terminalu.
+Logi aplikacji można podejrzeć za pomocą polecenia `make xxx-logs` w terminalu.
 
-Po uruchomieniu API, jego stan można obserować pod adresem url: `http://localhost:8080/api/actuator/health`.
+Po uruchomieniu API, jego stan można obserować pod adresem url: `http://localhost:8080/api/actuator/health`
+
+>:exclamation: **Ważne**: znaki `xxx` w polecaniach `make` należy zastąpić odpowiednim środowiskiem, np. `dev` lub `runtime`, w zależności od tego, które środowisko chcemy uruchomić.
+> 
+>Opis środowisk znajduje się poniżej
+
+---
+
+## Środowiska uruchomieniowe
+
+### infra
+
+W pliku `Makefile` skonfigurowane jest środowisko `infra`, które uruchamia tylko niezbędne usługi infrastrukturalne, takie jak baza danych PostgreSQL.
+
+Nie powoduje to uruchomienia samej aplikacji. Mozna ją wtedy uruchomić lokalnie, np. poprzez swoje IDE.
+
+### dev
+
+Jest to środowisko przeznaczone do programowania bezpośrednio w kontenerze dockera.
+
+Pozwala na uruchomienie aplikacji w `debug mode`, nie uruchamiając jej na swoim urządzeniu. W tym celu należy w IDE podłączyć się do portu 5005 w kontenerze.
+
+Poza samą aplikacją uruchamia się również `mailhog`, służący do przechwytywania wiadomości email wysyłanych przez aplikację, oraz baza danych.
+
+### runtime
+
+Uruchamia środowisko `production-like`, które korzysta z tych samych komponentów, które są w środowisku produkcyjnym.
+
+W tym przypadku skrzynkę pocztową należy skonfigurować poprzez plik .env przed zbudowaniem aplikacji.
 
 ---
 

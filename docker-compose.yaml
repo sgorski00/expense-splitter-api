@@ -19,11 +19,12 @@ services:
       timeout: 5s
       retries: 5
 
-  es-api:
+  es-api-runtime:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: es-web-api
+      target: runtime
+    container_name: es-web-api-runtime
     restart: unless-stopped
     env_file:
       - .env
@@ -32,10 +33,32 @@ services:
     depends_on:
       es-postgres:
         condition: service_healthy
+    networks:
+      - es-network
+    profiles:
+      - "runtime"
+
+  es-api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: es-web-api-dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    depends_on:
+      es-postgres:
+        condition: service_healthy
       es-mailhog:
         condition: service_started
     networks:
       - es-network
+    profiles:
+      - "dev"
 
   es-mailhog:
     image: mailhog/mailhog
@@ -46,6 +69,8 @@ services:
       - "8025:8025"
     networks:
       - es-network
+    profiles:
+      - "dev"
 
 volumes:
   es-postgres-data:
