@@ -110,6 +110,14 @@ public class User implements UserDetails {
             });
   }
 
+  public String getDisplayName() {
+    if (this.firstName != null && this.lastName != null) {
+      return this.firstName + " " + this.lastName;
+    } else {
+      return this.email;
+    }
+  }
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(role);

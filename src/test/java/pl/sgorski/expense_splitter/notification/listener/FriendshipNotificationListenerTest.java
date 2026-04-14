@@ -29,6 +29,7 @@ public class FriendshipNotificationListenerTest {
   @Mock private UserService userService;
   @InjectMocks private FriendshipNotificationListener listener;
   private User recipient;
+  private User requester;
   private Notification notification;
 
   @BeforeEach
@@ -36,6 +37,9 @@ public class FriendshipNotificationListenerTest {
     recipient = new User();
     recipient.setId(UUID.randomUUID());
     recipient.setEmail("recipient@example.com");
+    requester = new User();
+    requester.setId(UUID.randomUUID());
+    recipient.setEmail("requester@example.com");
     notification = new Notification();
     notification.setId(UUID.randomUUID());
     notification.setUser(recipient);
@@ -44,12 +48,12 @@ public class FriendshipNotificationListenerTest {
 
   @Test
   void handle_shouldCreateAndSendNotification_whenEventIsValid() {
-    var senderId = UUID.randomUUID();
     var friendshipId = UUID.randomUUID();
-    var event = new FriendshipCreateEvent(friendshipId, senderId, recipient.getId());
+    var event = new FriendshipCreateEvent(friendshipId, requester.getId(), recipient.getId());
     var channels = new HashSet<>(List.of(NotificationChannel.EMAIL));
 
     when(userService.getUser(recipient.getId())).thenReturn(recipient);
+    when(userService.getUser(requester.getId())).thenReturn(requester);
     when(preferenceService.getNotificationChannelsForUser(recipient)).thenReturn(channels);
     when(notificationService.create(any(NotificationCommand.class))).thenReturn(notification);
 
@@ -63,9 +67,9 @@ public class FriendshipNotificationListenerTest {
 
   @Test
   void handle_shouldHandleException_whenErrorOccursDuringNotificationCreation() {
-    var senderId = UUID.randomUUID();
     var friendshipId = UUID.randomUUID();
-    var event = new FriendshipCreateEvent(friendshipId, senderId, recipient.getId());
+    var event = new FriendshipCreateEvent(friendshipId, requester.getId(), recipient.getId());
+    when(userService.getUser(requester.getId())).thenReturn(requester);
 
     when(userService.getUser(recipient.getId())).thenThrow(new RuntimeException("User not found"));
 
@@ -77,11 +81,11 @@ public class FriendshipNotificationListenerTest {
 
   @Test
   void handle_shouldHandleException_whenErrorOccursDuringSending() {
-    var senderId = UUID.randomUUID();
     var friendshipId = UUID.randomUUID();
-    var event = new FriendshipCreateEvent(friendshipId, senderId, recipient.getId());
+    var event = new FriendshipCreateEvent(friendshipId, requester.getId(), recipient.getId());
     var channels = new HashSet<NotificationChannel>();
 
+    when(userService.getUser(requester.getId())).thenReturn(requester);
     when(userService.getUser(recipient.getId())).thenReturn(recipient);
     when(preferenceService.getNotificationChannelsForUser(recipient)).thenReturn(channels);
     when(notificationService.create(any(NotificationCommand.class))).thenReturn(notification);

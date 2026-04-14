@@ -26,6 +26,7 @@ public class FriendshipNotificationListener {
   public void handle(FriendshipCreateEvent event) {
     log.debug("Handling new friend request for friendship {}", event.friendshipId());
     try {
+      var requester = userService.getUser(event.requesterId());
       var recipient = userService.getUser(event.recipientId());
       var channels = preferenceService.getNotificationChannelsForUser(recipient);
       var command =
@@ -33,7 +34,8 @@ public class FriendshipNotificationListener {
               recipient.getId(),
               recipient.getEmail(),
               "New Friend Request",
-              "You have received a new friend request.",
+              String.format(
+                  "You have received a new friend request from %s.", requester.getDisplayName()),
               channels);
       var notification = notificationService.create(command);
 

@@ -95,4 +95,52 @@ public class UserTest {
     assertNotNull(user.getNotificationPreference());
     assertEquals(preference, user.getNotificationPreference());
   }
+
+  @Test
+  void getDisplayName_shouldReturnEmail_whenFirstNameIsNull() {
+    var email = "test@example.com";
+    var user = new User();
+    user.setEmail(email);
+    user.setLastName("Doe");
+
+    var result = user.getDisplayName();
+
+    assertEquals(email, result);
+  }
+
+  @Test
+  void getDisplayName_shouldReturnEmail_whenLastNameIsNull() {
+    var email = "test@example.com";
+    var user = new User();
+    user.setEmail(email);
+    user.setFirstName("John");
+
+    var result = user.getDisplayName();
+
+    assertEquals(email, result);
+  }
+
+  @Test
+  void getDisplayName_shouldReturnEmail_whenBothNamesAreNull() {
+    var email = "test@example.com";
+    var user = new User();
+    user.setEmail(email);
+    user.setFirstName("John");
+    user.setLastName("Doe");
+
+    var result = user.getDisplayName();
+
+    assertEquals("John Doe", result);
+  }
+
+  @Test
+  void getDisplayName_shouldReturnFullName_whenFullNameIsPresent() {
+    var email = "test@example.com";
+    var user = new User();
+    user.setEmail(email);
+
+    var result = user.getDisplayName();
+
+    assertEquals(email, result);
+  }
 }
