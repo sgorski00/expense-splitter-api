@@ -2,7 +2,7 @@ COMPOSE=docker compose
 DEV=--profile dev
 RUNTIME=--profile runtime
 
-.PHONY: up down build rebuild logs
+.PHONY: infra-up infra-down dev-up dev-down dev-logs dev-reset runtime-up runtime-down runtime-logs api-logs test psql lint
 
 infra-up:
 	$(COMPOSE) up -d
@@ -30,9 +30,6 @@ runtime-down:
 
 runtime-logs:
 	$(COMPOSE) $(RUNTIME) logs -f
-
-api-logs:
-	$(COMPOSE) logs -f es-api
 
 test:
 	mvn clean verify -Ptest

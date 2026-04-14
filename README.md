@@ -12,7 +12,7 @@ Można ją również sprawdzić lokalnie z interfejsem Swagger UI po uruchomieni
 
 ## Uruchomienie
 
-Aby uruchomić aplikację, w celach programistcznych, najlepiej skorzystać ze skonfigurowanego w projekcie Dockera.
+Aby uruchomić aplikację, w celach programistycznych, najlepiej skorzystać ze skonfigurowanego w projekcie Dockera.
 
 W tym celu należy wykonać następujące kroki:
 
@@ -31,17 +31,19 @@ W tym celu należy wykonać następujące kroki:
 1. Otwórz PowerShell i przejdź do katalogu projektu.
 2. Jeśli to pierwsze uruchomienie, wykonaj polecenie `Copy-Item .env.example -Destination .env` w celu utworzenia pliku konfiguracyjnego.
 3. Otwórz plik `.env` w edytorze tekstowym i dostosuj ustawienia, które tego wymagają (np. dane do bazy danych).
-4. W PowerShell, będąc w katalogu projektu, wykonaj polecenie `make xxx-up` w celu zbudowania i uruchomienia kontenerów Dockera.
+4. W PowerShell, będąc w katalogu projektu:
+    - jeśli masz zainstalowane `make` (np. przez Chocolatey), wykonaj polecenie `make xxx-up`,
+    - w przeciwnym razie użyj równoważnego polecenia `docker compose --profile xxx up --build -d`.
 
 ---
 
 Po zakończeniu procesu, API będzie dostępne pod adresem `http://localhost:8080`.
 
-Logi aplikacji można podejrzeć za pomocą polecenia `make xxx-logs` w terminalu.
+Logi aplikacji można podejrzeć za pomocą polecenia `make xxx-logs` w terminalu lub, w Windows bez `make`, poleceniem `docker compose --profile xxx logs -f`.
 
-Po uruchomieniu API, jego stan można obserować pod adresem url: `http://localhost:8080/api/actuator/health`
+Po uruchomieniu API jego stan można obserwować pod adresem url: `http://localhost:8080/api/actuator/health`
 
->:exclamation: **Ważne**: znaki `xxx` w polecaniach `make` należy zastąpić odpowiednim środowiskiem, np. `dev` lub `runtime`, w zależności od tego, które środowisko chcemy uruchomić.
+>:exclamation: **Ważne**: znaki `xxx` w poleceniach `make` i `docker compose --profile xxx ...` należy zastąpić odpowiednim środowiskiem, np. `dev` lub `runtime`, w zależności od tego, które środowisko chcemy uruchomić.
 > 
 >Opis środowisk znajduje się poniżej
 
@@ -53,7 +55,7 @@ Po uruchomieniu API, jego stan można obserować pod adresem url: `http://localh
 
 W pliku `Makefile` skonfigurowane jest środowisko `infra`, które uruchamia tylko niezbędne usługi infrastrukturalne, takie jak baza danych PostgreSQL.
 
-Nie powoduje to uruchomienia samej aplikacji. Mozna ją wtedy uruchomić lokalnie, np. poprzez swoje IDE.
+Nie powoduje to uruchomienia samej aplikacji. Można ją wtedy uruchomić lokalnie, np. poprzez swoje IDE.
 
 ### dev
 
@@ -83,22 +85,22 @@ Refresh Token będzie również ustawiany jako `httpOnly cookie` o nazwie `refre
 
 ### Rejestracja
 
-Użytkownik może zarejestrować się w systemie, wykonując żądanie POST na endpoint `/api/auth/register` z danymi rejestracyjnymi w formacie JSON. Po poprawnej rejestracji, użytkownik będzie mógł się zalogować i korzystać z funkcjonalności API.
+Użytkownik może zarejestrować się w systemie, wykonując żądanie POST na endpoint `/api/auth/register` z danymi rejestracyjnymi w formacie JSON. Po poprawnej rejestracji użytkownik będzie mógł się zalogować i korzystać z funkcjonalności API.
 
-Rejestracja może również odbywć się za pomocą protokołu OAuth2, o ile wcześniej nie istniał użytkownik o podanym u dostawcy adresie email.
+Rejestracja może również odbywać się za pomocą protokołu OAuth2, o ile wcześniej nie istniał użytkownik o podanym u dostawcy adresie email.
 
 ### Logowanie Lokalnie
 
 Aby uwierzytelnić się lokalnie, należy wykonać następujące kroki:
 1. Wykonaj żądanie POST na endpoint `/api/auth/login` z danymi logowania w formacie JSON.
-2. Po poprawnym zalogowaniu się, tokeny będą wydane zgodnie z zasadami opisanymi wcześniej.
+2. Po poprawnym zalogowaniu się tokeny będą wydane zgodnie z zasadami opisanymi wcześniej.
 
 ### Logowanie OAuth2
 
 Aby uwierzytelnić się za pomocą OAuth2, należy wykonać następujące kroki:
 1. Wykonaj żądanie POST na endpoint `/api/oauth2/authorization/{provider}`, gdzie `{provider}` to nazwa dostawcy OAuth2 (np. `google`, `facebook`).
 2. Nastąpi przekierowanie do strony logowania dostawcy OAuth2, gdzie należy się zalogować i udzielić zgody na dostęp do danych.
-3. Po poprawnym zalogowaniu się, tokeny będą wydane zgodnie z zasadami opisanymi wcześniej.
+3. Po poprawnym zalogowaniu się tokeny będą wydane zgodnie z zasadami opisanymi wcześniej.
 
 ### Odświeżanie tokenów
 
@@ -106,7 +108,7 @@ Tokeny JWT mają określony czas ważności, po którym wygasają.
 
 Aby odświeżyć token JWT, należy wykonać żądanie POST na endpoint `/api/auth/refresh` z Refresh Tokenem w HttpOnly cookie o nazwie `refreshToken`. 
 Alternatywnym sposobem jest przesłanie Refresh Tokena w wymienionym wyżej endpoincie bez użycia cookie. W tym przypadku refresh token należy przesłać w nagłówku `Authorization` w formacie `Bearer {refreshToken}`.
-Po poprawnym odświeżeniu, otrzymasz nowy token JWT oraz Refresh Token.
+Po poprawnym odświeżeniu otrzymasz nowy token JWT oraz Refresh Token.
 
 ### Wylogowanie
 
