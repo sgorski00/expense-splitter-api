@@ -16,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
+import pl.sgorski.expense_splitter.notification.domain.UserNotificationPreference;
 
 @Entity
 @Table(name = "users")
@@ -68,6 +69,10 @@ public class User implements UserDetails {
       fetch = FetchType.LAZY)
   private Set<Friendship> receivedFriendshipRequests = new HashSet<>();
 
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Nullable
+  private UserNotificationPreference notificationPreference;
+
   @CreationTimestamp private Instant createdAt;
 
   @UpdateTimestamp private Instant updatedAt;
@@ -76,6 +81,19 @@ public class User implements UserDetails {
 
   @Column(nullable = false)
   private boolean isPasswordForChange = false;
+
+  @PrePersist
+  public void ensurePreferences() {
+    if (this.notificationPreference == null) {
+      var preference = new UserNotificationPreference();
+      preference.setUser(this);
+      this.notificationPreference = preference;
+    }
+  }
+
+  public void delete() {
+    this.deletedAt = Instant.now();
+  }
 
   public void addIdentity(UserIdentity identity) {
     identities.stream()
@@ -90,6 +108,14 @@ public class User implements UserDetails {
               identities.add(identity);
               identity.setUser(this);
             });
+  }
+
+  public String getDisplayName() {
+    if (this.firstName != null && this.lastName != null) {
+      return this.firstName + " " + this.lastName;
+    } else {
+      return this.email;
+    }
   }
 
   @Override
@@ -125,9 +151,5 @@ public class User implements UserDetails {
   @Override
   public boolean isEnabled() {
     return this.deletedAt == null;
-  }
-
-  public void delete() {
-    this.deletedAt = Instant.now();
   }
 }
