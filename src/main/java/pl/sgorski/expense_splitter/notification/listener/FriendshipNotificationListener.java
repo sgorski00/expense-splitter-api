@@ -8,6 +8,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import pl.sgorski.expense_splitter.features.friendship.event.FriendshipCreateEvent;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
+import pl.sgorski.expense_splitter.notification.dto.command.NotificationCommand;
+import pl.sgorski.expense_splitter.notification.service.NotificationPreferenceService;
 import pl.sgorski.expense_splitter.notification.service.NotificationService;
 
 @Component
@@ -16,6 +18,7 @@ import pl.sgorski.expense_splitter.notification.service.NotificationService;
 public class FriendshipNotificationListener {
 
   private final NotificationService notificationService;
+  private final NotificationPreferenceService preferenceService;
   private final UserService userService;
 
   @Async
@@ -24,7 +27,14 @@ public class FriendshipNotificationListener {
     log.debug("Handling new friend request for friendship {}", event.friendshipId());
     try {
       var recipient = userService.getUser(event.recipientId());
-      var command = notificationService.getNewFriendRequestCommand(recipient);
+      var channels = preferenceService.getNotificationChannelsForUser(recipient);
+      var command =
+          new NotificationCommand(
+              recipient.getId(),
+              recipient.getEmail(),
+              "New Friend Request",
+              "You have received a new friend request.",
+              channels);
       var notification = notificationService.create(command);
 
       notificationService.send(notification, command.channels());

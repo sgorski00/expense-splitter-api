@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,12 +18,14 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
 import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
 import pl.sgorski.expense_splitter.notification.dto.command.NotificationCommand;
+import pl.sgorski.expense_splitter.notification.service.NotificationPreferenceService;
 import pl.sgorski.expense_splitter.notification.service.NotificationService;
 
 @ExtendWith(MockitoExtension.class)
 public class FriendshipNotificationListenerTest {
 
   @Mock private NotificationService notificationService;
+  @Mock private NotificationPreferenceService preferenceService;
   @Mock private UserService userService;
   @InjectMocks private FriendshipNotificationListener listener;
   private User recipient;
@@ -44,24 +47,18 @@ public class FriendshipNotificationListenerTest {
     var senderId = UUID.randomUUID();
     var friendshipId = UUID.randomUUID();
     var event = new FriendshipCreateEvent(friendshipId, senderId, recipient.getId());
-    var command =
-        new NotificationCommand(
-            recipient.getId(),
-            recipient.getEmail(),
-            "New Friend Request",
-            "You have received a new friend request.",
-            new HashSet<>(java.util.List.of(NotificationChannel.EMAIL)));
+    var channels = new HashSet<>(List.of(NotificationChannel.EMAIL));
 
     when(userService.getUser(recipient.getId())).thenReturn(recipient);
-    when(notificationService.getNewFriendRequestCommand(recipient)).thenReturn(command);
-    when(notificationService.create(command)).thenReturn(notification);
+    when(preferenceService.getNotificationChannelsForUser(recipient)).thenReturn(channels);
+    when(notificationService.create(any(NotificationCommand.class))).thenReturn(notification);
 
     listener.handle(event);
 
     verify(userService, times(1)).getUser(recipient.getId());
-    verify(notificationService, times(1)).getNewFriendRequestCommand(recipient);
-    verify(notificationService, times(1)).create(command);
-    verify(notificationService, times(1)).send(notification, command.channels());
+    verify(preferenceService, times(1)).getNotificationChannelsForUser(recipient);
+    verify(notificationService, times(1)).create(any(NotificationCommand.class));
+    verify(notificationService, times(1)).send(notification, channels);
   }
 
   @Test
@@ -83,23 +80,17 @@ public class FriendshipNotificationListenerTest {
     var senderId = UUID.randomUUID();
     var friendshipId = UUID.randomUUID();
     var event = new FriendshipCreateEvent(friendshipId, senderId, recipient.getId());
-    var command =
-        new NotificationCommand(
-            recipient.getId(),
-            recipient.getEmail(),
-            "New Friend Request",
-            "You have received a new friend request.",
-            new HashSet<>());
+    var channels = new HashSet<NotificationChannel>();
 
     when(userService.getUser(recipient.getId())).thenReturn(recipient);
-    when(notificationService.getNewFriendRequestCommand(recipient)).thenReturn(command);
-    when(notificationService.create(command)).thenReturn(notification);
+    when(preferenceService.getNotificationChannelsForUser(recipient)).thenReturn(channels);
+    when(notificationService.create(any(NotificationCommand.class))).thenReturn(notification);
     doThrow(new RuntimeException("Send failed"))
         .when(notificationService)
-        .send(notification, command.channels());
+        .send(notification, channels);
 
     listener.handle(event);
 
-    verify(notificationService, times(1)).send(notification, command.channels());
+    verify(notificationService, times(1)).send(notification, channels);
   }
 }

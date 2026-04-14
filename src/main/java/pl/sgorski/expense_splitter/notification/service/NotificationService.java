@@ -23,7 +23,6 @@ public class NotificationService {
 
   private final List<NotificationSender> senders;
   private final NotificationRepository repository;
-  private final NotificationPreferenceService preferenceService;
   private final UserService userService;
 
   public void send(Notification notification, Set<NotificationChannel> channels) {
@@ -59,15 +58,5 @@ public class NotificationService {
             .orElseThrow(() -> new NotificationNotFoundException(id));
     notification.setIsRead(true);
     return repository.save(notification);
-  }
-
-  public NotificationCommand getNewFriendRequestCommand(User user) {
-    var channels = preferenceService.getNotificationChannelsForUser(user);
-    return new NotificationCommand(
-        user.getId(),
-        user.getEmail(),
-        "New Friend Request",
-        "You have received a new friend request.",
-        channels);
   }
 }

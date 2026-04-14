@@ -25,9 +25,7 @@ import pl.sgorski.expense_splitter.notification.repository.NotificationRepositor
 @ExtendWith(MockitoExtension.class)
 public class NotificationServiceTest {
 
-  @Mock private List<NotificationSender> senders;
   @Mock private NotificationRepository repository;
-  @Mock private NotificationPreferenceService preferenceService;
   @Mock private UserService userService;
   @InjectMocks private NotificationService notificationService;
   private User user;
@@ -106,36 +104,10 @@ public class NotificationServiceTest {
     var mockSender = mock(NotificationSender.class);
     when(mockSender.supports(channel)).thenReturn(true);
     var senderList = List.of(mockSender);
-    notificationService =
-        new NotificationService(senderList, repository, preferenceService, userService);
+    notificationService = new NotificationService(senderList, repository, userService);
 
     notificationService.send(notification, channels);
 
     verify(mockSender, times(1)).send(notification);
-  }
-
-  @Test
-  void getNewFriendRequestCommand_shouldReturnCommand_whenUserExists() {
-    var channels = new HashSet<NotificationChannel>();
-    channels.add(NotificationChannel.EMAIL);
-    when(preferenceService.getNotificationChannelsForUser(user)).thenReturn(channels);
-
-    var result = notificationService.getNewFriendRequestCommand(user);
-
-    assertNotNull(result);
-    assertEquals(user.getId(), result.userId());
-    assertEquals("New Friend Request", result.title());
-    assertEquals(channels, result.channels());
-    verify(preferenceService, times(1)).getNotificationChannelsForUser(user);
-  }
-
-  @Test
-  void getNewFriendRequestCommand_shouldReturnEmptyChannels_whenNoPreferencesSet() {
-    when(preferenceService.getNotificationChannelsForUser(user)).thenReturn(new HashSet<>());
-
-    var result = notificationService.getNewFriendRequestCommand(user);
-
-    assertNotNull(result);
-    assertTrue(result.channels().isEmpty());
   }
 }
