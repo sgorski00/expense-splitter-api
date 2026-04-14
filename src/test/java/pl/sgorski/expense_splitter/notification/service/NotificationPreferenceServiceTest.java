@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.sgorski.expense_splitter.exceptions.notification.NotificationPreferenceNotFoundException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
 import pl.sgorski.expense_splitter.notification.domain.UserNotificationPreference;
@@ -159,5 +160,25 @@ public class NotificationPreferenceServiceTest {
     assertTrue(result.getEmailNotificationsEnabled());
     assertFalse(result.getWebsocketNotificationsEnabled());
     verify(preferenceRepository, times(1)).save(existingPreference);
+  }
+
+  @Test
+  void getPreferencesForUser_shouldReturnPreference_whenExists() {
+    when(preferenceRepository.findByUser(user)).thenReturn(Optional.of(preference));
+
+    var result = notificationPreferenceService.getPreferencesForUser(user);
+
+    assertEquals(preference, result);
+    verify(preferenceRepository, times(1)).findByUser(user);
+  }
+
+  @Test
+  void getPreferencesForUser_shouldThrow_whenPreferenceDoesNotExist() {
+    when(preferenceRepository.findByUser(user)).thenReturn(Optional.empty());
+
+    assertThrows(
+        NotificationPreferenceNotFoundException.class,
+        () -> notificationPreferenceService.getPreferencesForUser(user));
+    verify(preferenceRepository, times(1)).findByUser(user);
   }
 }

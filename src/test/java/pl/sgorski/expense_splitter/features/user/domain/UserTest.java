@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
+import pl.sgorski.expense_splitter.notification.domain.UserNotificationPreference;
 
 public class UserTest {
 
@@ -68,5 +70,29 @@ public class UserTest {
     user.delete();
 
     assertNotNull(user.getDeletedAt());
+  }
+
+  @Test
+  void ensurePreferences_shouldCreatePreferences_whenNull() {
+    var user = new User();
+    user.setNotificationPreference(null);
+
+    user.ensurePreferences();
+
+    assertNotNull(user.getNotificationPreference());
+    assertEquals(user, user.getNotificationPreference().getUser());
+  }
+
+  @Test
+  void ensurePreferences_shouldNotCreatePreferences_whenAlreadyExists() {
+    var preference = new UserNotificationPreference();
+    preference.setId(UUID.randomUUID());
+    var user = new User();
+    user.setNotificationPreference(preference);
+
+    user.ensurePreferences();
+
+    assertNotNull(user.getNotificationPreference());
+    assertEquals(preference, user.getNotificationPreference());
   }
 }

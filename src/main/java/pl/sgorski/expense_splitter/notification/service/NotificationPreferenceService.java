@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.sgorski.expense_splitter.exceptions.notification.NotificationPreferenceNotFoundException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
 import pl.sgorski.expense_splitter.notification.domain.UserNotificationPreference;
@@ -51,8 +52,9 @@ public class NotificationPreferenceService {
     return preferenceRepository.save(preferences);
   }
 
-    public UserNotificationPreference getPreferencesForUser(User user) {
-        return preferenceRepository.findByUser(user)
-                .orElse(new UserNotificationPreference());
-    }
+  public UserNotificationPreference getPreferencesForUser(User user) {
+    return preferenceRepository
+        .findByUser(user)
+        .orElseThrow(() -> new NotificationPreferenceNotFoundException(user.getId()));
+  }
 }

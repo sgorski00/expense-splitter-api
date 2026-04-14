@@ -69,10 +69,7 @@ public class User implements UserDetails {
       fetch = FetchType.LAZY)
   private Set<Friendship> receivedFriendshipRequests = new HashSet<>();
 
-  @OneToOne(
-          mappedBy = "user",
-          cascade = CascadeType.ALL,
-          orphanRemoval = true)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Nullable
   private UserNotificationPreference notificationPreference;
 
@@ -100,17 +97,17 @@ public class User implements UserDetails {
 
   public void addIdentity(UserIdentity identity) {
     identities.stream()
-            .filter(i -> i.getProvider().equals(identity.getProvider()))
-            .findFirst()
-            .ifPresentOrElse(
-                    i -> {
-                      throw new DuplicateIdentityException(
-                              "User already has identity for provider: " + i.getProvider());
-                    },
-                    () -> {
-                      identities.add(identity);
-                      identity.setUser(this);
-                    });
+        .filter(i -> i.getProvider().equals(identity.getProvider()))
+        .findFirst()
+        .ifPresentOrElse(
+            i -> {
+              throw new DuplicateIdentityException(
+                  "User already has identity for provider: " + i.getProvider());
+            },
+            () -> {
+              identities.add(identity);
+              identity.setUser(this);
+            });
   }
 
   @Override

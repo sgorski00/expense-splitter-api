@@ -42,12 +42,12 @@ public class NotificationController {
   }
 
   @Operation(
-          summary = "Shows notification preferences",
-          description =
-                  "Shows the authenticated user's notification channel preferences.")
+      summary = "Shows notification preferences",
+      description = "Shows the authenticated user's notification channel preferences.")
   @ApiResponse(responseCode = "200", description = "Preferences retrieved successfully.")
   @GetMapping("/preferences")
-  public ResponseEntity<NotificationPreferenceResponse> getPreferences(Authentication authentication) {
+  public ResponseEntity<NotificationPreferenceResponse> getPreferences(
+      Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
     var preferences = preferenceService.getPreferencesForUser(user);
     var response = mapper.toPreferenceResponse(preferences);
