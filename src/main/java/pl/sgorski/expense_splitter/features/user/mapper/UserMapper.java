@@ -40,6 +40,7 @@ public interface UserMapper {
   @Mapping(target = "authorities", ignore = true)
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
+  @Mapping(target = "notificationPreference", ignore = true)
   void updateProfile(UpdateProfileRequest request, @MappingTarget User user);
 
   @Mapping(target = "password", source = "newPassword")
@@ -57,6 +58,7 @@ public interface UserMapper {
   @Mapping(target = "authorities", ignore = true)
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
+  @Mapping(target = "notificationPreference", ignore = true)
   void updateUser(UpdateUserCommand command, @MappingTarget User user);
 
   @Named("encryptedEmail")
@@ -75,5 +77,6 @@ public interface UserMapper {
   @Mapping(target = "authorities", ignore = true)
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
+  @Mapping(target = "notificationPreference", ignore = true)
   User toUser(CreateUserCommand command);
 }

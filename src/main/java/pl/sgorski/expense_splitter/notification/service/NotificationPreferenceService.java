@@ -50,4 +50,9 @@ public class NotificationPreferenceService {
 
     return preferenceRepository.save(preferences);
   }
+
+    public UserNotificationPreference getPreferencesForUser(User user) {
+        return preferenceRepository.findByUser(user)
+                .orElse(new UserNotificationPreference());
+    }
 }

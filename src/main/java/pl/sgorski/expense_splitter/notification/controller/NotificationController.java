@@ -8,11 +8,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.sgorski.expense_splitter.notification.dto.request.UpdateNotificationPreferenceRequest;
 import pl.sgorski.expense_splitter.notification.dto.response.NotificationPreferenceResponse;
 import pl.sgorski.expense_splitter.notification.dto.response.NotificationResponse;
@@ -42,6 +38,19 @@ public class NotificationController {
     var user = authenticatedUserResolver.requireUser(authentication);
     var notification = notificationService.markAsRead(id, user);
     var response = mapper.toResponse(notification);
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+          summary = "Shows notification preferences",
+          description =
+                  "Shows the authenticated user's notification channel preferences.")
+  @ApiResponse(responseCode = "200", description = "Preferences retrieved successfully.")
+  @GetMapping("/preferences")
+  public ResponseEntity<NotificationPreferenceResponse> getPreferences(Authentication authentication) {
+    var user = authenticatedUserResolver.requireUser(authentication);
+    var preferences = preferenceService.getPreferencesForUser(user);
+    var response = mapper.toPreferenceResponse(preferences);
     return ResponseEntity.ok(response);
   }
 
