@@ -39,7 +39,7 @@ public class FriendshipNotificationListenerTest {
     recipient.setEmail("recipient@example.com");
     requester = new User();
     requester.setId(UUID.randomUUID());
-    recipient.setEmail("requester@example.com");
+    requester.setEmail("requester@example.com");
     notification = new Notification();
     notification.setId(UUID.randomUUID());
     notification.setUser(recipient);

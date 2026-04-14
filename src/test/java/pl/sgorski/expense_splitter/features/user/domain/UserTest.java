@@ -125,12 +125,10 @@ public class UserTest {
     var email = "test@example.com";
     var user = new User();
     user.setEmail(email);
-    user.setFirstName("John");
-    user.setLastName("Doe");
 
     var result = user.getDisplayName();
 
-    assertEquals("John Doe", result);
+    assertEquals(email, result);
   }
 
   @Test
@@ -138,9 +136,11 @@ public class UserTest {
     var email = "test@example.com";
     var user = new User();
     user.setEmail(email);
+    user.setFirstName("John");
+    user.setLastName("Doe");
 
     var result = user.getDisplayName();
 
-    assertEquals(email, result);
+    assertEquals("John Doe", result);
   }
 }

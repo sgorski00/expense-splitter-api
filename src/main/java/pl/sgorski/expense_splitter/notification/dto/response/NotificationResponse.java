@@ -7,6 +7,10 @@ import java.util.UUID;
 @Schema(name = "Notification Response", description = "Notification details returned by API.")
 public record NotificationResponse(
     @Schema(
+            description = "Notification unique identifier.",
+            example = "123e4567-e89b-12d3-a456-426614174000")
+        UUID id,
+    @Schema(
             description = "User unique identifier who received the notification.",
             example = "123e4567-e89b-12d3-a456-426614174000")
         UUID userId,
