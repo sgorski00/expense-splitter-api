@@ -1,27 +1,41 @@
-.PHONY: up down build rebuild logs
+COMPOSE=docker compose
+DEV=--profile dev
+RUNTIME=--profile runtime
 
-up:
-	docker-compose up -d
+.PHONY: infra-up infra-down dev-up dev-down dev-logs dev-reset runtime-up runtime-down runtime-logs api-logs test psql lint
 
-down:
-	docker-compose down
+infra-up:
+	$(COMPOSE) up -d
 
-build:
-	docker-compose build --no-cache
+infra-down:
+	$(COMPOSE) down
 
-rebuild:
-	docker-compose build --no-cache
-	docker-compose down
-	docker-compose up -d
+dev-up:
+	$(COMPOSE) $(DEV) up -d --build
 
-logs:
-	docker-compose logs -f
+dev-down:
+	$(COMPOSE) $(DEV) down
+
+dev-logs:
+	$(COMPOSE) $(DEV) logs -f
+
+dev-reset:
+	$(COMPOSE) $(DEV) down -v --remove-orphans
+
+runtime-up:
+	$(COMPOSE) $(RUNTIME) up -d --build
+
+runtime-down:
+	$(COMPOSE) $(RUNTIME) down
+
+runtime-logs:
+	$(COMPOSE) $(RUNTIME) logs -f
 
 test:
 	mvn clean verify -Ptest
 
 psql:
-	docker-compose exec es-postgres psql -U postgres -d es-db
+	$(COMPOSE) exec es-postgres psql -U postgres -d es-db
 
 lint:
 	mvn spotless:apply
