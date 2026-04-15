@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +32,7 @@ public final class UserController {
   @ApiResponses(
       value = {@ApiResponse(responseCode = "200", description = "Users retrieved successfully.")})
   public ResponseEntity<Page<SimpleUserResponse>> getUsers(
-      @RequestParam(name = "query") @ValidQuery String query, Pageable pageable) {
+      @RequestParam(name = "query") @Valid @ValidQuery @NotNull String query, Pageable pageable) {
     var result = userService.searchUsers(query, pageable).map(userMapper::toSimpleResponse);
     return ResponseEntity.ok(result);
   }

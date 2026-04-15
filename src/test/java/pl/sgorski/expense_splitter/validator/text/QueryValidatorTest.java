@@ -18,15 +18,36 @@ public class QueryValidatorTest {
   }
 
   @Test
-  void isValid_shouldReturnTrue_whenValidQuery() {
+  void isValid_shouldReturnTrue_whenValidQueryOnlyLetters() {
     var value = "test";
 
     assertTrue(validator.isValid(value, context));
   }
 
   @Test
-  void isValid_shouldReturnTrue_whenValidQueryWithNumbers() {
+  void isValid_shouldReturnTrue_whenValidQueryLettersAndNumbers() {
     var value = "test123";
+
+    assertTrue(validator.isValid(value, context));
+  }
+
+  @Test
+  void isValid_shouldReturnTrue_whenValidQueryLettersAndNumbersAndWhitespace() {
+    var value = "test 123";
+
+    assertTrue(validator.isValid(value, context));
+  }
+
+  @Test
+  void isValid_shouldReturnTrue_whenValidQueryNumbers() {
+    var value = "12345";
+
+    assertTrue(validator.isValid(value, context));
+  }
+
+  @Test
+  void isValid_shouldReturnTrue_whenQueryWithSpecialCharactersAndLetters() {
+    var value = "test-query";
 
     assertTrue(validator.isValid(value, context));
   }
@@ -68,7 +89,7 @@ public class QueryValidatorTest {
 
   @Test
   void isValid_shouldReturnFalse_whenQueryOnlySpecialCharacters() {
-    var value = "!!!";
+    var value = "____";
 
     assertFalse(validator.isValid(value, context));
   }
@@ -83,13 +104,6 @@ public class QueryValidatorTest {
   @Test
   void isValid_shouldReturnTrue_whenQueryWithWhitespaceBeforeAndAfter() {
     var value = "  test  ";
-
-    assertTrue(validator.isValid(value, context));
-  }
-
-  @Test
-  void isValid_shouldReturnTrue_whenQueryWithSpecialCharactersAndLetters() {
-    var value = "test-query";
 
     assertTrue(validator.isValid(value, context));
   }
