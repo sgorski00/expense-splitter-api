@@ -19,8 +19,6 @@ public final class TokenResponseEntityCreator {
   private final RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
 
   public ResponseEntity<LoginResponse> generate(User user) {
-    // TODO: separate logic for web (access - body, refresh - cookie) and mobile/desktop (both -
-    // body)
     var accessToken = jwtService.generateAccessToken(user);
     var refreshTokenEntity = refreshTokenService.generateRefreshToken(user);
     var refreshToken = refreshTokenEntity.getToken();

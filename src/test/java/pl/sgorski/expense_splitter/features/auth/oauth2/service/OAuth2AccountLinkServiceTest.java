@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -25,10 +25,9 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
 public class OAuth2AccountLinkServiceTest {
-  @Mock private AuthMapper authMapper; // TODO: replace with real mapper
   @Mock private UserService userService;
   @Mock private UserIdentityService userIdentityService;
-  @InjectMocks private OAuth2AccountLinkService oAuth2AccountLinkService;
+  private OAuth2AccountLinkService oAuth2AccountLinkService;
 
   private final AuthProvider provider = AuthProvider.FACEBOOK;
   private final String providerId = "1234567890";
@@ -48,6 +47,10 @@ public class OAuth2AccountLinkServiceTest {
     userInfo = mock(OAuth2UserInfo.class);
     when(userInfo.getProviderId()).thenReturn(providerId);
     when(userInfo.getProvider()).thenReturn(provider);
+
+    var authMapper = Mappers.getMapper(AuthMapper.class);
+    oAuth2AccountLinkService =
+        new OAuth2AccountLinkService(authMapper, userService, userIdentityService);
   }
 
   @Test
@@ -55,7 +58,6 @@ public class OAuth2AccountLinkServiceTest {
     var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
     when(userService.getUserWithIdentities(linkUserId)).thenReturn(existingUser);
-    when(authMapper.toIdentity(eq(userInfo))).thenReturn(newIdentity);
 
     var processedOAuth2User = oAuth2AccountLinkService.handle(context);
 
@@ -63,9 +65,8 @@ public class OAuth2AccountLinkServiceTest {
     assertTrue(existingUser.getIdentities().contains(newIdentity));
     verify(userIdentityService, times(1)).isUserIdentityPresent(providerId, provider);
     verify(userService, times(1)).getUserWithIdentities(linkUserId);
-    verify(authMapper, times(1)).toIdentity(userInfo);
     verify(userService, times(1)).save(existingUser);
-    verifyNoMoreInteractions(userService, userIdentityService, authMapper);
+    verifyNoMoreInteractions(userService, userIdentityService);
   }
 
   @Test
@@ -76,7 +77,7 @@ public class OAuth2AccountLinkServiceTest {
     assertThrows(AccountLinkingException.class, () -> oAuth2AccountLinkService.handle(context));
     verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
     verifyNoMoreInteractions(userIdentityService);
-    verifyNoInteractions(userService, authMapper);
+    verifyNoInteractions(userService);
   }
 
   @Test
@@ -87,6 +88,6 @@ public class OAuth2AccountLinkServiceTest {
     assertThrows(AccountLinkingException.class, () -> oAuth2AccountLinkService.handle(context));
     verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
     verifyNoMoreInteractions(userIdentityService);
-    verifyNoInteractions(userService, authMapper);
+    verifyNoInteractions(userService);
   }
 }

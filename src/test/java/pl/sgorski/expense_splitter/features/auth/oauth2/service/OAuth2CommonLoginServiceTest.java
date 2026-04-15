@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -19,16 +19,14 @@ import pl.sgorski.expense_splitter.features.auth.oauth2.dto.OAuth2LoginContext;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.OAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.auth.oauth2.service.impl.OAuth2CommonLoginService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
-import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
 @ExtendWith(MockitoExtension.class)
 public class OAuth2CommonLoginServiceTest {
-  @Mock private AuthMapper authMapper; // TODO: replace with real mapper
   @Mock private UserService userService;
   @Mock private UserIdentityService userIdentityService;
-  @InjectMocks private OAuth2CommonLoginService oAuth2CommonLoginService;
+  private OAuth2CommonLoginService oAuth2CommonLoginService;
 
   private final AuthProvider provider = AuthProvider.FACEBOOK;
   private final String providerId = "1234567890";
@@ -47,6 +45,10 @@ public class OAuth2CommonLoginServiceTest {
     when(userInfo.getProviderId()).thenReturn(providerId);
     when(userInfo.getProvider()).thenReturn(provider);
     when(userInfo.getEmail()).thenReturn(email);
+
+    var authMapper = Mappers.getMapper(AuthMapper.class);
+    oAuth2CommonLoginService =
+        new OAuth2CommonLoginService(authMapper, userService, userIdentityService);
   }
 
   @Test
@@ -54,16 +56,14 @@ public class OAuth2CommonLoginServiceTest {
     var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
     when(userService.isUserPresent(eq(email))).thenReturn(false);
-    when(authMapper.toIdentity(eq(userInfo))).thenReturn(new UserIdentity());
 
     var processedOAuth2User = oAuth2CommonLoginService.handle(context);
 
     assertEquals(oAuth2User, processedOAuth2User);
     verify(userIdentityService, times(1)).isUserIdentityPresent(providerId, provider);
     verify(userService, times(1)).isUserPresent(email);
-    verify(authMapper, times(1)).toIdentity(userInfo);
     verify(userService, times(1)).save(any(User.class));
-    verifyNoMoreInteractions(userService, userIdentityService, authMapper);
+    verifyNoMoreInteractions(userService, userIdentityService);
   }
 
   @Test
@@ -76,7 +76,7 @@ public class OAuth2CommonLoginServiceTest {
     assertEquals(oAuth2User, logged);
     verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
     verifyNoMoreInteractions(userIdentityService);
-    verifyNoInteractions(userService, authMapper);
+    verifyNoInteractions(userService);
   }
 
   @Test
@@ -90,6 +90,5 @@ public class OAuth2CommonLoginServiceTest {
     verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
     verify(userService, times(1)).isUserPresent(eq(email));
     verifyNoMoreInteractions(userIdentityService, userService);
-    verifyNoInteractions(authMapper);
   }
 }
