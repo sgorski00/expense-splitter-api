@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,10 +29,9 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 public class LocalAuthServiceTest {
 
   @Mock private UserService userService;
-  @Mock private AuthMapper authMapper; // TODO: replace with real mapper
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private AuthenticationManager authenticationManager;
-  @InjectMocks private LocalAuthService localAuthService;
+  private LocalAuthService localAuthService;
 
   private final String rawPassword = "P@ssword123";
   private final String encodedPassword = "EncodedP@ssword123";
@@ -44,12 +43,14 @@ public class LocalAuthServiceTest {
   void setUp() {
     registerCommand = new RegisterUserCommand(email, "John", "Doe", rawPassword, rawPassword);
     loginCommand = new LoginUserCommand(email, rawPassword);
+    var authMapper = Mappers.getMapper(AuthMapper.class);
+    localAuthService =
+        new LocalAuthService(userService, authMapper, passwordEncoder, authenticationManager);
   }
 
   @Test
   void registerUser_shouldCreateUser_whenEmailNotExists() {
     when(userService.isUserPresent(eq(email))).thenReturn(false);
-    when(authMapper.toEntity(eq(registerCommand))).thenReturn(new User());
     when(passwordEncoder.encode(eq(rawPassword))).thenReturn(encodedPassword);
     when(userService.save(any(User.class))).thenReturn(new User());
 
