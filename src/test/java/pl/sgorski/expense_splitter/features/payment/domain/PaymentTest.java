@@ -43,7 +43,7 @@ public class PaymentTest {
   void isParticipant_shouldReturnTrue_whenCurrentUserIsPaymentPayer() {
     var currentUser = paymentPayer;
 
-    var result = payment.isParticipant(currentUser);
+    var result = payment.isParticipant(currentUser.getId());
 
     assertTrue(result);
   }
@@ -52,7 +52,7 @@ public class PaymentTest {
   void isParticipant_shouldReturnTrue_whenCurrentUserIsExpensePayer() {
     var currentUser = expensePayer;
 
-    var result = payment.isParticipant(currentUser);
+    var result = payment.isParticipant(currentUser.getId());
 
     assertTrue(result);
   }
@@ -61,7 +61,7 @@ public class PaymentTest {
   void isParticipant_shouldReturnTrue_whenCurrentUserIsExpenseParticipant() {
     var currentUser = expenseParticipant;
 
-    var result = payment.isParticipant(currentUser);
+    var result = payment.isParticipant(currentUser.getId());
 
     assertTrue(result);
   }
@@ -71,7 +71,7 @@ public class PaymentTest {
     var currentUser = new User();
     currentUser.setId(UUID.randomUUID());
 
-    var result = payment.isParticipant(currentUser);
+    var result = payment.isParticipant(currentUser.getId());
 
     assertFalse(result);
   }

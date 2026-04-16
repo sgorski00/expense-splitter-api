@@ -19,6 +19,7 @@ import pl.sgorski.expense_splitter.features.expense.mapper.ExpenseMapper;
 import pl.sgorski.expense_splitter.features.expense.repository.ExpenseRepository;
 import pl.sgorski.expense_splitter.features.expense.service.split.ExpenseSplitService;
 import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
+import pl.sgorski.expense_splitter.features.payment.service.PaymentService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Service
@@ -29,6 +30,7 @@ public class ExpenseService {
   private final ExpenseRepository expenseRepository;
   private final ExpenseMapper mapper;
   private final FriendshipService friendshipService;
+  private final PaymentService paymentService;
 
   @Transactional
   public Expense createExpense(User user, CreateExpenseCommand command) {
@@ -51,10 +53,10 @@ public class ExpenseService {
     return expenseRepository.save(expense);
   }
 
-  public Expense getExpense(UUID id, User user) {
+  public Expense getExpense(UUID id, UUID userId) {
     return expenseRepository
         .findById(id)
-        .filter(expense -> expense.isParticipant(user))
+        .filter(expense -> expense.isParticipant(userId))
         .orElseThrow(() -> new ExpenseNotFoundException(id));
   }
 
@@ -77,6 +79,17 @@ public class ExpenseService {
   public void deleteExpense(UUID id, User user) {
     var expense = getExpenseAsPayer(id, user);
     expenseRepository.delete(expense);
+  }
+
+  @Transactional
+  public void removeParticipant(UUID expenseId, UUID participantId, User user) {
+    var expense = getExpenseAsPayer(expenseId, user);
+
+    if (paymentService.hasPayments(expense, participantId)) {
+      throw new ExpenseValidationException("Cannot remove participant with existing payments.");
+    }
+
+    expense.removeParticipant(participantId);
   }
 
   private Expense getExpenseAsPayer(UUID id, User user) {

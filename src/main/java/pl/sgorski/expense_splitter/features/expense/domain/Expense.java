@@ -15,6 +15,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.exceptions.NotFoundException;
+import pl.sgorski.expense_splitter.exceptions.expense.ExpenseShareNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.expense.ExpenseValidationException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Entity
@@ -58,21 +60,43 @@ public class Expense {
     shares.add(share);
   }
 
-  public boolean isParticipant(User user) {
-    return this.getPayer().equals(user) || isObligatedToPay(user);
+  public void removeParticipant(UUID participantId) {
+    if (participantId.equals(this.payer.getId())) {
+      throw new ExpenseValidationException(
+          "Payer cannot be removed from the expense participants.");
+    }
+
+    if (!isParticipant(participantId)) {
+      throw new ExpenseValidationException("User is not a participant of the expense.");
+    }
+
+    if (this.shares.size() == 1) {
+      throw new ExpenseValidationException("Cannot remove last participant.");
+    }
+
+    var share =
+        this.shares.stream()
+            .filter(s -> s.getUser().getId().equals(participantId))
+            .findFirst()
+            .orElseThrow(() -> new ExpenseShareNotFoundException(this.id, participantId));
+    this.shares.remove(share);
+    this.amountTotal = this.amountTotal.subtract(share.getAmount());
   }
 
-  public boolean isObligatedToPay(User user) {
-    return shares.stream().anyMatch(share -> share.getUser().equals(user));
+  public boolean isParticipant(UUID userId) {
+    return this.getPayer().getId().equals(userId) || isObligatedToPay(userId);
   }
 
-  public ExpenseShare getExpenseShare(User participant) {
+  public boolean isObligatedToPay(UUID userId) {
+    return shares.stream().anyMatch(share -> share.getUser().getId().equals(userId));
+  }
+
+  public ExpenseShare getExpenseShare(UUID participantId) {
     return this.shares.stream()
-        .filter(share -> share.getUser().equals(participant))
+        .filter(share -> share.getUser().getId().equals(participantId))
         .findFirst()
         .orElseThrow(
-            () ->
-                new NotFoundException("Expense share not found for user: " + participant.getId()));
+            () -> new NotFoundException("Expense share not found for user: " + participantId));
   }
 
   private void setShares(Set<ExpenseShare> shares) {}

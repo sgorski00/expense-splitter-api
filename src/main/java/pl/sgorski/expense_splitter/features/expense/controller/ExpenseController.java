@@ -2,7 +2,6 @@ package pl.sgorski.expense_splitter.features.expense.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -41,10 +40,7 @@ public final class ExpenseController {
   @Operation(
       summary = "List expenses",
       description = "Retrieves a paginated list of expenses involving the authenticated user.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully.")
-      })
+  @ApiResponse(responseCode = "200", description = "Expenses retrieved successfully.")
   public ResponseEntity<Page<ExpenseResponse>> getExpenses(
       @RequestParam(required = false) @Nullable ExpenseRole role,
       Authentication authentication,
@@ -61,8 +57,7 @@ public final class ExpenseController {
   @Operation(
       summary = "Create new expense",
       description = "Creates a new expense and assigns participants with their respective shares.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "200", description = "Expense created successfully.")})
+  @ApiResponse(responseCode = "200", description = "Expense created successfully.")
   public ResponseEntity<DetailedExpenseResponse> createExpense(
       @RequestBody @Valid CreateExpenseRequest request, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
@@ -77,12 +72,11 @@ public final class ExpenseController {
       summary = "Get expense details",
       description =
           "Retrieves detailed information about a specific expense including all participants and their shares.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "200", description = "Expense retrieved successfully.")})
+  @ApiResponse(responseCode = "200", description = "Expense retrieved successfully.")
   public ResponseEntity<DetailedExpenseResponse> getExpense(
       @PathVariable UUID id, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
-    var result = expenseService.getExpense(id, user);
+    var result = expenseService.getExpense(id, user.getId());
     var response = expenseMapper.toDetailedResponse(result, ExpenseRole.fromExpense(user, result));
     return ResponseEntity.ok(response);
   }
@@ -92,8 +86,7 @@ public final class ExpenseController {
       summary = "Update expense",
       description =
           "Updates expense details (title, description, amount). Only the creator can update an expense.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "200", description = "Expense updated successfully.")})
+  @ApiResponse(responseCode = "200", description = "Expense updated successfully.")
   public ResponseEntity<DetailedExpenseResponse> updateExpense(
       @PathVariable UUID id,
       @RequestBody @Valid UpdateExpenseRequest request,
@@ -109,8 +102,7 @@ public final class ExpenseController {
   @Operation(
       summary = "Delete expense",
       description = "Deletes an expense. Only the creator can delete an expense.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "204", description = "Expense deleted successfully.")})
+  @ApiResponse(responseCode = "204", description = "Expense deleted successfully.")
   public ResponseEntity<Void> deleteExpense(@PathVariable UUID id, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
     expenseService.deleteExpense(id, user);
@@ -121,14 +113,11 @@ public final class ExpenseController {
   @Operation(
       summary = "List of expense payments",
       description = "Retrieves a paginated list of the selected expense payments.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Payments list retrieved successfully.")
-      })
+  @ApiResponse(responseCode = "200", description = "Payments list retrieved successfully.")
   public ResponseEntity<Page<PaymentResponse>> getPaymentsForExpense(
       @PathVariable UUID id, Pageable pageable, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
-    var expense = expenseService.getExpense(id, user);
+    var expense = expenseService.getExpense(id, user.getId());
     var result =
         paymentService
             .getPaymentsForExpense(expense, pageable)
@@ -136,5 +125,18 @@ public final class ExpenseController {
                 payment ->
                     paymentMapper.toResponse(payment, ExpenseRole.fromExpense(user, expense)));
     return ResponseEntity.ok(result);
+  }
+
+  @DeleteMapping("/{id}/participants/{participantId}")
+  @Operation(
+      summary = "Delete participant from an expense.",
+      description =
+          "Deletes a single participant from the expense. Operation cannot be done if the participant has made any payments for the expense. IMPORTANT: after removing the participant, the total expense amount will be subtracted by the amount of the removed participant's share. Only the creator can remove a participant.")
+  @ApiResponse(responseCode = "204", description = "Participant deleted successfully.")
+  public ResponseEntity<Void> removeParticipant(
+      @PathVariable UUID id, @PathVariable UUID participantId, Authentication authentication) {
+    var user = authenticatedUserResolver.requireUser(authentication);
+    expenseService.removeParticipant(id, participantId, user);
+    return ResponseEntity.noContent().build();
   }
 }

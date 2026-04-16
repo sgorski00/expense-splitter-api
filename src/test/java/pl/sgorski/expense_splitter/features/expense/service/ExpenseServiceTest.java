@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import pl.sgorski.expense_splitter.exceptions.expense.ExpenseNotFoundException;
 import pl.sgorski.expense_splitter.exceptions.expense.ExpenseValidationException;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
+import pl.sgorski.expense_splitter.features.expense.domain.ExpenseShare;
 import pl.sgorski.expense_splitter.features.expense.domain.SplitType;
 import pl.sgorski.expense_splitter.features.expense.dto.command.CreateExpenseCommand;
 import pl.sgorski.expense_splitter.features.expense.dto.command.ParticipantCommand;
@@ -32,6 +33,7 @@ import pl.sgorski.expense_splitter.features.expense.mapper.ExpenseMapper;
 import pl.sgorski.expense_splitter.features.expense.repository.ExpenseRepository;
 import pl.sgorski.expense_splitter.features.expense.service.split.ExpenseSplitService;
 import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
+import pl.sgorski.expense_splitter.features.payment.service.PaymentService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
@@ -43,10 +45,12 @@ public class ExpenseServiceTest {
   @Mock private ExpenseRepository expenseRepository;
 
   @Mock private FriendshipService friendshipService;
+  @Mock private PaymentService paymentService;
 
   private ExpenseService expenseService;
 
   private User payer;
+  private User participant;
   private Expense expense;
   private UUID expenseId;
 
@@ -54,7 +58,8 @@ public class ExpenseServiceTest {
   void setUp() {
     var expenseMapper = Mappers.getMapper(ExpenseMapper.class);
     expenseService =
-        new ExpenseService(splitService, expenseRepository, expenseMapper, friendshipService);
+        new ExpenseService(
+            splitService, expenseRepository, expenseMapper, friendshipService, paymentService);
 
     expenseId = UUID.randomUUID();
     payer = new User();
@@ -62,7 +67,7 @@ public class ExpenseServiceTest {
     payer.setEmail("payer@example.com");
     payer.setRole(Role.USER);
 
-    var participant = new User();
+    participant = new User();
     participant.setId(UUID.randomUUID());
     participant.setEmail("participant@example.com");
     participant.setRole(Role.USER);
@@ -75,6 +80,11 @@ public class ExpenseServiceTest {
     expense.setPayer(payer);
     expense.setExpenseDate(Instant.now());
     expense.setSplitType(SplitType.EQUAL);
+
+    var share = new ExpenseShare();
+    share.setUser(participant);
+    share.setAmount(BigDecimal.valueOf(50.00));
+    expense.addShare(share);
   }
 
   @Test
@@ -193,7 +203,7 @@ public class ExpenseServiceTest {
   void getExpense_shouldReturnExpense_whenExpenseExistsAndUserIsParticipant() {
     when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
 
-    var result = expenseService.getExpense(expenseId, payer);
+    var result = expenseService.getExpense(expenseId, payer.getId());
 
     assertNotNull(result);
     assertEquals(expense.getId(), result.getId());
@@ -204,7 +214,8 @@ public class ExpenseServiceTest {
   void getExpense_shouldThrowExpenseNotFoundException_whenExpenseNotFound() {
     when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.empty());
 
-    assertThrows(ExpenseNotFoundException.class, () -> expenseService.getExpense(expenseId, payer));
+    assertThrows(
+        ExpenseNotFoundException.class, () -> expenseService.getExpense(expenseId, payer.getId()));
 
     verify(expenseRepository, times(1)).findById(eq(expenseId));
   }
@@ -219,7 +230,8 @@ public class ExpenseServiceTest {
     when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
 
     assertThrows(
-        ExpenseNotFoundException.class, () -> expenseService.getExpense(expenseId, otherUser));
+        ExpenseNotFoundException.class,
+        () -> expenseService.getExpense(expenseId, otherUser.getId()));
 
     verify(expenseRepository, times(1)).findById(eq(expenseId));
   }
@@ -364,5 +376,56 @@ public class ExpenseServiceTest {
 
     verify(expenseRepository, times(1)).findById(eq(expenseId));
     verify(expenseRepository, never()).delete(any(Expense.class));
+  }
+
+  @Test
+  void removeParticipant_shouldRemoveParticipant_whenRequestIsValid() {
+    var newParticipant = new User();
+    newParticipant.setId(UUID.randomUUID());
+    var newShare = new ExpenseShare();
+    newShare.setUser(newParticipant);
+    newShare.setAmount(BigDecimal.valueOf(50.00));
+    expense.addShare(newShare);
+    var participantId = newParticipant.getId();
+    when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
+    when(paymentService.hasPayments(eq(expense), eq(participantId))).thenReturn(false);
+
+    expenseService.removeParticipant(expenseId, participantId, payer);
+
+    verify(expenseRepository, times(1)).findById(eq(expenseId));
+    verify(paymentService, times(1)).hasPayments(eq(expense), eq(participantId));
+  }
+
+  @Test
+  void removeParticipant_shouldThrow_whenUserIsNotPayer() {
+    var otherUser = new User();
+    otherUser.setId(UUID.randomUUID());
+    otherUser.setEmail("other@example.com");
+    otherUser.setRole(Role.USER);
+    var participantId = UUID.randomUUID();
+
+    when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
+
+    assertThrows(
+        ExpenseNotFoundException.class,
+        () -> expenseService.removeParticipant(expenseId, participantId, otherUser));
+
+    verify(expenseRepository, times(1)).findById(eq(expenseId));
+    verify(paymentService, never()).hasPayments(any(Expense.class), any(UUID.class));
+  }
+
+  @Test
+  void removeParticipant_shouldThrow_whenUserAlreadyHasPayments() {
+    var participantId = participant.getId();
+
+    when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
+    when(paymentService.hasPayments(eq(expense), eq(participantId))).thenReturn(true);
+
+    assertThrows(
+        ExpenseValidationException.class,
+        () -> expenseService.removeParticipant(expenseId, participantId, payer));
+
+    verify(expenseRepository, times(1)).findById(eq(expenseId));
+    verify(paymentService, times(1)).hasPayments(eq(expense), eq(participantId));
   }
 }
