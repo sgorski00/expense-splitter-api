@@ -3,8 +3,10 @@ package pl.sgorski.expense_splitter.features.auth.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import pl.sgorski.expense_splitter.config.CentralMapperConfig;
+import pl.sgorski.expense_splitter.features.auth.dto.command.ConfirmPasswordResetCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
+import pl.sgorski.expense_splitter.features.auth.dto.request.ConfirmPasswordResetRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.OAuth2UserInfo;
@@ -35,4 +37,6 @@ public interface AuthMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "user", ignore = true)
   UserIdentity toIdentity(OAuth2UserInfo userInfo);
+
+  ConfirmPasswordResetCommand toConfirmPasswordResetCommand(ConfirmPasswordResetRequest request);
 }

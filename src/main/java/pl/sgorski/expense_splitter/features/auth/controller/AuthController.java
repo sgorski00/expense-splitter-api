@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.sgorski.expense_splitter.features.auth.dto.request.ConfirmPasswordResetRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.PasswordResetRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
@@ -115,10 +116,22 @@ public final class AuthController {
   @Operation(
       summary = "Reset user password",
       description =
-          "Reset user's password and send's an email to the user with instructions to set a new password.")
-  @ApiResponse(responseCode = "204", description = "Password reset successfully.")
+          "Generated user's password reset token and send's an email to the user with instructions to set a new password.")
+  @ApiResponse(responseCode = "204", description = "Password reset token generated successfully.")
   public ResponseEntity<Void> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
     localAuthService.requestPasswordReset(request.email());
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/reset-password/confirm")
+  @Operation(
+      summary = "Confirm reset user password",
+      description = "Reset user's password using previously generated password reset token.")
+  @ApiResponse(responseCode = "204", description = "Password reset successfully.")
+  public ResponseEntity<Void> confirmResetPassword(
+      @RequestBody @Valid ConfirmPasswordResetRequest request) {
+    var command = authMapper.toConfirmPasswordResetCommand(request);
+    localAuthService.resetPassword(command);
     return ResponseEntity.noContent().build();
   }
 }

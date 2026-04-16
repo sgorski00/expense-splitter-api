@@ -27,15 +27,6 @@ public class PasswordResetTokenService {
   }
 
   @Transactional
-  public void revokeToken(UUID tokenValue) {
-    var token =
-        resetTokenRepository
-            .findByToken(tokenValue)
-            .orElseThrow(PasswordResetTokenNotFoundException::new);
-    token.setRevoked(true);
-  }
-
-  @Transactional
   public void revokeAllUserTokens(UUID userId) {
     resetTokenRepository.revokeAllByUserId(userId);
   }

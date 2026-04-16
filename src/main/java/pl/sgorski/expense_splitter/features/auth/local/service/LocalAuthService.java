@@ -1,7 +1,6 @@
 package pl.sgorski.expense_splitter.features.auth.local.service;
 
 import jakarta.transaction.Transactional;
-
 import java.time.Instant;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import pl.sgorski.expense_splitter.exceptions.authentication.InvalidPasswordExce
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
 import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
+import pl.sgorski.expense_splitter.features.auth.dto.command.ConfirmPasswordResetCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
@@ -87,11 +87,21 @@ public class LocalAuthService {
       var user = userService.getUser(email);
       var token = passwordResetTokenService.generatePasswordResetToken(user);
       var passwordResetEvent =
-          new PasswordResetRequestEvent(
-              token.getToken(), Instant.now(), token.getUser().getId());
+          new PasswordResetRequestEvent(token.getToken(), Instant.now(), token.getUser().getId());
       eventPublisher.publishEvent(passwordResetEvent);
     } catch (UserNotFoundException ignored) {
       // for security reasons I don't want to reveal if user with given email exists or not
     }
+  }
+
+  @Transactional
+  public void resetPassword(ConfirmPasswordResetCommand command) {
+    var resetToken = passwordResetTokenService.getToken(command.token());
+    resetToken.validate();
+    var user = resetToken.getUser();
+    user.setPasswordHash(passwordEncoder.encode(command.newPassword()));
+    user.setPasswordForChange(false);
+    userService.save(user);
+    passwordResetTokenService.revokeAllUserTokens(user.getId());
   }
 }
