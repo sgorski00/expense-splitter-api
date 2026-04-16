@@ -1,5 +1,6 @@
 package pl.sgorski.expense_splitter.features.auth.password_reset_token.repository;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,8 @@ import pl.sgorski.expense_splitter.features.auth.password_reset_token.domain.Pas
 
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, UUID> {
   Optional<PasswordResetToken> findByToken(UUID token);
+
+  void deleteAllByExpiresAtBeforeOrIsRevokedTrue(Instant now);
 
   @Transactional
   @Modifying

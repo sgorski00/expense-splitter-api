@@ -30,11 +30,7 @@ public class PasswordResetRequestListener {
     log.debug("Handling new password reset request for user: {}", event.userId());
     try {
       var recipient = userService.getUser(event.userId());
-      var redirectUrl =
-          UriComponentsBuilder.fromUriString(passwordResetProperties.frontendUrl())
-              .queryParam("token", event.passwordResetToken())
-              .build()
-              .toString();
+      var redirectUrl = getFrontendPasswordResetUrl(event);
       var command =
           new NotificationCommand(
               recipient.getId(),
@@ -50,5 +46,12 @@ public class PasswordResetRequestListener {
     } catch (Exception ex) {
       log.error("Failed to send password reset email", ex);
     }
+  }
+
+  private String getFrontendPasswordResetUrl(PasswordResetRequestEvent event) {
+    return UriComponentsBuilder.fromUriString(passwordResetProperties.frontendUrl())
+        .queryParam("token", event.passwordResetToken())
+        .build()
+        .toString();
   }
 }

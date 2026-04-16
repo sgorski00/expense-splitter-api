@@ -1,11 +1,11 @@
 package pl.sgorski.expense_splitter.features.auth.password_reset_token.service;
 
 import jakarta.transaction.Transactional;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordResetTokenNotFoundException;
-import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.config.PasswordResetProperties;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.domain.PasswordResetToken;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.repository.PasswordResetTokenRepository;
@@ -31,9 +31,14 @@ public class PasswordResetTokenService {
     resetTokenRepository.revokeAllByUserId(userId);
   }
 
+  @Transactional
+  public void deleteInvalidTokens() {
+    resetTokenRepository.deleteAllByExpiresAtBeforeOrIsRevokedTrue(Instant.now());
+  }
+
   public PasswordResetToken getToken(UUID resetToken) {
     return resetTokenRepository
         .findByToken(resetToken)
-        .orElseThrow(RefreshTokenNotFoundException::new);
+        .orElseThrow(PasswordResetTokenNotFoundException::new);
   }
 }
