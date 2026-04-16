@@ -85,15 +85,6 @@ public class ExpenseService {
   public void removeParticipant(UUID expenseId, UUID participantId, User user) {
     var expense = getExpenseAsPayer(expenseId, user);
 
-    if (participantId.equals(expense.getPayer().getId())) {
-      throw new ExpenseValidationException(
-          "Payer cannot be removed from the expense participants.");
-    }
-
-    if (!expense.isParticipant(participantId)) {
-      throw new ExpenseValidationException("User is not a participant of the expense.");
-    }
-
     if (paymentService.hasPayments(expense, participantId)) {
       throw new ExpenseValidationException("Cannot remove participant with existing payments.");
     }

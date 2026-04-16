@@ -380,7 +380,13 @@ public class ExpenseServiceTest {
 
   @Test
   void removeParticipant_shouldRemoveParticipant_whenRequestIsValid() {
-    var participantId = participant.getId();
+    var newParticipant = new User();
+    newParticipant.setId(UUID.randomUUID());
+    var newShare = new ExpenseShare();
+    newShare.setUser(newParticipant);
+    newShare.setAmount(BigDecimal.valueOf(50.00));
+    expense.addShare(newShare);
+    var participantId = newParticipant.getId();
     when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
     when(paymentService.hasPayments(eq(expense), eq(participantId))).thenReturn(false);
 
@@ -403,34 +409,6 @@ public class ExpenseServiceTest {
     assertThrows(
         ExpenseNotFoundException.class,
         () -> expenseService.removeParticipant(expenseId, participantId, otherUser));
-
-    verify(expenseRepository, times(1)).findById(eq(expenseId));
-    verify(paymentService, never()).hasPayments(any(Expense.class), any(UUID.class));
-  }
-
-  @Test
-  void removeParticipant_shouldThrow_whenTryToRemovePayer() {
-    var participantId = payer.getId();
-
-    when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
-
-    assertThrows(
-        ExpenseValidationException.class,
-        () -> expenseService.removeParticipant(expenseId, participantId, payer));
-
-    verify(expenseRepository, times(1)).findById(eq(expenseId));
-    verify(paymentService, never()).hasPayments(any(Expense.class), any(UUID.class));
-  }
-
-  @Test
-  void removeParticipant_shouldThrow_whenUserIsNotParticipant() {
-    var participantId = UUID.randomUUID();
-
-    when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
-
-    assertThrows(
-        ExpenseValidationException.class,
-        () -> expenseService.removeParticipant(expenseId, participantId, payer));
 
     verify(expenseRepository, times(1)).findById(eq(expenseId));
     verify(paymentService, never()).hasPayments(any(Expense.class), any(UUID.class));

@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.sgorski.expense_splitter.exceptions.NotFoundException;
-import pl.sgorski.expense_splitter.exceptions.expense.ExpenseShareNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.expense.ExpenseValidationException;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
@@ -16,7 +16,10 @@ public class ExpenseTest {
 
   private Expense expense;
   private User payer;
-  private User participant;
+  private User participant1;
+  private User participant2;
+  private ExpenseShare share1;
+  private ExpenseShare share2;
 
   @BeforeEach
   void setUp() {
@@ -25,10 +28,21 @@ public class ExpenseTest {
     payer.setEmail("payer@example.com");
     payer.setRole(Role.USER);
 
-    participant = new User();
-    participant.setId(UUID.randomUUID());
-    participant.setEmail("participant@example.com");
-    participant.setRole(Role.USER);
+    participant1 = new User();
+    participant1.setId(UUID.randomUUID());
+    participant1.setEmail("participant1@example.com");
+    participant1.setRole(Role.USER);
+    share1 = new ExpenseShare();
+    share1.setUser(participant1);
+    share1.setAmount(BigDecimal.valueOf(50.00));
+
+    participant2 = new User();
+    participant2.setId(UUID.randomUUID());
+    participant2.setEmail("participant2@example.com");
+    participant2.setRole(Role.USER);
+    share2 = new ExpenseShare();
+    share2.setUser(participant2);
+    share2.setAmount(BigDecimal.valueOf(50.00));
 
     expense = new Expense();
     expense.setId(UUID.randomUUID());
@@ -37,36 +51,20 @@ public class ExpenseTest {
     expense.setPayer(payer);
     expense.setExpenseDate(Instant.now());
     expense.setSplitType(SplitType.EQUAL);
+    expense.addShare(share1);
+    expense.addShare(share2);
   }
 
   @Test
   void addShare_shouldAddShareToExpenseAndSetExpenseReference() {
-    var share = new ExpenseShare();
-    share.setUser(participant);
-    share.setAmount(BigDecimal.valueOf(50.00));
+    expense.addShare(share1);
 
-    expense.addShare(share);
-
-    assertTrue(expense.getShares().contains(share));
-    assertEquals(expense, share.getExpense());
+    assertTrue(expense.getShares().contains(share1));
+    assertEquals(expense, share1.getExpense());
   }
 
   @Test
   void addShare_shouldAddMultipleShares() {
-    var user2 = new User();
-    user2.setId(UUID.randomUUID());
-
-    var share1 = new ExpenseShare();
-    share1.setUser(participant);
-    share1.setAmount(BigDecimal.valueOf(50.00));
-
-    var share2 = new ExpenseShare();
-    share2.setUser(user2);
-    share2.setAmount(BigDecimal.valueOf(50.00));
-
-    expense.addShare(share1);
-    expense.addShare(share2);
-
     assertEquals(2, expense.getShares().size());
     assertTrue(expense.getShares().contains(share1));
     assertTrue(expense.getShares().contains(share2));
@@ -79,12 +77,7 @@ public class ExpenseTest {
 
   @Test
   void isParticipant_shouldReturnTrue_whenUserIsShareholder() {
-    var share = new ExpenseShare();
-    share.setUser(participant);
-    share.setAmount(BigDecimal.valueOf(50.00));
-    expense.addShare(share);
-
-    assertTrue(expense.isParticipant(participant.getId()));
+    assertTrue(expense.isParticipant(participant1.getId()));
   }
 
   @Test
@@ -109,12 +102,7 @@ public class ExpenseTest {
 
   @Test
   void isObligatedToPay_shouldReturnTrue_whenUserIsShareholder() {
-    var share = new ExpenseShare();
-    share.setUser(participant);
-    share.setAmount(BigDecimal.valueOf(50.00));
-    expense.addShare(share);
-
-    assertTrue(expense.isObligatedToPay(participant.getId()));
+    assertTrue(expense.isObligatedToPay(participant1.getId()));
   }
 
   @Test
@@ -134,15 +122,10 @@ public class ExpenseTest {
 
   @Test
   void getExpenseShare_shouldReturnShare_whenUserIsShareholder() {
-    var share = new ExpenseShare();
-    share.setUser(participant);
-    share.setAmount(BigDecimal.valueOf(50.00));
-    expense.addShare(share);
-
-    var result = expense.getExpenseShare(participant.getId());
+    var result = expense.getExpenseShare(participant1.getId());
 
     assertNotNull(result);
-    assertEquals(participant, result.getUser());
+    assertEquals(participant1, result.getUser());
     assertEquals(BigDecimal.valueOf(50.00), result.getAmount());
     assertEquals(expense, result.getExpense());
   }
@@ -163,44 +146,30 @@ public class ExpenseTest {
   }
 
   @Test
-  void getExpenseShare_shouldReturnCorrectShare_whenMultipleSharesExist() {
-    var user2 = new User();
-    user2.setId(UUID.randomUUID());
-    user2.setEmail("user2@example.com");
-    user2.setRole(Role.USER);
-
-    var share1 = new ExpenseShare();
-    share1.setUser(participant);
-    share1.setAmount(BigDecimal.valueOf(50.00));
-    expense.addShare(share1);
-
-    var share2 = new ExpenseShare();
-    share2.setUser(user2);
-    share2.setAmount(BigDecimal.valueOf(50.00));
-    expense.addShare(share2);
-
-    var result = expense.getExpenseShare(participant.getId());
-
-    assertNotNull(result);
-    assertEquals(participant, result.getUser());
-    assertEquals(BigDecimal.valueOf(50.00), result.getAmount());
-  }
-
-  @Test
   void removeParticipant_shouldRemoveShare_whenParticipantExists() {
-    var share = new ExpenseShare();
-    share.setUser(participant);
-    share.setAmount(BigDecimal.valueOf(50.00));
-    expense.addShare(share);
+    var amountBefore = expense.getAmountTotal();
+    var shareAmount = share1.getAmount();
+    expense.removeParticipant(participant1.getId());
 
-    expense.removeParticipant(participant.getId());
-
-    assertFalse(expense.getShares().contains(share));
+    assertFalse(expense.getShares().contains(share1));
+    assertEquals(amountBefore.subtract(shareAmount), expense.getAmountTotal());
   }
 
   @Test
-  void removeParticipant_shouldThrowExpenseShareNotFoundException_whenParticipantDoesNotExist() {
+  void removeParticipant_shouldThrowExpenseValidationException_whenParticipantDoesNotExist() {
     assertThrows(
-        ExpenseShareNotFoundException.class, () -> expense.removeParticipant(UUID.randomUUID()));
+        ExpenseValidationException.class, () -> expense.removeParticipant(UUID.randomUUID()));
+  }
+
+  @Test
+  void removeParticipant_shouldThrowExpenseValidationException_whenParticipantIsPayer() {
+    assertThrows(ExpenseValidationException.class, () -> expense.removeParticipant(payer.getId()));
+  }
+
+  @Test
+  void removeParticipant_shouldThrowExpenseValidationException_whenParticipantIsLastExisting() {
+    expense.removeParticipant(participant1.getId());
+    assertThrows(
+        ExpenseValidationException.class, () -> expense.removeParticipant(participant2.getId()));
   }
 }

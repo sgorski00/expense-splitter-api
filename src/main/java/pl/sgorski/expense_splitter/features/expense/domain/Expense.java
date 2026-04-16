@@ -16,6 +16,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.jspecify.annotations.Nullable;
 import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 import pl.sgorski.expense_splitter.exceptions.expense.ExpenseShareNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.expense.ExpenseValidationException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Entity
@@ -60,12 +61,25 @@ public class Expense {
   }
 
   public void removeParticipant(UUID participantId) {
+    if (participantId.equals(this.payer.getId())) {
+      throw new ExpenseValidationException(
+          "Payer cannot be removed from the expense participants.");
+    }
+
+    if (!isParticipant(participantId)) {
+      throw new ExpenseValidationException("User is not a participant of the expense.");
+    }
+
+    if (this.shares.size() == 1) {
+      throw new ExpenseValidationException("Cannot remove last participant.");
+    }
+
     var share =
-        shares.stream()
+        this.shares.stream()
             .filter(s -> s.getUser().getId().equals(participantId))
             .findFirst()
             .orElseThrow(() -> new ExpenseShareNotFoundException(this.id, participantId));
-    shares.remove(share);
+    this.shares.remove(share);
     this.amountTotal = this.amountTotal.subtract(share.getAmount());
   }
 
