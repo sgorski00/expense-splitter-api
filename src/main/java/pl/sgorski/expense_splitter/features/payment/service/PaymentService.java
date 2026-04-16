@@ -25,10 +25,10 @@ public class PaymentService {
   private final ExpenseRepository expenseRepository;
   private final PaymentRepository paymentRepository;
 
-  public Payment getPayment(UUID id, User currentUser) {
+  public Payment getPayment(UUID id, UUID currentUserId) {
     var payment =
         paymentRepository.findById(id).orElseThrow(() -> new PaymentNotFoundException(id));
-    if (!payment.isParticipant(currentUser)) {
+    if (!payment.isParticipant(currentUserId)) {
       throw new AccessDeniedException("Only participants of the payment can access it");
     }
     return payment;
@@ -42,6 +42,10 @@ public class PaymentService {
     return paymentRepository.findByExpense(expense, pageable);
   }
 
+  public boolean hasPayments(Expense expense, UUID userId) {
+    return BigDecimal.ZERO.compareTo(paymentRepository.sumByExpenseAndUserId(expense, userId)) < 0;
+  }
+
   @Transactional
   public Payment createPayment(CreatePaymentCommand command, User currentUser) {
     var expense =
@@ -49,7 +53,7 @@ public class PaymentService {
             .findByIdForUpdate(command.expenseId())
             .orElseThrow(() -> new ExpenseNotFoundException(command.expenseId()));
 
-    validateIsUserObliged(expense, currentUser);
+    validateIsUserObliged(expense, currentUser.getId());
     validateAmountValue(command.amount());
     validateOverpaidExpense(expense, currentUser, command.amount());
 
@@ -61,9 +65,9 @@ public class PaymentService {
   }
 
   @Transactional
-  public void deletePayment(UUID paymentId, User currentUser) {
-    var payment = getPayment(paymentId, currentUser);
-    if (!payment.getPayer().equals(currentUser)) {
+  public void deletePayment(UUID paymentId, UUID currentUserId) {
+    var payment = getPayment(paymentId, currentUserId);
+    if (!payment.getPayer().getId().equals(currentUserId)) {
       throw new AccessDeniedException("Only the payer can delete the payment");
     }
     paymentRepository.delete(payment);
@@ -71,7 +75,7 @@ public class PaymentService {
 
   private void validateOverpaidExpense(
       Expense expense, User paymentPayer, BigDecimal paymentAmount) {
-    var totalPaid = paymentRepository.sumByExpenseAndUser(expense, paymentPayer);
+    var totalPaid = paymentRepository.sumByExpenseAndUserId(expense, paymentPayer.getId());
     var paymentPayerShare = expense.getExpenseShare(paymentPayer);
     var remainingBalance = paymentPayerShare.getAmount().subtract(totalPaid);
     if (paymentAmount.compareTo(remainingBalance) > 0) {
@@ -87,8 +91,8 @@ public class PaymentService {
     }
   }
 
-  private void validateIsUserObliged(Expense expense, User user) {
-    if (!expense.isObligatedToPay(user)) {
+  private void validateIsUserObliged(Expense expense, UUID userId) {
+    if (!expense.isObligatedToPay(userId)) {
       throw new PaymentValidationException(
           "Only users obligated to pay for the expense can record payments");
     }

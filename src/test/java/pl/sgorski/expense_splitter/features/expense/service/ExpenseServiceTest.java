@@ -32,6 +32,7 @@ import pl.sgorski.expense_splitter.features.expense.mapper.ExpenseMapper;
 import pl.sgorski.expense_splitter.features.expense.repository.ExpenseRepository;
 import pl.sgorski.expense_splitter.features.expense.service.split.ExpenseSplitService;
 import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
+import pl.sgorski.expense_splitter.features.payment.service.PaymentService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
@@ -43,6 +44,7 @@ public class ExpenseServiceTest {
   @Mock private ExpenseRepository expenseRepository;
 
   @Mock private FriendshipService friendshipService;
+  @Mock private PaymentService paymentService;
 
   private ExpenseService expenseService;
 
@@ -54,7 +56,8 @@ public class ExpenseServiceTest {
   void setUp() {
     var expenseMapper = Mappers.getMapper(ExpenseMapper.class);
     expenseService =
-        new ExpenseService(splitService, expenseRepository, expenseMapper, friendshipService);
+        new ExpenseService(
+            splitService, expenseRepository, expenseMapper, friendshipService, paymentService);
 
     expenseId = UUID.randomUUID();
     payer = new User();
@@ -193,7 +196,7 @@ public class ExpenseServiceTest {
   void getExpense_shouldReturnExpense_whenExpenseExistsAndUserIsParticipant() {
     when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
 
-    var result = expenseService.getExpense(expenseId, payer);
+    var result = expenseService.getExpense(expenseId, payer.getId());
 
     assertNotNull(result);
     assertEquals(expense.getId(), result.getId());
@@ -204,7 +207,8 @@ public class ExpenseServiceTest {
   void getExpense_shouldThrowExpenseNotFoundException_whenExpenseNotFound() {
     when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.empty());
 
-    assertThrows(ExpenseNotFoundException.class, () -> expenseService.getExpense(expenseId, payer));
+    assertThrows(
+        ExpenseNotFoundException.class, () -> expenseService.getExpense(expenseId, payer.getId()));
 
     verify(expenseRepository, times(1)).findById(eq(expenseId));
   }
@@ -219,7 +223,8 @@ public class ExpenseServiceTest {
     when(expenseRepository.findById(eq(expenseId))).thenReturn(Optional.of(expense));
 
     assertThrows(
-        ExpenseNotFoundException.class, () -> expenseService.getExpense(expenseId, otherUser));
+        ExpenseNotFoundException.class,
+        () -> expenseService.getExpense(expenseId, otherUser.getId()));
 
     verify(expenseRepository, times(1)).findById(eq(expenseId));
   }

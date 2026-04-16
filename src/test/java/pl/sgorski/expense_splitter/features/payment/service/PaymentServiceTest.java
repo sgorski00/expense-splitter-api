@@ -86,7 +86,7 @@ public class PaymentServiceTest {
   void getPayment_shouldReturnPayment_whenPaymentExistsAndUserIsParticipant() {
     when(paymentRepository.findById(eq(paymentId))).thenReturn(Optional.of(payment));
 
-    var result = paymentService.getPayment(paymentId, payer);
+    var result = paymentService.getPayment(paymentId, payer.getId());
 
     assertNotNull(result);
     assertEquals(payment.getId(), result.getId());
@@ -98,7 +98,7 @@ public class PaymentServiceTest {
     payment.setPayer(otherUser);
     when(paymentRepository.findById(eq(paymentId))).thenReturn(Optional.of(payment));
 
-    var result = paymentService.getPayment(paymentId, payer);
+    var result = paymentService.getPayment(paymentId, payer.getId());
 
     assertNotNull(result);
     assertEquals(payment.getId(), result.getId());
@@ -109,7 +109,8 @@ public class PaymentServiceTest {
   void getPayment_shouldThrowPaymentNotFoundException_whenPaymentNotFound() {
     when(paymentRepository.findById(eq(paymentId))).thenReturn(Optional.empty());
 
-    assertThrows(PaymentNotFoundException.class, () -> paymentService.getPayment(paymentId, payer));
+    assertThrows(
+        PaymentNotFoundException.class, () -> paymentService.getPayment(paymentId, payer.getId()));
 
     verify(paymentRepository, times(1)).findById(eq(paymentId));
   }
@@ -125,7 +126,7 @@ public class PaymentServiceTest {
 
     assertThrows(
         AccessDeniedException.class,
-        () -> paymentService.getPayment(paymentId, nonParticipantUser));
+        () -> paymentService.getPayment(paymentId, nonParticipantUser.getId()));
 
     verify(paymentRepository, times(1)).findById(eq(paymentId));
   }
@@ -189,7 +190,8 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(50.00));
 
     when(expenseRepository.findByIdForUpdate(eq(expenseId))).thenReturn(Optional.of(expense));
-    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer))).thenReturn(BigDecimal.ZERO);
+    when(paymentRepository.sumByExpenseAndUserId(eq(expense), eq(payer.getId())))
+        .thenReturn(BigDecimal.ZERO);
     when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
     var result = paymentService.createPayment(command, payer);
@@ -200,7 +202,7 @@ public class PaymentServiceTest {
     assertEquals(expense, result.getExpense());
     assertEquals(command.amount(), result.getAmount());
     verify(expenseRepository, times(1)).findByIdForUpdate(eq(expenseId));
-    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
+    verify(paymentRepository, times(1)).sumByExpenseAndUserId(eq(expense), eq(payer.getId()));
     verify(paymentRepository, times(1)).save(any(Payment.class));
   }
 
@@ -209,7 +211,7 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(50.00));
 
     when(expenseRepository.findByIdForUpdate(eq(expenseId))).thenReturn(Optional.of(expense));
-    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer)))
+    when(paymentRepository.sumByExpenseAndUserId(eq(expense), eq(payer.getId())))
         .thenReturn(BigDecimal.valueOf(30.00));
     when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
@@ -217,7 +219,7 @@ public class PaymentServiceTest {
 
     assertNotNull(result);
     verify(expenseRepository, times(1)).findByIdForUpdate(eq(expenseId));
-    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
+    verify(paymentRepository, times(1)).sumByExpenseAndUserId(eq(expense), eq(payer.getId()));
     verify(paymentRepository, times(1)).save(any(Payment.class));
   }
 
@@ -231,7 +233,7 @@ public class PaymentServiceTest {
         ExpenseNotFoundException.class, () -> paymentService.createPayment(command, payer));
 
     verify(expenseRepository, times(1)).findByIdForUpdate(eq(expenseId));
-    verify(paymentRepository, never()).sumByExpenseAndUser(eq(expense), eq(payer));
+    verify(paymentRepository, never()).sumByExpenseAndUserId(eq(expense), eq(payer.getId()));
     verify(paymentRepository, never()).save(any(Payment.class));
   }
 
@@ -250,7 +252,7 @@ public class PaymentServiceTest {
         () -> paymentService.createPayment(command, nonObligatedUser));
 
     verify(expenseRepository, times(1)).findByIdForUpdate(eq(expenseId));
-    verify(paymentRepository, never()).sumByExpenseAndUser(any(Expense.class), any(User.class));
+    verify(paymentRepository, never()).sumByExpenseAndUserId(any(Expense.class), any(UUID.class));
     verify(paymentRepository, never()).save(any(Payment.class));
   }
 
@@ -259,14 +261,14 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(75.00));
 
     when(expenseRepository.findByIdForUpdate(eq(expenseId))).thenReturn(Optional.of(expense));
-    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer)))
+    when(paymentRepository.sumByExpenseAndUserId(eq(expense), eq(payer.getId())))
         .thenReturn(BigDecimal.valueOf(50.00));
 
     assertThrows(
         PaymentValidationException.class, () -> paymentService.createPayment(command, payer));
 
     verify(expenseRepository, times(1)).findByIdForUpdate(eq(expenseId));
-    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
+    verify(paymentRepository, times(1)).sumByExpenseAndUserId(eq(expense), eq(payer.getId()));
     verify(paymentRepository, never()).save(any(Payment.class));
   }
 
@@ -275,13 +277,14 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(100.01));
 
     when(expenseRepository.findByIdForUpdate(eq(expenseId))).thenReturn(Optional.of(expense));
-    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer))).thenReturn(BigDecimal.ZERO);
+    when(paymentRepository.sumByExpenseAndUserId(eq(expense), eq(payer.getId())))
+        .thenReturn(BigDecimal.ZERO);
 
     assertThrows(
         PaymentValidationException.class, () -> paymentService.createPayment(command, payer));
 
     verify(expenseRepository, times(1)).findByIdForUpdate(eq(expenseId));
-    verify(paymentRepository, times(1)).sumByExpenseAndUser(eq(expense), eq(payer));
+    verify(paymentRepository, times(1)).sumByExpenseAndUserId(eq(expense), eq(payer.getId()));
     verify(paymentRepository, never()).save(any(Payment.class));
   }
 
@@ -290,7 +293,8 @@ public class PaymentServiceTest {
     var command = new CreatePaymentCommand(expenseId, BigDecimal.valueOf(100.00));
 
     when(expenseRepository.findByIdForUpdate(eq(expenseId))).thenReturn(Optional.of(expense));
-    when(paymentRepository.sumByExpenseAndUser(eq(expense), eq(payer))).thenReturn(BigDecimal.ZERO);
+    when(paymentRepository.sumByExpenseAndUserId(eq(expense), eq(payer.getId())))
+        .thenReturn(BigDecimal.ZERO);
     when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
     var result = paymentService.createPayment(command, payer);
@@ -316,7 +320,7 @@ public class PaymentServiceTest {
     when(paymentRepository.findById(eq(paymentId))).thenReturn(Optional.of(payment));
     doNothing().when(paymentRepository).delete(any(Payment.class));
 
-    paymentService.deletePayment(paymentId, payer);
+    paymentService.deletePayment(paymentId, payer.getId());
 
     verify(paymentRepository, times(1)).findById(eq(paymentId));
     verify(paymentRepository, times(1)).delete(any(Payment.class));
@@ -327,7 +331,8 @@ public class PaymentServiceTest {
     when(paymentRepository.findById(eq(paymentId))).thenReturn(Optional.empty());
 
     assertThrows(
-        PaymentNotFoundException.class, () -> paymentService.deletePayment(paymentId, payer));
+        PaymentNotFoundException.class,
+        () -> paymentService.deletePayment(paymentId, payer.getId()));
 
     verify(paymentRepository, times(1)).findById(eq(paymentId));
     verify(paymentRepository, never()).delete(any(Payment.class));
@@ -338,7 +343,8 @@ public class PaymentServiceTest {
     payment.setPayer(otherUser);
     when(paymentRepository.findById(eq(paymentId))).thenReturn(Optional.of(payment));
 
-    assertThrows(AccessDeniedException.class, () -> paymentService.deletePayment(paymentId, payer));
+    assertThrows(
+        AccessDeniedException.class, () -> paymentService.deletePayment(paymentId, payer.getId()));
 
     verify(paymentRepository, times(1)).findById(eq(paymentId));
     verify(paymentRepository, never()).delete(any(Payment.class));
@@ -355,7 +361,7 @@ public class PaymentServiceTest {
 
     assertThrows(
         AccessDeniedException.class,
-        () -> paymentService.deletePayment(paymentId, nonParticipantUser));
+        () -> paymentService.deletePayment(paymentId, nonParticipantUser.getId()));
 
     verify(paymentRepository, times(1)).findById(eq(paymentId));
     verify(paymentRepository, never()).delete(any(Payment.class));

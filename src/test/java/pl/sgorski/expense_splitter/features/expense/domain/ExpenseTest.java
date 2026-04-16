@@ -73,7 +73,7 @@ public class ExpenseTest {
 
   @Test
   void isParticipant_shouldReturnTrue_whenUserIsPayer() {
-    assertTrue(expense.isParticipant(payer));
+    assertTrue(expense.isParticipant(payer.getId()));
   }
 
   @Test
@@ -83,7 +83,7 @@ public class ExpenseTest {
     share.setAmount(BigDecimal.valueOf(50.00));
     expense.addShare(share);
 
-    assertTrue(expense.isParticipant(participant));
+    assertTrue(expense.isParticipant(participant.getId()));
   }
 
   @Test
@@ -93,7 +93,7 @@ public class ExpenseTest {
     otherUser.setEmail("other@example.com");
     otherUser.setRole(Role.USER);
 
-    assertFalse(expense.isParticipant(otherUser));
+    assertFalse(expense.isParticipant(otherUser.getId()));
   }
 
   @Test
@@ -103,7 +103,7 @@ public class ExpenseTest {
     share.setAmount(BigDecimal.valueOf(50.00));
     expense.addShare(share);
 
-    assertTrue(expense.isParticipant(payer));
+    assertTrue(expense.isParticipant(payer.getId()));
   }
 
   @Test
@@ -113,7 +113,7 @@ public class ExpenseTest {
     share.setAmount(BigDecimal.valueOf(50.00));
     expense.addShare(share);
 
-    assertTrue(expense.isObligatedToPay(participant));
+    assertTrue(expense.isObligatedToPay(participant.getId()));
   }
 
   @Test
@@ -123,12 +123,12 @@ public class ExpenseTest {
     otherUser.setEmail("other@example.com");
     otherUser.setRole(Role.USER);
 
-    assertFalse(expense.isObligatedToPay(otherUser));
+    assertFalse(expense.isObligatedToPay(otherUser.getId()));
   }
 
   @Test
   void isObligatedToPay_shouldReturnFalse_whenUserIsPayerButNotShareholder() {
-    assertFalse(expense.isObligatedToPay(payer));
+    assertFalse(expense.isObligatedToPay(payer.getId()));
   }
 
   @Test
