@@ -19,7 +19,6 @@ public class ExpenseTest {
   private User participant1;
   private User participant2;
   private ExpenseShare share1;
-  private ExpenseShare share2;
 
   @BeforeEach
   void setUp() {
@@ -40,14 +39,14 @@ public class ExpenseTest {
     participant2.setId(UUID.randomUUID());
     participant2.setEmail("participant2@example.com");
     participant2.setRole(Role.USER);
-    share2 = new ExpenseShare();
+    var share2 = new ExpenseShare();
     share2.setUser(participant2);
     share2.setAmount(BigDecimal.valueOf(50.00));
 
     expense = new Expense();
     expense.setId(UUID.randomUUID());
     expense.setTitle("Test Expense");
-    expense.setAmountTotal(BigDecimal.valueOf(100.00));
+    expense.setAmountTotal(BigDecimal.valueOf(200.00));
     expense.setPayer(payer);
     expense.setExpenseDate(Instant.now());
     expense.setSplitType(SplitType.EQUAL);
@@ -57,17 +56,30 @@ public class ExpenseTest {
 
   @Test
   void addShare_shouldAddShareToExpenseAndSetExpenseReference() {
-    expense.addShare(share1);
-
     assertTrue(expense.getShares().contains(share1));
     assertEquals(expense, share1.getExpense());
   }
 
   @Test
   void addShare_shouldAddMultipleShares() {
-    assertEquals(2, expense.getShares().size());
-    assertTrue(expense.getShares().contains(share1));
-    assertTrue(expense.getShares().contains(share2));
+    var participant3 = new User();
+    participant3.setId(UUID.randomUUID());
+    var participant4 = new User();
+    participant4.setId(UUID.randomUUID());
+
+    var share3 = new ExpenseShare();
+    share3.setUser(participant3);
+    share3.setAmount(BigDecimal.valueOf(50.00));
+    var share4 = new ExpenseShare();
+    share4.setUser(participant4);
+    share4.setAmount(BigDecimal.valueOf(50.00));
+
+    expense.addShare(share3);
+    expense.addShare(share4);
+
+    assertEquals(4, expense.getShares().size());
+    assertTrue(expense.getShares().contains(share3));
+    assertTrue(expense.getShares().contains(share4));
   }
 
   @Test
