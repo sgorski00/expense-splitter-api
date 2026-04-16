@@ -88,8 +88,7 @@ public final class AuthController {
           UUID refreshTokenCookieValue,
       HttpServletRequest request) {
     var refreshTokenValue = refreshTokenExtractor.extract(refreshTokenCookieValue, request);
-    var existingRefreshToken = refreshTokenService.getToken(refreshTokenValue);
-    existingRefreshToken.validate();
+    var existingRefreshToken = refreshTokenService.getValidToken(refreshTokenValue);
     refreshTokenService.revokeToken(refreshTokenValue);
     return tokensResponseEntityCreator.generate(existingRefreshToken.getUser());
   }

@@ -28,6 +28,7 @@ import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.domain.PasswordResetToken;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.event.PasswordResetRequestEvent;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.service.PasswordResetTokenService;
+import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
@@ -38,6 +39,7 @@ public class LocalAuthServiceTest {
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private AuthenticationManager authenticationManager;
   @Mock private PasswordResetTokenService passwordResetTokenService;
+  @Mock private RefreshTokenService refreshTokenService;
   @Mock private ApplicationEventPublisher eventPublisher;
 
   private LocalAuthService localAuthService;
@@ -60,7 +62,8 @@ public class LocalAuthServiceTest {
             passwordEncoder,
             authenticationManager,
             passwordResetTokenService,
-            eventPublisher);
+            eventPublisher,
+            refreshTokenService);
   }
 
   @Test
@@ -168,6 +171,7 @@ public class LocalAuthServiceTest {
     verify(userService, times(1)).save(eq(user));
     verify(passwordEncoder, times(1)).matches(eq(oldPassword), eq(encodedPassword));
     verify(passwordEncoder, times(1)).encode(eq(rawPassword));
+    verify(refreshTokenService, times(1)).revokeAllUserTokens(eq(user.getId()));
     assertFalse(user.isPasswordForChange());
     assertEquals(newEncodedPassword, user.getPasswordHash());
   }
@@ -243,31 +247,30 @@ public class LocalAuthServiceTest {
     resetToken.setExpiresAt(java.time.Instant.now().plusSeconds(60));
     var newEncodedPassword = "NewEncodedP@ssword123";
     var command = new ConfirmPasswordResetCommand(tokenUUID, rawPassword);
-    when(passwordResetTokenService.getToken(eq(tokenUUID))).thenReturn(resetToken);
+    when(passwordResetTokenService.getValidToken(eq(tokenUUID))).thenReturn(resetToken);
     when(passwordEncoder.encode(eq(rawPassword))).thenReturn(newEncodedPassword);
 
     localAuthService.resetPassword(command);
 
     assertEquals(newEncodedPassword, user.getPasswordHash());
     assertFalse(user.isPasswordForChange());
-    verify(passwordResetTokenService, times(1)).getToken(eq(tokenUUID));
+    verify(passwordResetTokenService, times(1)).getValidToken(eq(tokenUUID));
     verify(passwordEncoder, times(1)).encode(eq(rawPassword));
     verify(userService, times(1)).save(eq(user));
     verify(passwordResetTokenService, times(1)).revokeAllUserTokens(eq(userId));
+    verify(refreshTokenService, times(1)).revokeAllUserTokens(eq(userId));
   }
 
   @Test
   void resetPassword_shouldThrowException_whenTokenIsExpired() {
     var tokenUUID = UUID.randomUUID();
-    var resetToken = new PasswordResetToken();
-    resetToken.setRevoked(false);
-    resetToken.setExpiresAt(java.time.Instant.now().minusSeconds(60));
     var command = new ConfirmPasswordResetCommand(tokenUUID, rawPassword);
-    when(passwordResetTokenService.getToken(eq(tokenUUID))).thenReturn(resetToken);
+    when(passwordResetTokenService.getValidToken(eq(tokenUUID)))
+        .thenThrow(new RuntimeException("Token expired"));
 
     assertThrows(RuntimeException.class, () -> localAuthService.resetPassword(command));
 
-    verify(passwordResetTokenService, times(1)).getToken(eq(tokenUUID));
+    verify(passwordResetTokenService, times(1)).getValidToken(eq(tokenUUID));
     verifyNoInteractions(passwordEncoder, userService);
     verify(passwordResetTokenService, never()).revokeAllUserTokens(any());
   }
@@ -275,15 +278,13 @@ public class LocalAuthServiceTest {
   @Test
   void resetPassword_shouldThrowException_whenTokenIsRevoked() {
     var tokenUUID = UUID.randomUUID();
-    var resetToken = new PasswordResetToken();
-    resetToken.setRevoked(true);
-    resetToken.setExpiresAt(java.time.Instant.now().plusSeconds(60));
     var command = new ConfirmPasswordResetCommand(tokenUUID, rawPassword);
-    when(passwordResetTokenService.getToken(eq(tokenUUID))).thenReturn(resetToken);
+    when(passwordResetTokenService.getValidToken(eq(tokenUUID)))
+        .thenThrow(new RuntimeException("Token revoked"));
 
     assertThrows(RuntimeException.class, () -> localAuthService.resetPassword(command));
 
-    verify(passwordResetTokenService, times(1)).getToken(eq(tokenUUID));
+    verify(passwordResetTokenService, times(1)).getValidToken(eq(tokenUUID));
     verifyNoInteractions(passwordEncoder, userService);
     verify(passwordResetTokenService, never()).revokeAllUserTokens(any());
   }

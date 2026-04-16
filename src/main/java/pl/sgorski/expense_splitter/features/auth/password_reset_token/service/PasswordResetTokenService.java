@@ -36,9 +36,12 @@ public class PasswordResetTokenService {
     resetTokenRepository.deleteAllByExpiresAtBeforeOrIsRevokedTrue(Instant.now());
   }
 
-  public PasswordResetToken getToken(UUID resetToken) {
-    return resetTokenRepository
-        .findByToken(resetToken)
-        .orElseThrow(PasswordResetTokenNotFoundException::new);
+  public PasswordResetToken getValidToken(UUID resetToken) {
+    var token =
+        resetTokenRepository
+            .findByToken(resetToken)
+            .orElseThrow(PasswordResetTokenNotFoundException::new);
+    token.validate();
+    return token;
   }
 }

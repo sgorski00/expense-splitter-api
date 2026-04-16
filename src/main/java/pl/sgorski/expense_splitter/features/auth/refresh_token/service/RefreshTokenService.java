@@ -50,9 +50,12 @@ public class RefreshTokenService {
     refreshTokenRepository.deleteAllByExpiresAtBeforeOrIsRevokedTrue(Instant.now());
   }
 
-  public RefreshToken getToken(UUID refreshToken) {
-    return refreshTokenRepository
-        .findByToken(refreshToken)
-        .orElseThrow(RefreshTokenNotFoundException::new);
+  public RefreshToken getValidToken(UUID refreshToken) {
+    var token =
+        refreshTokenRepository
+            .findByToken(refreshToken)
+            .orElseThrow(RefreshTokenNotFoundException::new);
+    token.validate();
+    return token;
   }
 }

@@ -11,7 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.sgorski.expense_splitter.exceptions.NotFoundException;
+import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenValidationException;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.config.RefreshTokenProperties;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.domain.RefreshToken;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.repository.RefreshTokenRepository;
@@ -45,7 +46,7 @@ public class RefreshTokenServiceTest {
 
     refreshTokenService.revokeToken(tokenValue);
 
-    assert (token.isRevoked());
+    assertTrue(token.isRevoked());
     verify(refreshTokenRepository, times(1)).save(token);
     verifyNoMoreInteractions(refreshTokenRepository);
   }
@@ -55,7 +56,8 @@ public class RefreshTokenServiceTest {
     var tokenValue = UUID.randomUUID();
     when(refreshTokenRepository.findByToken(tokenValue)).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () -> refreshTokenService.revokeToken(tokenValue));
+    assertThrows(
+        RefreshTokenNotFoundException.class, () -> refreshTokenService.revokeToken(tokenValue));
     verify(refreshTokenRepository, times(1)).findByToken(tokenValue);
     verifyNoMoreInteractions(refreshTokenRepository);
   }
@@ -91,12 +93,14 @@ public class RefreshTokenServiceTest {
   }
 
   @Test
-  void getToken_shouldReturnToken_whenExists() {
+  void getValidToken_shouldReturnValidToken_whenExists() {
     var tokenValue = UUID.randomUUID();
     var token = new RefreshToken();
+    token.setRevoked(false);
+    token.setExpiresAt(Instant.now().plusSeconds(60));
     when(refreshTokenRepository.findByToken(tokenValue)).thenReturn(Optional.of(token));
 
-    var result = refreshTokenService.getToken(tokenValue);
+    var result = refreshTokenService.getValidToken(tokenValue);
 
     assertEquals(token, result);
     verify(refreshTokenRepository, times(1)).findByToken(tokenValue);
@@ -104,11 +108,42 @@ public class RefreshTokenServiceTest {
   }
 
   @Test
-  void getToken_shouldThrowNotFoundException_whenTokenDoesNotExist() {
+  void getValidToken_shouldThrowNotFoundException_whenTokenDoesNotExist() {
     var tokenValue = UUID.randomUUID();
     when(refreshTokenRepository.findByToken(tokenValue)).thenReturn(Optional.empty());
 
-    assertThrows(NotFoundException.class, () -> refreshTokenService.getToken(tokenValue));
+    assertThrows(
+        RefreshTokenNotFoundException.class, () -> refreshTokenService.getValidToken(tokenValue));
+
+    verify(refreshTokenRepository, times(1)).findByToken(tokenValue);
+    verifyNoMoreInteractions(refreshTokenRepository);
+  }
+
+  @Test
+  void getValidToken_shouldThrowException_whenTokenIsExpired() {
+    var tokenValue = UUID.randomUUID();
+    var token = new RefreshToken();
+    token.setRevoked(false);
+    token.setExpiresAt(Instant.now().minusSeconds(60));
+    when(refreshTokenRepository.findByToken(tokenValue)).thenReturn(Optional.of(token));
+
+    assertThrows(
+        RefreshTokenValidationException.class, () -> refreshTokenService.getValidToken(tokenValue));
+
+    verify(refreshTokenRepository, times(1)).findByToken(tokenValue);
+    verifyNoMoreInteractions(refreshTokenRepository);
+  }
+
+  @Test
+  void getValidToken_shouldThrowException_whenTokenIsRevoked() {
+    var tokenValue = UUID.randomUUID();
+    var token = new RefreshToken();
+    token.setRevoked(true);
+    token.setExpiresAt(Instant.now().plusSeconds(60));
+    when(refreshTokenRepository.findByToken(tokenValue)).thenReturn(Optional.of(token));
+
+    assertThrows(
+        RefreshTokenValidationException.class, () -> refreshTokenService.getValidToken(tokenValue));
 
     verify(refreshTokenRepository, times(1)).findByToken(tokenValue);
     verifyNoMoreInteractions(refreshTokenRepository);

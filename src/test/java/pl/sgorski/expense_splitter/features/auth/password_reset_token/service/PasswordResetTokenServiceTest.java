@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordResetTokenNotFoundException;
+import pl.sgorski.expense_splitter.exceptions.authentication.PasswordResetTokenValidationException;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.config.PasswordResetProperties;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.domain.PasswordResetToken;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.repository.PasswordResetTokenRepository;
@@ -58,12 +59,14 @@ public class PasswordResetTokenServiceTest {
   }
 
   @Test
-  void getToken_shouldReturnToken_whenExists() {
+  void getValidToken_shouldReturnValidToken_whenExists() {
     var tokenValue = UUID.randomUUID();
     var token = new PasswordResetToken();
+    token.setRevoked(false);
+    token.setExpiresAt(Instant.now().plusSeconds(60));
     when(resetTokenRepository.findByToken(tokenValue)).thenReturn(Optional.of(token));
 
-    var result = passwordResetTokenService.getToken(tokenValue);
+    var result = passwordResetTokenService.getValidToken(tokenValue);
 
     assertEquals(token, result);
     verify(resetTokenRepository, times(1)).findByToken(tokenValue);
@@ -71,13 +74,45 @@ public class PasswordResetTokenServiceTest {
   }
 
   @Test
-  void getToken_shouldThrowNotFoundException_whenTokenDoesNotExist() {
+  void getValidToken_shouldThrowNotFoundException_whenTokenDoesNotExist() {
     var tokenValue = UUID.randomUUID();
     when(resetTokenRepository.findByToken(tokenValue)).thenReturn(Optional.empty());
 
     assertThrows(
         PasswordResetTokenNotFoundException.class,
-        () -> passwordResetTokenService.getToken(tokenValue));
+        () -> passwordResetTokenService.getValidToken(tokenValue));
+
+    verify(resetTokenRepository, times(1)).findByToken(tokenValue);
+    verifyNoMoreInteractions(resetTokenRepository);
+  }
+
+  @Test
+  void getValidToken_shouldThrowException_whenTokenIsExpired() {
+    var tokenValue = UUID.randomUUID();
+    var token = new PasswordResetToken();
+    token.setRevoked(false);
+    token.setExpiresAt(Instant.now().minusSeconds(60));
+    when(resetTokenRepository.findByToken(tokenValue)).thenReturn(Optional.of(token));
+
+    assertThrows(
+        PasswordResetTokenValidationException.class,
+        () -> passwordResetTokenService.getValidToken(tokenValue));
+
+    verify(resetTokenRepository, times(1)).findByToken(tokenValue);
+    verifyNoMoreInteractions(resetTokenRepository);
+  }
+
+  @Test
+  void getValidToken_shouldThrowException_whenTokenIsRevoked() {
+    var tokenValue = UUID.randomUUID();
+    var token = new PasswordResetToken();
+    token.setRevoked(true);
+    token.setExpiresAt(Instant.now().plusSeconds(60));
+    when(resetTokenRepository.findByToken(tokenValue)).thenReturn(Optional.of(token));
+
+    assertThrows(
+        PasswordResetTokenValidationException.class,
+        () -> passwordResetTokenService.getValidToken(tokenValue));
 
     verify(resetTokenRepository, times(1)).findByToken(tokenValue);
     verifyNoMoreInteractions(resetTokenRepository);

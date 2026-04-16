@@ -2,7 +2,6 @@ package pl.sgorski.expense_splitter.features.user.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -12,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.dto.request.CreateUserRequest;
 import pl.sgorski.expense_splitter.features.user.dto.request.PasswordSetRequest;
@@ -28,14 +28,14 @@ import pl.sgorski.expense_splitter.features.user.service.UserService;
 public final class AdminUserController {
 
   private final UserService userService;
+  private final LocalAuthService authService;
   private final UserMapper userMapper;
 
   @GetMapping
   @Operation(
       summary = "List all users",
       description = "Retrieves a paginated list of all users in the system.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "200", description = "Users retrieved successfully.")})
+  @ApiResponse(responseCode = "200", description = "Users retrieved successfully.")
   public ResponseEntity<Page<UserResponse>> getUsers(
       @RequestParam(name = "query", required = false) String query,
       @RequestParam(name = "role", required = false) Role role,
@@ -48,8 +48,7 @@ public final class AdminUserController {
   @Operation(
       summary = "Create new user",
       description = "Creates a new user account with the provided credentials and role.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "201", description = "User created successfully.")})
+  @ApiResponse(responseCode = "201", description = "User created successfully.")
   public ResponseEntity<DetailedUserResponse> addUser(
       @RequestBody @Valid CreateUserRequest request) {
     var command = userMapper.toCreateCommand(request);
@@ -62,8 +61,7 @@ public final class AdminUserController {
   @Operation(
       summary = "Get user by ID",
       description = "Retrieves detailed information about a specific user.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "200", description = "User retrieved successfully.")})
+  @ApiResponse(responseCode = "200", description = "User retrieved successfully.")
   public ResponseEntity<DetailedUserResponse> getUser(@PathVariable UUID id) {
     var result = userService.getUser(id);
     var response = userMapper.toDetailedResponse(result);
@@ -74,8 +72,7 @@ public final class AdminUserController {
   @Operation(
       summary = "Soft delete user",
       description = "Deletes a user account, preventing login but preserving data.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "204", description = "User deactivated successfully.")})
+  @ApiResponse(responseCode = "204", description = "User deactivated successfully.")
   public ResponseEntity<Void> deactivateUser(@PathVariable UUID id) {
     var user = userService.getUser(id);
     userService.deleteUser(user);
@@ -86,8 +83,7 @@ public final class AdminUserController {
   @Operation(
       summary = "Update user details",
       description = "Updates user profile information and role assignment.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "200", description = "User updated successfully.")})
+  @ApiResponse(responseCode = "200", description = "User updated successfully.")
   public ResponseEntity<DetailedUserResponse> updateUser(
       @PathVariable UUID id, @RequestBody @Valid UpdateUserRequest request) {
     var command = userMapper.toUpdateCommand(request);
@@ -97,10 +93,25 @@ public final class AdminUserController {
   }
 
   @PatchMapping("/{id}/password")
+  @Operation(summary = "Change user password", description = "Changes user password.")
+  @ApiResponse(responseCode = "200", description = "User updated successfully.")
   public ResponseEntity<DetailedUserResponse> changePassword(
       @PathVariable UUID id, @RequestBody @Valid PasswordSetRequest request) {
     var result = userService.changePassword(id, request.newPassword());
     var response = userMapper.toDetailedResponse(result);
     return ResponseEntity.ok(response);
+  }
+
+  @PostMapping("/{id}/reset-password")
+  @Operation(
+      summary = "Request user password reset",
+      description =
+          "Sends request with user password reset. User will receive email with instructions to reset password.")
+  @ApiResponse(
+      responseCode = "204",
+      description = "User password reset request generated successfully.")
+  public ResponseEntity<Void> requestResetPassword(@PathVariable UUID id) {
+    authService.requestPasswordReset(id);
+    return ResponseEntity.noContent().build();
   }
 }
