@@ -20,9 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.sgorski.expense_splitter.exceptions.authentication.InvalidPasswordException;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
+import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
+import pl.sgorski.expense_splitter.features.auth.dto.command.ConfirmPasswordResetCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
+import pl.sgorski.expense_splitter.features.auth.password_reset_token.domain.PasswordResetToken;
+import pl.sgorski.expense_splitter.features.auth.password_reset_token.event.PasswordResetRequestEvent;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.service.PasswordResetTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
@@ -195,5 +199,92 @@ public class LocalAuthServiceTest {
     verifyNoInteractions(userService);
     verify(passwordEncoder, never()).encode(anyString());
     assertEquals(encodedPassword, user.getPasswordHash());
+  }
+
+  @Test
+  void requestPasswordReset_shouldGenerateTokenAndPublishEvent_whenUserExists() {
+    var userId = UUID.randomUUID();
+    var user = new User();
+    user.setId(userId);
+    var tokenUUID = UUID.randomUUID();
+    var resetToken = new PasswordResetToken();
+    resetToken.setToken(tokenUUID);
+    resetToken.setUser(user);
+    when(userService.getUser(eq(email))).thenReturn(user);
+    when(passwordResetTokenService.generatePasswordResetToken(eq(user))).thenReturn(resetToken);
+
+    localAuthService.requestPasswordReset(email);
+
+    verify(userService, times(1)).getUser(eq(email));
+    verify(passwordResetTokenService, times(1)).generatePasswordResetToken(eq(user));
+    verify(eventPublisher, times(1)).publishEvent(any(PasswordResetRequestEvent.class));
+  }
+
+  @Test
+  void requestPasswordReset_shouldNotThrow_whenUserNotFound() {
+    when(userService.getUser(eq(email))).thenThrow(new UserNotFoundException(email));
+
+    assertDoesNotThrow(() -> localAuthService.requestPasswordReset(email));
+
+    verify(userService, times(1)).getUser(eq(email));
+    verify(passwordResetTokenService, never()).generatePasswordResetToken(any());
+    verify(eventPublisher, never()).publishEvent(any());
+  }
+
+  @Test
+  void resetPassword_shouldUpdatePasswordAndRevokeTokens_whenTokenIsValid() {
+    var userId = UUID.randomUUID();
+    var user = new User();
+    user.setId(userId);
+    var tokenUUID = UUID.randomUUID();
+    var resetToken = new PasswordResetToken();
+    resetToken.setUser(user);
+    resetToken.setRevoked(false);
+    resetToken.setExpiresAt(java.time.Instant.now().plusSeconds(60));
+    var newEncodedPassword = "NewEncodedP@ssword123";
+    var command = new ConfirmPasswordResetCommand(tokenUUID, rawPassword);
+    when(passwordResetTokenService.getToken(eq(tokenUUID))).thenReturn(resetToken);
+    when(passwordEncoder.encode(eq(rawPassword))).thenReturn(newEncodedPassword);
+
+    localAuthService.resetPassword(command);
+
+    assertEquals(newEncodedPassword, user.getPasswordHash());
+    assertFalse(user.isPasswordForChange());
+    verify(passwordResetTokenService, times(1)).getToken(eq(tokenUUID));
+    verify(passwordEncoder, times(1)).encode(eq(rawPassword));
+    verify(userService, times(1)).save(eq(user));
+    verify(passwordResetTokenService, times(1)).revokeAllUserTokens(eq(userId));
+  }
+
+  @Test
+  void resetPassword_shouldThrowException_whenTokenIsExpired() {
+    var tokenUUID = UUID.randomUUID();
+    var resetToken = new PasswordResetToken();
+    resetToken.setRevoked(false);
+    resetToken.setExpiresAt(java.time.Instant.now().minusSeconds(60));
+    var command = new ConfirmPasswordResetCommand(tokenUUID, rawPassword);
+    when(passwordResetTokenService.getToken(eq(tokenUUID))).thenReturn(resetToken);
+
+    assertThrows(RuntimeException.class, () -> localAuthService.resetPassword(command));
+
+    verify(passwordResetTokenService, times(1)).getToken(eq(tokenUUID));
+    verifyNoInteractions(passwordEncoder, userService);
+    verify(passwordResetTokenService, never()).revokeAllUserTokens(any());
+  }
+
+  @Test
+  void resetPassword_shouldThrowException_whenTokenIsRevoked() {
+    var tokenUUID = UUID.randomUUID();
+    var resetToken = new PasswordResetToken();
+    resetToken.setRevoked(true);
+    resetToken.setExpiresAt(java.time.Instant.now().plusSeconds(60));
+    var command = new ConfirmPasswordResetCommand(tokenUUID, rawPassword);
+    when(passwordResetTokenService.getToken(eq(tokenUUID))).thenReturn(resetToken);
+
+    assertThrows(RuntimeException.class, () -> localAuthService.resetPassword(command));
+
+    verify(passwordResetTokenService, times(1)).getToken(eq(tokenUUID));
+    verifyNoInteractions(passwordEncoder, userService);
+    verify(passwordResetTokenService, never()).revokeAllUserTokens(any());
   }
 }
