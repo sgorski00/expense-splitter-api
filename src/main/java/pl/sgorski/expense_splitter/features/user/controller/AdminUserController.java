@@ -111,7 +111,7 @@ public final class AdminUserController {
       responseCode = "204",
       description = "User password reset request generated successfully.")
   public ResponseEntity<Void> requestResetPassword(@PathVariable UUID id) {
-    authService.requestPasswordReset(id);
+    authService.requestPasswordResetAndThrowsWhenUserNotFound(id);
     return ResponseEntity.noContent().build();
   }
 }

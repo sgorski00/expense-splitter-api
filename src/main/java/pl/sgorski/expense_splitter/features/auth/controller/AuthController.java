@@ -115,7 +115,7 @@ public final class AuthController {
   @Operation(
       summary = "Reset user password",
       description =
-          "Generated user's password reset token and send's an email to the user with instructions to set a new password.")
+          "Generates a user's password reset token and sends an email to the user with instructions to set a new password.")
   @ApiResponse(responseCode = "204", description = "Password reset token generated successfully.")
   public ResponseEntity<Void> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
     localAuthService.requestPasswordReset(request.email());

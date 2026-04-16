@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(
     name = "Password Reset Request",
-    description = "Payload used to generate OTT for password reset.")
+    description = "Payload used to generate a onr-time token for password reset.")
 public record PasswordResetRequest(
     @Schema(description = "User email address.", example = "john.doe@example.com") @NotBlank @Email
         String email) {}

@@ -96,13 +96,9 @@ public class LocalAuthService {
   }
 
   @Transactional
-  public void requestPasswordReset(UUID id) {
-    try {
-      var user = userService.getUser(id);
-      generateToken(user);
-    } catch (UserNotFoundException ignored) {
-      // for security reasons I don't want to reveal if user with given email exists or not
-    }
+  public void requestPasswordResetAndThrowsWhenUserNotFound(UUID id) {
+    var user = userService.getUser(id);
+    generateToken(user);
   }
 
   @Transactional

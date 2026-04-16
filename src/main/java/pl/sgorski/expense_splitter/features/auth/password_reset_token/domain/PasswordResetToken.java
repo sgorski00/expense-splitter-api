@@ -45,10 +45,10 @@ public class PasswordResetToken {
 
   public void validate() {
     if (this.isRevoked) {
-      throw new PasswordResetTokenValidationException("Refresh token is revoked");
+      throw new PasswordResetTokenValidationException("Password reset token is revoked");
     }
     if (this.expiresAt.isBefore(Instant.now())) {
-      throw new PasswordResetTokenValidationException("Refresh token is expired");
+      throw new PasswordResetTokenValidationException("Password reset token is expired");
     }
   }
 }

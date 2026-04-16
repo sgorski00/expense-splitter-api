@@ -236,6 +236,37 @@ public class LocalAuthServiceTest {
   }
 
   @Test
+  void requestPasswordResetAndThrowsWhenUserNotFound_shouldGenerateToken_whenUserExists() {
+    var user = new User();
+    user.setId(UUID.randomUUID());
+    var resetToken = new PasswordResetToken();
+    resetToken.setToken(UUID.randomUUID());
+    resetToken.setUser(user);
+    when(userService.getUser(eq(user.getId()))).thenReturn(user);
+    when(passwordResetTokenService.generatePasswordResetToken(eq(user))).thenReturn(resetToken);
+
+    localAuthService.requestPasswordResetAndThrowsWhenUserNotFound(user.getId());
+
+    verify(userService, times(1)).getUser(eq(user.getId()));
+    verify(passwordResetTokenService, times(1)).generatePasswordResetToken(eq(user));
+    verify(eventPublisher, times(1)).publishEvent(any(PasswordResetRequestEvent.class));
+  }
+
+  @Test
+  void requestPasswordResetAndThrowsWhenUserNotFound_shouldThrow_whenUserNotFound() {
+    var userId = UUID.randomUUID();
+    when(userService.getUser(userId)).thenThrow(new UserNotFoundException(userId));
+
+    assertThrows(
+        UserNotFoundException.class,
+        () -> localAuthService.requestPasswordResetAndThrowsWhenUserNotFound(userId));
+
+    verify(userService, times(1)).getUser(userId);
+    verify(passwordResetTokenService, never()).generatePasswordResetToken(any());
+    verify(eventPublisher, never()).publishEvent(any());
+  }
+
+  @Test
   void resetPassword_shouldUpdatePasswordAndRevokeTokens_whenTokenIsValid() {
     var userId = UUID.randomUUID();
     var user = new User();

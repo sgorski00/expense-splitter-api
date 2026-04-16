@@ -305,7 +305,7 @@ public class GlobalExceptionHandler {
                       implementation = ProblemDetail.class,
                       description =
                           "RFC 7807 Problem Details response with 400 Bad Request status.")))
-  public ProblemDetail handleRefreshTokenValidationException(
+  public ProblemDetail handlePasswordResetTokenValidationException(
       PasswordResetTokenValidationException ex) {
     var status = HttpStatus.BAD_REQUEST;
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());

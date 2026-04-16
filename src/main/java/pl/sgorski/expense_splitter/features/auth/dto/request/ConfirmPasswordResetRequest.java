@@ -9,13 +9,14 @@ import pl.sgorski.expense_splitter.validator.password.PasswordMatch;
 import pl.sgorski.expense_splitter.validator.password.StrongPassword;
 
 @Schema(
-    name = "Password Reset Request",
-    description = "Payload used to rest user's password after generating password request token.")
+    name = "Confirm Password Reset",
+    description =
+        "Payload used to confirm a password reset with a previously generated reset token and a new password.")
 @PasswordMatch
 public record ConfirmPasswordResetRequest(
     @Schema(
             description =
-                "Previously generated password reset token that is assigned to the specified user. Can be obtained in /api/aut/reset-password endpoint.",
+                "Previously generated password reset token that is assigned to the specified user. Can be obtained in /api/auth/reset-password endpoint.",
             example = "123e4567-e89b-12d3-a456-426614174000")
         @NotNull
         UUID token,
