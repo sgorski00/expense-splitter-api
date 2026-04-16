@@ -366,4 +366,24 @@ public class PaymentServiceTest {
     verify(paymentRepository, times(1)).findById(eq(paymentId));
     verify(paymentRepository, never()).delete(any(Payment.class));
   }
+
+  @Test
+  void hasPayments_shouldReturnTrue_whenPaymentsValueAreGreaterThanZero() {
+    when(paymentRepository.sumByExpenseAndUserId(eq(expense), eq(otherUser.getId())))
+        .thenReturn(BigDecimal.valueOf(0.01));
+
+    var result = paymentService.hasPayments(expense, otherUser.getId());
+
+    assertTrue(result);
+  }
+
+  @Test
+  void hasPayments_shouldReturnFalse_whenPaymentsValueAreEqualToZero() {
+    when(paymentRepository.sumByExpenseAndUserId(eq(expense), eq(otherUser.getId())))
+        .thenReturn(BigDecimal.ZERO);
+
+    var result = paymentService.hasPayments(expense, otherUser.getId());
+
+    assertFalse(result);
+  }
 }

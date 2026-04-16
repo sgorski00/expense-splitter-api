@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.sgorski.expense_splitter.exceptions.NotFoundException;
+import pl.sgorski.expense_splitter.exceptions.expense.ExpenseShareNotFoundException;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
@@ -183,5 +184,23 @@ public class ExpenseTest {
     assertNotNull(result);
     assertEquals(participant, result.getUser());
     assertEquals(BigDecimal.valueOf(50.00), result.getAmount());
+  }
+
+  @Test
+  void removeParticipant_shouldRemoveShare_whenParticipantExists() {
+    var share = new ExpenseShare();
+    share.setUser(participant);
+    share.setAmount(BigDecimal.valueOf(50.00));
+    expense.addShare(share);
+
+    expense.removeParticipant(participant.getId());
+
+    assertFalse(expense.getShares().contains(share));
+  }
+
+  @Test
+  void removeParticipant_shouldThrowExpenseShareNotFoundException_whenParticipantDoesNotExist() {
+    assertThrows(
+        ExpenseShareNotFoundException.class, () -> expense.removeParticipant(UUID.randomUUID()));
   }
 }
