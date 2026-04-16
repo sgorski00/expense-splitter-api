@@ -127,11 +127,11 @@ public final class ExpenseController {
     return ResponseEntity.ok(result);
   }
 
-  @DeleteMapping("/{id}/participant/{participantId}")
+  @DeleteMapping("/{id}/participants/{participantId}")
   @Operation(
       summary = "Delete participant from an expense.",
       description =
-          "Deletes a single participant from the expense. Operation cannot be done if the participant has made any payments for the expense.")
+          "Deletes a single participant from the expense. Operation cannot be done if the participant has made any payments for the expense. IMPORTANT: after removing the participant, the total expense amount will be substracted by the amount of the removed participant's share. Only the creator can remove a participant.")
   @ApiResponse(responseCode = "204", description = "Participant deleted successfully.")
   public ResponseEntity<Void> removeParticipant(
       @PathVariable UUID id, @PathVariable UUID participantId, Authentication authentication) {

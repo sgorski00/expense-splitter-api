@@ -55,7 +55,7 @@ public class PaymentService {
 
     validateIsUserObliged(expense, currentUser.getId());
     validateAmountValue(command.amount());
-    validateOverpaidExpense(expense, currentUser, command.amount());
+    validateOverpaidExpense(expense, currentUser.getId(), command.amount());
 
     var payment = new Payment();
     payment.setAmount(command.amount());
@@ -74,9 +74,9 @@ public class PaymentService {
   }
 
   private void validateOverpaidExpense(
-      Expense expense, User paymentPayer, BigDecimal paymentAmount) {
-    var totalPaid = paymentRepository.sumByExpenseAndUserId(expense, paymentPayer.getId());
-    var paymentPayerShare = expense.getExpenseShare(paymentPayer);
+      Expense expense, UUID paymentPayerId, BigDecimal paymentAmount) {
+    var totalPaid = paymentRepository.sumByExpenseAndUserId(expense, paymentPayerId);
+    var paymentPayerShare = expense.getExpenseShare(paymentPayerId);
     var remainingBalance = paymentPayerShare.getAmount().subtract(totalPaid);
     if (paymentAmount.compareTo(remainingBalance) > 0) {
       throw new PaymentValidationException(

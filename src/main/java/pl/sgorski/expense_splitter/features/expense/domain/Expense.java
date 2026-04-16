@@ -66,6 +66,7 @@ public class Expense {
             .findFirst()
             .orElseThrow(() -> new ExpenseShareNotFoundException(this.id, participantId));
     shares.remove(share);
+    this.amountTotal = this.amountTotal.subtract(share.getAmount());
   }
 
   public boolean isParticipant(UUID userId) {
@@ -76,13 +77,12 @@ public class Expense {
     return shares.stream().anyMatch(share -> share.getUser().getId().equals(userId));
   }
 
-  public ExpenseShare getExpenseShare(User participant) {
+  public ExpenseShare getExpenseShare(UUID participantId) {
     return this.shares.stream()
-        .filter(share -> share.getUser().equals(participant))
+        .filter(share -> share.getUser().getId().equals(participantId))
         .findFirst()
         .orElseThrow(
-            () ->
-                new NotFoundException("Expense share not found for user: " + participant.getId()));
+            () -> new NotFoundException("Expense share not found for user: " + participantId));
   }
 
   private void setShares(Set<ExpenseShare> shares) {}

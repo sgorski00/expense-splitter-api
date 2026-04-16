@@ -139,7 +139,7 @@ public class ExpenseTest {
     share.setAmount(BigDecimal.valueOf(50.00));
     expense.addShare(share);
 
-    var result = expense.getExpenseShare(participant);
+    var result = expense.getExpenseShare(participant.getId());
 
     assertNotNull(result);
     assertEquals(participant, result.getUser());
@@ -154,12 +154,12 @@ public class ExpenseTest {
     otherUser.setEmail("other@example.com");
     otherUser.setRole(Role.USER);
 
-    assertThrows(NotFoundException.class, () -> expense.getExpenseShare(otherUser));
+    assertThrows(NotFoundException.class, () -> expense.getExpenseShare(otherUser.getId()));
   }
 
   @Test
   void getExpenseShare_shouldThrowNotFoundException_whenUserIsPayerButNotShareholder() {
-    assertThrows(NotFoundException.class, () -> expense.getExpenseShare(payer));
+    assertThrows(NotFoundException.class, () -> expense.getExpenseShare(payer.getId()));
   }
 
   @Test
@@ -179,7 +179,7 @@ public class ExpenseTest {
     share2.setAmount(BigDecimal.valueOf(50.00));
     expense.addShare(share2);
 
-    var result = expense.getExpenseShare(participant);
+    var result = expense.getExpenseShare(participant.getId());
 
     assertNotNull(result);
     assertEquals(participant, result.getUser());
