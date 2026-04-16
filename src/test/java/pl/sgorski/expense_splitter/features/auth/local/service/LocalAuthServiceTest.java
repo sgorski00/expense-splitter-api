@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
+import pl.sgorski.expense_splitter.features.auth.password_reset_token.service.PasswordResetTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
@@ -31,6 +33,9 @@ public class LocalAuthServiceTest {
   @Mock private UserService userService;
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private AuthenticationManager authenticationManager;
+  @Mock private PasswordResetTokenService passwordResetTokenService;
+  @Mock private ApplicationEventPublisher eventPublisher;
+
   private LocalAuthService localAuthService;
 
   private final String rawPassword = "P@ssword123";
@@ -45,7 +50,13 @@ public class LocalAuthServiceTest {
     loginCommand = new LoginUserCommand(email, rawPassword);
     var authMapper = Mappers.getMapper(AuthMapper.class);
     localAuthService =
-        new LocalAuthService(userService, authMapper, passwordEncoder, authenticationManager);
+        new LocalAuthService(
+            userService,
+            authMapper,
+            passwordEncoder,
+            authenticationManager,
+            passwordResetTokenService,
+            eventPublisher);
   }
 
   @Test

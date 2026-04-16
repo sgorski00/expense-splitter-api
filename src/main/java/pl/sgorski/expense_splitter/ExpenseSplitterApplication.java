@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import pl.sgorski.expense_splitter.features.auth.password_reset_token.config.PasswordResetProperties;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.config.RefreshTokenProperties;
 import pl.sgorski.expense_splitter.notification.config.MailProperties;
 import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
@@ -16,7 +17,8 @@ import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
 @EnableConfigurationProperties({
   JwtProperties.class,
   RefreshTokenProperties.class,
-  MailProperties.class
+  MailProperties.class,
+  PasswordResetProperties.class
 })
 @EnableScheduling
 @EnableAsync

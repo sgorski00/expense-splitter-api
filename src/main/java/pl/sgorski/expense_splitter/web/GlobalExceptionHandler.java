@@ -293,6 +293,27 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+  @ExceptionHandler(PasswordResetTokenValidationException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Password reset token is invalid, expired, or has been revoked.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 400 Bad Request status.")))
+  public ProblemDetail handleRefreshTokenValidationException(
+      PasswordResetTokenValidationException ex) {
+    var status = HttpStatus.BAD_REQUEST;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("Invalid Password Reset Token");
+    log.warn("Password reset token validation failed: {}", ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(AuthenticationException.class)
   @ApiResponse(
       responseCode = "401",

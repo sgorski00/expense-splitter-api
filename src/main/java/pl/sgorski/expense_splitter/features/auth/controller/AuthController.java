@@ -2,7 +2,6 @@ package pl.sgorski.expense_splitter.features.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -14,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
+import pl.sgorski.expense_splitter.features.auth.dto.request.PasswordResetRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
@@ -50,13 +50,10 @@ public final class AuthController {
                     - /auth/logout (allow users to logout)<br>
                     - /auth/refresh (allow refresh token)<br>
                     """)
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description =
-                "User authenticated successfully. Access and refresh tokens issued in secure httpOnly cookies and in response body.")
-      })
+  @ApiResponse(
+      responseCode = "200",
+      description =
+          "User authenticated successfully. Access and refresh tokens issued in secure httpOnly cookies and in response body.")
   public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
     var user = localAuthService.login(authMapper.toCommand(request));
     return tokensResponseEntityCreator.generate(user);
@@ -66,8 +63,7 @@ public final class AuthController {
   @Operation(
       summary = "Register new user",
       description = "Creates a new user account and returns the created user resource.")
-  @ApiResponses(
-      value = {@ApiResponse(responseCode = "201", description = "User registered successfully.")})
+  @ApiResponse(responseCode = "201", description = "User registered successfully.")
   public ResponseEntity<UserResponse> register(@RequestBody @Valid RegisterRequest request) {
     var command = authMapper.toCommand(request);
     var user = localAuthService.registerUser(command);
@@ -79,13 +75,10 @@ public final class AuthController {
       summary = "Refresh access token",
       description =
           "Generates a new access token using a valid refresh token. Supports both cookie (web) and Authorization header (mobile/desktop) methods.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "201",
-            description =
-                "Access token refreshed successfully. New tokens issued in secure httpOnly cookies and in response body.")
-      })
+  @ApiResponse(
+      responseCode = "201",
+      description =
+          "Access token refreshed successfully. New tokens issued in secure httpOnly cookies and in response body.")
   public ResponseEntity<LoginResponse> refreshToken(
       @Nullable
           @CookieValue(
@@ -104,10 +97,7 @@ public final class AuthController {
   @Operation(
       summary = "Revoke refresh token",
       description = "Revokes a refresh token from the cookie, effectively logging the user out.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "204", description = "Refresh token revoked successfully.")
-      })
+  @ApiResponse(responseCode = "204", description = "Refresh token revoked successfully.")
   public ResponseEntity<Void> logout(
       @Nullable
           @CookieValue(
@@ -119,5 +109,16 @@ public final class AuthController {
     return ResponseEntity.noContent()
         .header(HttpHeaders.SET_COOKIE, refreshTokenClearCookie.toString())
         .build();
+  }
+
+  @PostMapping("/reset-password")
+  @Operation(
+      summary = "Reset user password",
+      description =
+          "Reset user's password and send's an email to the user with instructions to set a new password.")
+  @ApiResponse(responseCode = "204", description = "Password reset successfully.")
+  public ResponseEntity<Void> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
+    localAuthService.requestPasswordReset(request.email());
+    return ResponseEntity.noContent().build();
   }
 }

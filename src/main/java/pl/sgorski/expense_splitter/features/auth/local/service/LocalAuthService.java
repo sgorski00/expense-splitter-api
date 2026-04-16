@@ -1,8 +1,11 @@
 package pl.sgorski.expense_splitter.features.auth.local.service;
 
 import jakarta.transaction.Transactional;
+
+import java.time.Instant;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,9 +13,12 @@ import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.exceptions.authentication.InvalidPasswordException;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
+import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
+import pl.sgorski.expense_splitter.features.auth.password_reset_token.event.PasswordResetRequestEvent;
+import pl.sgorski.expense_splitter.features.auth.password_reset_token.service.PasswordResetTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
@@ -24,6 +30,8 @@ public class LocalAuthService {
   private final AuthMapper authMapper;
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
+  private final PasswordResetTokenService passwordResetTokenService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public User registerUser(RegisterUserCommand command) {
@@ -71,5 +79,19 @@ public class LocalAuthService {
     user.setPasswordHash(passwordEncoder.encode(newPassword));
     user.setPasswordForChange(false);
     userService.save(user);
+  }
+
+  @Transactional
+  public void requestPasswordReset(String email) {
+    try {
+      var user = userService.getUser(email);
+      var token = passwordResetTokenService.generatePasswordResetToken(user);
+      var passwordResetEvent =
+          new PasswordResetRequestEvent(
+              token.getToken(), Instant.now(), token.getUser().getId());
+      eventPublisher.publishEvent(passwordResetEvent);
+    } catch (UserNotFoundException ignored) {
+      // for security reasons I don't want to reveal if user with given email exists or not
+    }
   }
 }
