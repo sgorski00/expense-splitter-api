@@ -46,6 +46,10 @@ public final class JwtService {
     }
   }
 
+  public String getUserId(String token) {
+    return getClaimsFromToken(token).getSubject();
+  }
+
   public String getEmailFromToken(String token) {
     return Objects.requireNonNull(getClaimsFromToken(token).get(EMAIL_CLAIM, String.class));
   }
