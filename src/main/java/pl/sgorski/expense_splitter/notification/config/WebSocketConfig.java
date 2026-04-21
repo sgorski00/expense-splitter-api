@@ -2,27 +2,24 @@ package pl.sgorski.expense_splitter.notification.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import org.springframework.web.socket.server.HandshakeHandler;
-import org.springframework.web.socket.server.HandshakeInterceptor;
+import pl.sgorski.expense_splitter.security.websocket.StompAuthChannelInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  private final HandshakeInterceptor handshakeInterceptor;
-  private final HandshakeHandler handshakeHandler;
+  private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
 
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry
         .addEndpoint("/ws")
-        .addInterceptors(handshakeInterceptor)
-        .setHandshakeHandler(handshakeHandler)
         .setAllowedOriginPatterns("*")
         .withSockJS();
   }
@@ -32,5 +29,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     registry.enableSimpleBroker("/queue");
     registry.setUserDestinationPrefix("/user");
     registry.setApplicationDestinationPrefixes("/app");
+  }
+
+  @Override
+  public void configureClientInboundChannel(ChannelRegistration registration) {
+    registration.interceptors(stompAuthChannelInterceptor);
   }
 }

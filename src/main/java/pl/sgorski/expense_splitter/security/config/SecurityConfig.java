@@ -40,7 +40,7 @@ public class SecurityConfig {
     return http.authorizeHttpRequests(
             req ->
                 req.requestMatchers(
-                        "/v3/api-docs/**", "/swagger-ui/**", "/actuator/**", "/auth/refresh")
+                        "/v3/api-docs/**", "/swagger-ui/**", "/actuator/**", "/auth/refresh", "/ws/**")
                     .permitAll()
                     .requestMatchers("/auth/logout")
                     .authenticated()
