@@ -28,7 +28,6 @@ public class WebSocketSenderImplTest {
     webSocketSender.send(userId, notificationWsDto);
 
     verify(simpMessagingTemplate, times(1))
-        .convertAndSendToUser(
-            eq(userId.toString()), eq("/queue/notifications"), eq(notificationWsDto));
+        .convertAndSendToUser(eq(userId.toString()), eq("/notifications"), eq(notificationWsDto));
   }
 }

@@ -123,5 +123,52 @@ Spowoduje to unieważnienie Refresh Tokena oraz usunięcie HttpOnly cookie `refr
 
 ---
 
+## WebSocket
+
+API udostępnia WebSocket do powiadomień w czasie rzeczywistym poprzez STOMP + SockJS.
+
+### Połączenie
+
+- **Endpoint**: `ws://localhost:8080/api/ws`
+- **Fallback**: SockJS (dla przeglądarek bez WebSocket)
+
+Backend udostępnia wyłącznie user-specific endpoint `/user/notifications`, który jest zabezpieczony i wymaga autoryzacji.
+
+### Autoryzacja
+
+Nagłówek `Authorization` jest **wymagany** do podłączenia. Format:
+```
+Authorization: Bearer {JWT_TOKEN}
+```
+
+### Przykład Klienta (JavaScript)
+
+```javascript
+const client = new StompJs.Client({
+  brokerURL: 'ws://localhost:8080/api/ws',
+  connectHeaders: {
+    Authorization: `Bearer ${jwtToken}`
+  }
+});
+
+client.onConnect = () => {
+  client.subscribe('/user/queue/notifications', (msg) => {
+    // logic
+  });
+};
+
+client.activate();
+```
+
+### Dodatkowe informacje o powiadomieniach
+
+W przypadku trybu offline użytkownika, powiadomienia nie zostaną dostarczone w czasie rzeczywistym. 
+
+Aby zapewnić dostarczenie powiadomień po ponownym połączeniu, wszystkie powiadomienia są przechowywane w bazie danych z informacją o statusie dostarczenia. Po uruchomieniu aplikacji należy wykonać żadanie `GET /api/notifications`, które zwróci listę nieodczytanych powiadomień.
+
+Szczegóły dotyczące implementacji powiadomień znajdują się w dokumentacji API.
+
+---
+
 ## Autor
 [Sebastian Górski](https://github.com/sgorski00)

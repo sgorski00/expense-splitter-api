@@ -15,6 +15,6 @@ public class WebSocketSenderImpl implements WebSocketSender {
 
   @Override
   public void send(UUID userId, NotificationWsDto message) {
-    template.convertAndSendToUser(userId.toString(), "/queue/notifications", message);
+    template.convertAndSendToUser(userId.toString(), "/notifications", message);
   }
 }
