@@ -63,6 +63,6 @@ public class NotificationService {
   }
 
   public Page<Notification> getUnread(UUID userId, Pageable pageable) {
-    return repository.findAllByUserIdAndIsReadOrderByCreatedAtDesc(userId, true, pageable);
+    return repository.findAllByUserIdAndIsReadOrderByCreatedAtDesc(userId, false, pageable);
   }
 }
