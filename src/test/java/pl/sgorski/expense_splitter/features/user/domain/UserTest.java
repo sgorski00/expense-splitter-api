@@ -2,6 +2,7 @@ package pl.sgorski.expense_splitter.features.user.domain;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -142,5 +143,94 @@ public class UserTest {
     var result = user.getDisplayName();
 
     assertEquals("John Doe", result);
+  }
+
+  @Test
+  void getPassword_shouldReturnNull() {
+    var user = new User();
+
+    var result = user.getPassword();
+
+    assertNull(result);
+  }
+
+  @Test
+  void getPassword_shouldReturnPasswordHash() {
+    var passwordHash = "hashed_password";
+    var user = new User();
+    user.setPasswordHash(passwordHash);
+
+    var result = user.getPassword();
+
+    assertEquals(passwordHash, result);
+  }
+
+  @Test
+  void isAccountNonExpired_shouldReturnTrue_whenAccountIsNotDeleted() {
+    var user = new User();
+    user.setDeletedAt(null);
+
+    var result = user.isAccountNonExpired();
+
+    assertTrue(result);
+  }
+
+  @Test
+  void isAccountNonExpired_shouldReturnFalse_whenAccountIsDeleted() {
+    var user = new User();
+    user.setDeletedAt(Instant.now());
+
+    var result = user.isAccountNonExpired();
+
+    assertFalse(result);
+  }
+
+  @Test
+  void isAccountNonLocked_shouldReturnTrue_whenAccountIsNotDeleted() {
+    var user = new User();
+    user.setDeletedAt(null);
+
+    var result = user.isAccountNonLocked();
+
+    assertTrue(result);
+  }
+
+  @Test
+  void isAccountNonLocked_shouldReturnFalse_whenAccountIsDeleted() {
+    var user = new User();
+    user.setDeletedAt(Instant.now());
+
+    var result = user.isAccountNonLocked();
+
+    assertFalse(result);
+  }
+
+  @Test
+  void isCredentialsNonExpired_shouldReturnTrue() {
+    var user = new User();
+
+    var result = user.isCredentialsNonExpired();
+
+    assertTrue(result);
+  }
+
+  @Test
+  void isEnabled_shouldReturnTrue_whenAccountIsNotDeleted() {
+    var user = new User();
+    user.setDeletedAt(null);
+
+    var result = user.isEnabled();
+
+    assertTrue(result);
+  }
+
+  @Test
+  void isEnabled_shouldReturnFalse_whenAccountIsDeleted() {
+    var user = new User();
+    user.setDeletedAt(Instant.now());
+
+    var result = user.isEnabled();
+
+    assertFalse(result);
   }
 }
