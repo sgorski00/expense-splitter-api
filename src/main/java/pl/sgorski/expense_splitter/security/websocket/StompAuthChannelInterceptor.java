@@ -21,21 +21,22 @@ public final class StompAuthChannelInterceptor implements ChannelInterceptor {
 
   @Override
   public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    log.trace("Received WebSocket message");
     var accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-    log.trace("Received WebSocket message with accessor: {}", accessor);
     if (accessor == null) {
+      log.trace("Accessor is null, skipping authentication");
       return message;
     }
 
-    log.trace("Received WebSocket message with command: {}", accessor.getCommand());
+    log.trace("Message command: {}", accessor.getCommand());
     if (accessor.getCommand() == StompCommand.CONNECT) {
       var authHeader = accessor.getFirstNativeHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER);
       var token = AuthorizationTokenUtils.getTokenFromHeader(authHeader);
-      log.trace("Received WebSocket with token: {}", token);
       if (token == null || jwtService.isTokenInvalid(token)) {
-        log.warn("Token {} is invalid", token);
+        log.warn("Invalid access token provided for WebSocket connection");
         throw new IllegalArgumentException("Invalid token");
       }
+      log.trace("Valid access token received");
       var userId = jwtService.getUserId(token);
       accessor.setUser(() -> userId);
       log.info("User with id {} connected to WebSocket", userId);

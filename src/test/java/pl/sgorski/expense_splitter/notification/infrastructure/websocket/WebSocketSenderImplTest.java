@@ -20,7 +20,7 @@ public class WebSocketSenderImplTest {
   @InjectMocks private WebSocketSenderImpl webSocketSender;
 
   @Test
-  void send_shouldSendEmail_whenPropertiesAreValid() {
+  void send_shouldSendWebSocketNotificationToUser_whenDataIsValid() {
     var userId = UUID.randomUUID();
     var notificationWsDto =
         new NotificationWsDto(UUID.randomUUID(), "Test Title", "Test Body", false, Instant.now());
