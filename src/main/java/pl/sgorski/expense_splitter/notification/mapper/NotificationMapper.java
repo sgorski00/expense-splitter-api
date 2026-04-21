@@ -9,6 +9,7 @@ import pl.sgorski.expense_splitter.notification.dto.command.UpdateNotificationRe
 import pl.sgorski.expense_splitter.notification.dto.request.UpdateNotificationPreferenceRequest;
 import pl.sgorski.expense_splitter.notification.dto.response.NotificationPreferenceResponse;
 import pl.sgorski.expense_splitter.notification.dto.response.NotificationResponse;
+import pl.sgorski.expense_splitter.notification.dto.ws.NotificationWsDto;
 
 @Mapper(config = CentralMapperConfig.class)
 public interface NotificationMapper {
@@ -21,4 +22,6 @@ public interface NotificationMapper {
 
   UpdateNotificationRequestCommand toUpdateCommand(
       UpdateNotificationPreferenceRequest notification);
+
+  NotificationWsDto toWsDto(Notification notification);
 }

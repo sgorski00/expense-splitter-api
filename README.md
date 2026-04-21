@@ -118,8 +118,58 @@ Spowoduje to unieważnienie Refresh Tokena oraz usunięcie HttpOnly cookie `refr
 
 ### Dodatkowe informacje
 - Przy zmianie/ustawieniu hasła, wszystkie istniejące Refresh Tokeny dla danego użytkownika zostaną unieważnione, co wymusi ponowne logowanie się użytkownika.
-- W przypadku wykorzystania refresh tokena w enpoincie `/api/auth/refresh`, stary refresh token zostanie unieważniony, a nowy będzie ważny do czasu jego wygaśnięcia lub ręcznego unieważnienia (np. poprzez wylogowanie).
+- W przypadku wykorzystania refresh tokena w endpoincie `/api/auth/refresh`, stary refresh token zostanie unieważniony, a nowy będzie ważny do czasu jego wygaśnięcia lub ręcznego unieważnienia (np. poprzez wylogowanie).
 - Refresh Tokeny są cyklicznie usuwane z bazy, jeżeli są przeterminowane lub zużyte.
+
+---
+
+## WebSocket
+
+API udostępnia WebSocket do powiadomień w czasie rzeczywistym poprzez STOMP + SockJS.
+
+### Połączenie
+
+- **Endpoint SockJS**: `http://localhost:8080/api/ws`
+- **Transport WebSocket (SockJS)**: `ws://localhost:8080/api/ws/websocket`
+- **Fallback**: SockJS (dla przeglądarek bez WebSocket)
+
+Backend udostępnia wyłącznie user-specific endpoint `/user/notifications`, który jest zabezpieczony i wymaga autoryzacji.
+
+### Autoryzacja
+
+Nagłówek `Authorization` jest **wymagany** do podłączenia. Format:
+```
+Authorization: Bearer {JWT_TOKEN}
+```
+
+### Przykład Klienta (JavaScript)
+
+:exclamation: **Ważne**: zamień adres localhost na poprawny adres url API.
+
+```javascript
+const client = new StompJs.Client({
+  brokerURL: 'http://localhost:8080/api/ws',
+  connectHeaders: {
+    Authorization: `Bearer ${jwtToken}`
+  }
+});
+
+client.onConnect = () => {
+  client.subscribe('/user/notifications', (msg) => {
+    // logic
+  });
+};
+
+client.activate();
+```
+
+### Dodatkowe informacje o powiadomieniach
+
+W przypadku trybu offline użytkownika, powiadomienia nie zostaną dostarczone w czasie rzeczywistym. 
+
+Aby zapewnić dostarczenie powiadomień po ponownym połączeniu, wszystkie powiadomienia są przechowywane w bazie danych z informacją o statusie dostarczenia. Po uruchomieniu aplikacji należy wykonać żądanie `GET /api/notifications`, które zwróci listę nieodczytanych powiadomień.
+
+Szczegóły dotyczące implementacji powiadomień znajdują się w dokumentacji API.
 
 ---
 

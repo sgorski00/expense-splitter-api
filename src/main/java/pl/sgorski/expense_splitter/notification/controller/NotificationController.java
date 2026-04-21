@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,19 @@ public class NotificationController {
   private final NotificationService notificationService;
   private final NotificationPreferenceService preferenceService;
   private final NotificationMapper mapper;
+
+  @GetMapping
+  @Operation(
+      summary = "Get unread notifications",
+      description =
+          "Retrieves a paginated list of unread notifications for the authenticated user. Notifications are sorted by creation date in descending order.")
+  public ResponseEntity<Page<NotificationResponse>> getNotifications(
+      Pageable pageable, Authentication authentication) {
+    var userId = authenticatedUserResolver.requireUserId(authentication);
+    var notifications = notificationService.getUnread(userId, pageable);
+    var response = notifications.map(mapper::toResponse);
+    return ResponseEntity.ok(response);
+  }
 
   @PatchMapping("{id}/read")
   @Operation(

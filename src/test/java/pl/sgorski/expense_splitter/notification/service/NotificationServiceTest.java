@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import pl.sgorski.expense_splitter.exceptions.notification.NotificationNotFoundException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
@@ -109,5 +111,18 @@ public class NotificationServiceTest {
     notificationService.send(notification, channels);
 
     verify(mockSender, times(1)).send(notification);
+  }
+
+  @Test
+  void getUnread_shouldReturnPageOfNotifications() {
+    var pageable = Pageable.unpaged();
+    when(repository.findAllByUserIdAndIsReadOrderByCreatedAtDesc(userId, false, pageable))
+        .thenReturn(Page.empty());
+
+    var result = notificationService.getUnread(userId, pageable);
+
+    assertNotNull(result);
+    verify(repository, times(1))
+        .findAllByUserIdAndIsReadOrderByCreatedAtDesc(userId, false, pageable);
   }
 }

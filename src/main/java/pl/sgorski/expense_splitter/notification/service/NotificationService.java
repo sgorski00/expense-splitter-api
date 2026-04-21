@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.exceptions.notification.NotificationNotFoundException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
@@ -58,5 +60,9 @@ public class NotificationService {
             .orElseThrow(() -> new NotificationNotFoundException(id));
     notification.setIsRead(true);
     return repository.save(notification);
+  }
+
+  public Page<Notification> getUnread(UUID userId, Pageable pageable) {
+    return repository.findAllByUserIdAndIsReadOrderByCreatedAtDesc(userId, false, pageable);
   }
 }

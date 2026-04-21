@@ -4,24 +4,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
 import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
-import pl.sgorski.expense_splitter.notification.infrastructure.email.EmailSender;
+import pl.sgorski.expense_splitter.notification.infrastructure.websocket.WebSocketSender;
+import pl.sgorski.expense_splitter.notification.mapper.NotificationMapper;
 import pl.sgorski.expense_splitter.notification.service.NotificationSender;
 
 @Component
 @RequiredArgsConstructor
-public final class EmailNotificationSender implements NotificationSender {
+public final class WebSocketNotificationSender implements NotificationSender {
 
-  private final EmailSender emailSender;
+  private final WebSocketSender sender;
+  private final NotificationMapper mapper;
 
   @Override
   public boolean supports(NotificationChannel channel) {
-    return channel == NotificationChannel.EMAIL;
+    return channel == NotificationChannel.WEBSOCKET;
   }
 
   @Override
   public void send(Notification notification) {
-    // TODO: map to email message dto and implement email templates
-    emailSender.send(
-        notification.getUser().getEmail(), notification.getTitle(), notification.getBody());
+    var dto = mapper.toWsDto(notification);
+    sender.send(notification.getUser().getId(), dto);
   }
 }
