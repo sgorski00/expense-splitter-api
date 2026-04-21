@@ -20,7 +20,7 @@ public final class EmailNotificationSender implements NotificationSender {
 
   @Override
   public void send(Notification notification) {
-    //TODO: map to email message dto and implement email templates
+    // TODO: map to email message dto and implement email templates
     emailSender.send(
         notification.getUser().getEmail(), notification.getTitle(), notification.getBody());
   }

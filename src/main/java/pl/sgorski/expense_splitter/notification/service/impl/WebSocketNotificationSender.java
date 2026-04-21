@@ -12,17 +12,17 @@ import pl.sgorski.expense_splitter.notification.service.NotificationSender;
 @RequiredArgsConstructor
 public final class WebSocketNotificationSender implements NotificationSender {
 
-    private final WebSocketSender sender;
-    private final NotificationMapper mapper;
+  private final WebSocketSender sender;
+  private final NotificationMapper mapper;
 
-    @Override
-    public boolean supports(NotificationChannel channel) {
-        return channel == NotificationChannel.WEBSOCKET;
-    }
+  @Override
+  public boolean supports(NotificationChannel channel) {
+    return channel == NotificationChannel.WEBSOCKET;
+  }
 
-    @Override
-    public void send(Notification notification) {
-        var dto = mapper.toWsDto(notification);
-        sender.send(notification.getUser().getId(), dto);
-    }
+  @Override
+  public void send(Notification notification) {
+    var dto = mapper.toWsDto(notification);
+    sender.send(notification.getUser().getId(), dto);
+  }
 }

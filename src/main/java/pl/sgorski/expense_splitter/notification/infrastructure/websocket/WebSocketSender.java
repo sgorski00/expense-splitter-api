@@ -1,8 +1,7 @@
 package pl.sgorski.expense_splitter.notification.infrastructure.websocket;
 
-import pl.sgorski.expense_splitter.notification.dto.ws.NotificationWsDto;
-
 import java.util.UUID;
+import pl.sgorski.expense_splitter.notification.dto.ws.NotificationWsDto;
 
 public interface WebSocketSender {
 
