@@ -15,7 +15,7 @@ import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class StompAuthChannelInterceptor implements ChannelInterceptor {
+public final class StompAuthChannelInterceptor implements ChannelInterceptor {
 
   private final JwtService jwtService;
 
