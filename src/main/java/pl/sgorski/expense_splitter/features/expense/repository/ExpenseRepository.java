@@ -46,7 +46,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
   @Query(
       """
           SELECT COUNT(e) FROM Expense e
-          WHERE e.createdAt BETWEEN :from AND :to AND (
+          WHERE e.expenseDate BETWEEN :from AND :to AND (
                 e.payer.id = :userId OR
                 :userId in (select es.user.id FROM ExpenseShare es where es.expense = e))
       """)
@@ -56,7 +56,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
   @Query(
       """
           SELECT COALESCE(SUM(e.amountTotal), 0) FROM Expense e
-          WHERE e.createdAt BETWEEN :from AND :to AND (
+          WHERE e.expenseDate BETWEEN :from AND :to AND (
                 e.payer.id = :userId OR
                 :userId in (select es.user.id FROM ExpenseShare es where es.expense = e))
       """)

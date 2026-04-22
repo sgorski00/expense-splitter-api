@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
+import pl.sgorski.expense_splitter.exceptions.DomainObjectValidationException;
 
 public class DateRangeTest {
 
@@ -14,7 +15,7 @@ public class DateRangeTest {
     var from = LocalDate.of(2026, 1, 2);
     var to = LocalDate.of(2026, 1, 1);
 
-    assertThrows(IllegalArgumentException.class, () -> new DateRange(from, to));
+    assertThrows(DomainObjectValidationException.class, () -> new DateRange(from, to));
   }
 
   @Test

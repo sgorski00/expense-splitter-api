@@ -154,7 +154,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(DomainObjectValidationException.class)
   @ApiResponse(
-      responseCode = "409",
+      responseCode = "400",
       description = "Provided domain object is not valid.",
       content =
           @Content(
@@ -162,9 +162,10 @@ public class GlobalExceptionHandler {
               schema =
                   @Schema(
                       implementation = ProblemDetail.class,
-                      description = "RFC 7807 Problem Details response with 409 Conflict status.")))
+                      description =
+                          "RFC 7807 Problem Details response with 400 Bad Request status.")))
   public ProblemDetail handleDomainObjectValidationException(DomainObjectValidationException ex) {
-    var status = HttpStatus.CONFLICT;
+    var status = HttpStatus.BAD_REQUEST;
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Cannot create or update an object");
     log.warn("Illegal domain object create/update request: {}", ex.getMessage());

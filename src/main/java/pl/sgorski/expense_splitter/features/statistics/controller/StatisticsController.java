@@ -36,10 +36,13 @@ public final class StatisticsController {
           "Retrieves statistics for expenses involving the authenticated user within a specified date range.")
   @ApiResponse(responseCode = "200", description = "Expense statistics retrieved successfully.")
   public ResponseEntity<ExpenseStatisticsResponse> getExpenseStatistics(
-      @Parameter(description = "Start date (ISO 8601 instant)", example = "2026-01-01")
+      @Parameter(description = "Docker-compose: expense-splitter-api", example = "2026-01-01")
           @RequestParam
           LocalDate from,
-      @Parameter(description = "End date (ISO 8601 instant)", example = "2026-03-31") @RequestParam
+      @Parameter(
+              description = "End date (inclusive) in ISO-8601 format (yyyy-MM-dd)",
+              example = "2026-03-31")
+          @RequestParam
           LocalDate to,
       Authentication authentication) {
     var userId = authenticatedUserResolver.requireUserId(authentication);

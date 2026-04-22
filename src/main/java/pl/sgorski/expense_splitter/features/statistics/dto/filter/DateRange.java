@@ -3,11 +3,12 @@ package pl.sgorski.expense_splitter.features.statistics.dto.filter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import pl.sgorski.expense_splitter.exceptions.DomainObjectValidationException;
 
 public record DateRange(LocalDate from, LocalDate to) {
   public DateRange {
     if (from.isAfter(to)) {
-      throw new IllegalArgumentException("From date must be before or equal to To date");
+      throw new DomainObjectValidationException("from must be <= to");
     }
   }
 
