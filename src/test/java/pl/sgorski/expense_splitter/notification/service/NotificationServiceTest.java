@@ -50,8 +50,7 @@ public class NotificationServiceTest {
 
   @Test
   void create_shouldCreateNotification_whenCommandIsValid() {
-    var command =
-        new NotificationCommand(userId, user.getEmail(), "Title", "Content", new HashSet<>());
+    var command = new NotificationCommand(userId, user.getEmail(), "Title", "Content");
     when(userService.getUser(userId)).thenReturn(user);
     when(repository.save(any(Notification.class))).thenReturn(notification);
 

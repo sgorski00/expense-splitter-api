@@ -31,6 +31,7 @@ public class PasswordResetRequestListener {
     try {
       var recipient = userService.getUser(event.userId());
       var redirectUrl = getFrontendPasswordResetUrl(event);
+      var channels = Set.of(NotificationChannel.EMAIL);
       var command =
           new NotificationCommand(
               recipient.getId(),
@@ -38,11 +39,10 @@ public class PasswordResetRequestListener {
               "Password reset request",
               String.format(
                   "We've got the password reset request for your account at %s.\n\nYou can continue password reset by visiting this page: %s",
-                  event.createdAt(), redirectUrl),
-              Set.of(NotificationChannel.EMAIL));
+                  event.createdAt(), redirectUrl));
       var notification = notificationService.create(command);
 
-      notificationService.send(notification, command.channels());
+      notificationService.send(notification, channels);
     } catch (Exception ex) {
       log.error("Failed to send password reset email", ex);
     }
