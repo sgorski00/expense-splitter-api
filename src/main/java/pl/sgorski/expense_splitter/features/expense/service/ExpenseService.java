@@ -2,8 +2,10 @@ package pl.sgorski.expense_splitter.features.expense.service;
 
 import jakarta.transaction.Transactional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class ExpenseService {
   private final ExpenseMapper mapper;
   private final FriendshipService friendshipService;
   private final PaymentService paymentService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public Expense createExpense(User user, CreateExpenseCommand command) {
@@ -40,7 +43,8 @@ public class ExpenseService {
           "At least one participant of the expense must be specified.");
     }
 
-    var participantIds = participants.stream().map(ParticipantCommand::userId).toList();
+    var participantIds =
+        participants.stream().map(ParticipantCommand::userId).collect(Collectors.toSet());
     if (!friendshipService.areFriends(user, participantIds)) {
       throw new ExpenseValidationException(
           "All expense participants must be friends with the payer.");
@@ -50,6 +54,8 @@ public class ExpenseService {
     expense.setPayer(user);
     var shares = splitService.split(expense, participants);
     shares.forEach(expense::addShare);
+    var expenseCreatedEvent = mapper.toCreatedEvent(expense, participantIds);
+    eventPublisher.publishEvent(expenseCreatedEvent);
     return expenseRepository.save(expense);
   }
 
