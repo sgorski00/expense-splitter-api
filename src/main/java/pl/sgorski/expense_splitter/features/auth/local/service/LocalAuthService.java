@@ -7,8 +7,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.exceptions.authentication.FailedLoginAttemptException;
@@ -59,7 +59,7 @@ public class LocalAuthService {
       var principal = Objects.requireNonNull(auth.getPrincipal(), "Authentication failed");
       var user = (User) principal;
       return userService.getUser(user.getId());
-    } catch (AuthenticationException e) {
+    } catch (BadCredentialsException e) {
       var failedLoginEvent = new FailedLoginAttemptEvent(command.email(), Instant.now());
       eventPublisher.publishEvent(failedLoginEvent);
       throw new FailedLoginAttemptException("Invalid email or password.");

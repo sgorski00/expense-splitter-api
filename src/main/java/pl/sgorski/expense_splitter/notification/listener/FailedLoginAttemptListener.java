@@ -3,10 +3,9 @@ package pl.sgorski.expense_splitter.notification.listener;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.event.FailedLoginAttemptEvent;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
@@ -23,7 +22,7 @@ public class FailedLoginAttemptListener {
   private final NotificationService notificationService;
 
   @Async
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
   public void handle(FailedLoginAttemptEvent event) {
     try {
       var user = userService.getUser(event.email());
