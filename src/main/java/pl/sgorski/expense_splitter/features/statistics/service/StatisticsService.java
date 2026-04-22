@@ -23,8 +23,10 @@ public final class StatisticsService {
         expenseRepository.countByUserAndDateRange(
             userId, dateRange.fromInclusive(), dateRange.toExclusive());
     var totalAmount =
-        expenseRepository.sumAmountByUserAndDateRange(
-            userId, dateRange.fromInclusive(), dateRange.toExclusive());
+        totalExpenses > 0
+            ? expenseRepository.sumAmountByUserAndDateRange(
+                userId, dateRange.fromInclusive(), dateRange.toExclusive())
+            : BigDecimal.ZERO;
     var averagePerExpense =
         totalExpenses > 0
             ? totalAmount.divide(BigDecimal.valueOf(totalExpenses), 2, RoundingMode.HALF_UP)
@@ -38,8 +40,10 @@ public final class StatisticsService {
         paymentRepository.countByPayerAndDateRange(
             userId, dateRange.fromInclusive(), dateRange.toExclusive());
     var totalAmount =
-        paymentRepository.sumAmountByPayerAndDateRange(
-            userId, dateRange.fromInclusive(), dateRange.toExclusive());
+        totalPayments > 0
+            ? paymentRepository.sumAmountByPayerAndDateRange(
+                userId, dateRange.fromInclusive(), dateRange.toExclusive())
+            : BigDecimal.ZERO;
     var averagePerPayment =
         totalPayments > 0
             ? totalAmount.divide(BigDecimal.valueOf(totalPayments), 2, RoundingMode.HALF_UP)
