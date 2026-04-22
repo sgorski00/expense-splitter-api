@@ -54,9 +54,10 @@ public class ExpenseService {
     expense.setPayer(user);
     var shares = splitService.split(expense, participants);
     shares.forEach(expense::addShare);
-    var expenseCreatedEvent = mapper.toCreatedEvent(expense, participantIds);
+    var saved = expenseRepository.save(expense);
+    var expenseCreatedEvent = mapper.toCreatedEvent(saved, participantIds);
     eventPublisher.publishEvent(expenseCreatedEvent);
-    return expenseRepository.save(expense);
+    return saved;
   }
 
   public Expense getExpense(UUID id, UUID userId) {

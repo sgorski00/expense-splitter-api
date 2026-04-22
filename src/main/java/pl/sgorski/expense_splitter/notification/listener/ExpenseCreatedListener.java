@@ -27,7 +27,8 @@ public class ExpenseCreatedListener {
     log.debug("Handling new expense created event");
     try {
       var author = userService.getUser(event.authorId());
-      var participants = userService.getUsers(event.participantsId());
+      var participants = userService.getUsers(event.participantIds());
+      var participantsCount = participants.size();
       participants.forEach(
           participant -> {
             try {
@@ -38,8 +39,11 @@ public class ExpenseCreatedListener {
                       participant.getEmail(),
                       "New Expense Created",
                       String.format(
-                          "%s has created a new expense that you are a part of.%n%nThe total amount to pay is %s divided for %d participant",
-                          author.getDisplayName(), event.amount(), participants.size()));
+                          "%s has created a new expense that you are a part of.%n%nThe total amount to pay is %s split among %d participant%s",
+                          author.getDisplayName(),
+                          event.amount(),
+                          participantsCount,
+                          participantsCount == 1 ? "" : "s"));
               var notification = notificationService.create(command);
 
               notificationService.send(notification, channels);

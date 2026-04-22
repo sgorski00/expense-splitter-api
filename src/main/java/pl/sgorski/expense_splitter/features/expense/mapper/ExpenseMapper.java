@@ -56,7 +56,7 @@ public interface ExpenseMapper {
 
   DetailedExpenseResponse toDetailedResponse(Expense expense, ExpenseRole role);
 
-  @Mapping(target = "participantsId", source = "participantIds")
+  @Mapping(target = "participantIds", source = "participantIds")
   @Mapping(target = "authorId", source = "expense.payer.id")
   @Mapping(target = "name", source = "expense.title")
   @Mapping(target = "description", source = "expense.description")

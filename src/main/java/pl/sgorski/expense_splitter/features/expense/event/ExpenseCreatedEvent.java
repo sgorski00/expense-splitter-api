@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 public record ExpenseCreatedEvent(
     UUID authorId,
-    Set<UUID> participantsId,
+    Set<UUID> participantIds,
     String name,
     @Nullable String description,
     BigDecimal amount,
