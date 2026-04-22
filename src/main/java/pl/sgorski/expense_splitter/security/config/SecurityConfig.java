@@ -60,7 +60,8 @@ public class SecurityConfig {
                         "/payments/**",
                         "/profile/**",
                         "/users/**",
-                        "/notifications/**")
+                        "/notifications/**",
+                        "/statistics/**")
                     .authenticated()
                     .requestMatchers("/admin/**")
                     .hasRole("ADMIN")

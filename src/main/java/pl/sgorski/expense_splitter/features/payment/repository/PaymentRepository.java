@@ -1,12 +1,14 @@
 package pl.sgorski.expense_splitter.features.payment.repository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import pl.sgorski.expense_splitter.features.expense.domain.Expense;
 import pl.sgorski.expense_splitter.features.payment.domain.Payment;
 import pl.sgorski.expense_splitter.features.user.domain.User;
@@ -21,4 +23,22 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
   @Query(
       "select coalesce(sum(p.amount), 0) from Payment p where p.expense = :expense and p.payer.id = :userId")
   BigDecimal sumByExpenseAndUserId(Expense expense, UUID userId);
+
+  @Query(
+      """
+          SELECT COUNT(p) FROM Payment p
+          WHERE p.payer.id = :userId
+          AND p.createdAt BETWEEN :from AND :to
+      """)
+  long countByPayerAndDateRange(
+      @Param("userId") UUID userId, @Param("from") Instant from, @Param("to") Instant to);
+
+  @Query(
+      """
+          SELECT COALESCE(SUM(p.amount), 0) FROM Payment p
+          WHERE p.payer.id = :userId
+          AND p.createdAt BETWEEN :from AND :to
+      """)
+  BigDecimal sumAmountByPayerAndDateRange(
+      @Param("userId") UUID userId, @Param("from") Instant from, @Param("to") Instant to);
 }
