@@ -15,8 +15,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import pl.sgorski.expense_splitter.exceptions.authentication.FailedLoginAttemptException;
 import pl.sgorski.expense_splitter.exceptions.authentication.InvalidPasswordException;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
@@ -24,6 +26,7 @@ import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.dto.command.ConfirmPasswordResetCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
+import pl.sgorski.expense_splitter.features.auth.event.FailedLoginAttemptEvent;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.domain.PasswordResetToken;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.event.PasswordResetRequestEvent;
@@ -127,6 +130,18 @@ public class LocalAuthServiceTest {
 
     assertEquals("Authentication failed", exception.getMessage());
     verify(authenticationManager, times(1)).authenticate(any());
+    verifyNoInteractions(userService);
+  }
+
+  @Test
+  void login_shouldThrowExceptionAndPublishEvent_whenBadCredentialsEntered() {
+    when(authenticationManager.authenticate(any()))
+        .thenThrow(new BadCredentialsException("Invalid credentials"));
+
+    assertThrows(FailedLoginAttemptException.class, () -> localAuthService.login(loginCommand));
+
+    verify(authenticationManager, times(1)).authenticate(any());
+    verify(eventPublisher, times(1)).publishEvent(any(FailedLoginAttemptEvent.class));
     verifyNoInteractions(userService);
   }
 

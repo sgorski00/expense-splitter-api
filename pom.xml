@@ -238,6 +238,7 @@
 						<exclude>**/config/**</exclude>
 						<exclude>**/exceptions/**</exclude>
 						<exclude>**/dto/**</exclude>
+						<exclude>**/event/**</exclude>
 						<exclude>**/mapper/**</exclude>
 						<exclude>**/*Properties.*</exclude>
 					</excludes>

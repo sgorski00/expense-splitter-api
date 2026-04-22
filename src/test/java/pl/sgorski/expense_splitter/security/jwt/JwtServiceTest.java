@@ -19,7 +19,7 @@ import pl.sgorski.expense_splitter.features.user.domain.Role;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtServiceTests {
+public class JwtServiceTest {
 
   private final JwtProperties jwtProperties = mock(JwtProperties.class);
   private SecretKey secretKey;
@@ -141,6 +141,15 @@ public class JwtServiceTests {
     var result = jwtService.isTokenInvalid(invalidToken);
 
     assertTrue(result);
+  }
+
+  @Test
+  void getUserId_shouldReturnCorrectUserId_validToken() {
+    var token = jwtService.generateAccessToken(testUser);
+
+    var userId = jwtService.getUserId(token);
+
+    assertEquals(testUser.getId().toString(), userId);
   }
 
   @Test
