@@ -35,11 +35,10 @@ public class FriendshipNotificationListener {
               recipient.getEmail(),
               "New Friend Request",
               String.format(
-                  "You have received a new friend request from %s.", requester.getDisplayName()),
-              channels);
+                  "You have received a new friend request from %s.", requester.getDisplayName()));
       var notification = notificationService.create(command);
 
-      notificationService.send(notification, command.channels());
+      notificationService.send(notification, channels);
     } catch (Exception ex) {
       log.error("Failed to send friendship create notification", ex);
     }

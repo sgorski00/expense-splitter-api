@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.sgorski.expense_splitter.exceptions.authentication.FailedLoginAttemptException;
 import pl.sgorski.expense_splitter.exceptions.authentication.InvalidPasswordException;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
@@ -17,6 +19,7 @@ import pl.sgorski.expense_splitter.exceptions.user.UserNotFoundException;
 import pl.sgorski.expense_splitter.features.auth.dto.command.ConfirmPasswordResetCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.LoginUserCommand;
 import pl.sgorski.expense_splitter.features.auth.dto.command.RegisterUserCommand;
+import pl.sgorski.expense_splitter.features.auth.event.FailedLoginAttemptEvent;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.event.PasswordResetRequestEvent;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.service.PasswordResetTokenService;
@@ -49,12 +52,18 @@ public class LocalAuthService {
 
   /** Validate user's login request and returns user if credentials are correct */
   public User login(LoginUserCommand command) {
-    var auth =
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(command.email(), command.password()));
-    var principal = Objects.requireNonNull(auth.getPrincipal(), "Authentication failed");
-    var user = (User) principal;
-    return userService.getUser(user.getId());
+    try {
+      var auth =
+          authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(command.email(), command.password()));
+      var principal = Objects.requireNonNull(auth.getPrincipal(), "Authentication failed");
+      var user = (User) principal;
+      return userService.getUser(user.getId());
+    } catch (AuthenticationException e) {
+      var failedLoginEvent = new FailedLoginAttemptEvent(command.email(), Instant.now());
+      eventPublisher.publishEvent(failedLoginEvent);
+      throw new FailedLoginAttemptException("Invalid email or password.");
+    }
   }
 
   /** Method that allows oauth2 users to create local password and login with email and password. */

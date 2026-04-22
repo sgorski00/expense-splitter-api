@@ -314,7 +314,7 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
-  @ExceptionHandler(AuthenticationException.class)
+  @ExceptionHandler({AuthenticationException.class, FailedLoginAttemptException.class})
   @ApiResponse(
       responseCode = "401",
       description = "Authentication failed. Invalid credentials or token.",
@@ -326,7 +326,7 @@ public class GlobalExceptionHandler {
                       implementation = ProblemDetail.class,
                       description =
                           "RFC 7807 Problem Details response with 401 Unauthorized status.")))
-  public ProblemDetail handleAuthenticationException(AuthenticationException ex) {
+  public ProblemDetail handleAuthenticationException(RuntimeException ex) {
     var status = HttpStatus.UNAUTHORIZED;
     var problemDetail =
         ProblemDetail.forStatusAndDetail(
