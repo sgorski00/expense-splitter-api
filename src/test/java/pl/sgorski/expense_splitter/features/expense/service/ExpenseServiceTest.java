@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import pl.sgorski.expense_splitter.features.expense.dto.command.CreateExpenseCom
 import pl.sgorski.expense_splitter.features.expense.dto.command.ParticipantCommand;
 import pl.sgorski.expense_splitter.features.expense.dto.command.UpdateExpenseCommand;
 import pl.sgorski.expense_splitter.features.expense.dto.filter.ExpenseRole;
+import pl.sgorski.expense_splitter.features.expense.event.ExpenseCreatedEvent;
 import pl.sgorski.expense_splitter.features.expense.mapper.ExpenseMapper;
 import pl.sgorski.expense_splitter.features.expense.repository.ExpenseRepository;
 import pl.sgorski.expense_splitter.features.expense.service.split.ExpenseSplitService;
@@ -41,11 +43,10 @@ import pl.sgorski.expense_splitter.features.user.domain.User;
 public class ExpenseServiceTest {
 
   @Mock private ExpenseSplitService splitService;
-
   @Mock private ExpenseRepository expenseRepository;
-
   @Mock private FriendshipService friendshipService;
   @Mock private PaymentService paymentService;
+  @Mock private ApplicationEventPublisher eventPublisher;
 
   private ExpenseService expenseService;
 
@@ -59,7 +60,12 @@ public class ExpenseServiceTest {
     var expenseMapper = Mappers.getMapper(ExpenseMapper.class);
     expenseService =
         new ExpenseService(
-            splitService, expenseRepository, expenseMapper, friendshipService, paymentService);
+            splitService,
+            expenseRepository,
+            expenseMapper,
+            friendshipService,
+            paymentService,
+            eventPublisher);
 
     expenseId = UUID.randomUUID();
     payer = new User();
@@ -99,7 +105,7 @@ public class ExpenseServiceTest {
             Set.of(new ParticipantCommand(participantId, null, null)),
             Instant.now());
 
-    when(friendshipService.areFriends(eq(payer), anyList())).thenReturn(true);
+    when(friendshipService.areFriends(eq(payer), anyCollection())).thenReturn(true);
     when(expenseRepository.save(any(Expense.class))).thenReturn(expense);
     when(splitService.split(any(Expense.class), anySet())).thenReturn(Set.of());
 
@@ -107,9 +113,10 @@ public class ExpenseServiceTest {
 
     assertNotNull(result);
     assertEquals(expense.getId(), result.getId());
-    verify(friendshipService, times(1)).areFriends(eq(payer), anyList());
+    verify(friendshipService, times(1)).areFriends(eq(payer), anyCollection());
     verify(splitService, times(1)).split(any(Expense.class), anySet());
     verify(expenseRepository, times(1)).save(any(Expense.class));
+    verify(eventPublisher, times(1)).publishEvent(any(ExpenseCreatedEvent.class));
   }
 
   @Test
@@ -126,9 +133,10 @@ public class ExpenseServiceTest {
     assertThrows(
         ExpenseValidationException.class, () -> expenseService.createExpense(payer, command));
 
-    verify(friendshipService, never()).areFriends(any(User.class), anyList());
+    verify(friendshipService, never()).areFriends(any(User.class), anyCollection());
     verify(splitService, never()).split(any(Expense.class), anySet());
     verify(expenseRepository, never()).save(any(Expense.class));
+    verify(eventPublisher, never()).publishEvent(any(ExpenseCreatedEvent.class));
   }
 
   @Test
@@ -145,9 +153,10 @@ public class ExpenseServiceTest {
     assertThrows(
         ExpenseValidationException.class, () -> expenseService.createExpense(payer, command));
 
-    verify(friendshipService, never()).areFriends(any(User.class), anyList());
+    verify(friendshipService, never()).areFriends(any(User.class), anyCollection());
     verify(splitService, never()).split(any(Expense.class), anySet());
     verify(expenseRepository, never()).save(any(Expense.class));
+    verify(eventPublisher, never()).publishEvent(any(ExpenseCreatedEvent.class));
   }
 
   @Test
@@ -162,14 +171,15 @@ public class ExpenseServiceTest {
             Set.of(new ParticipantCommand(participantId, null, null)),
             Instant.now());
 
-    when(friendshipService.areFriends(eq(payer), anyList())).thenReturn(false);
+    when(friendshipService.areFriends(eq(payer), anyCollection())).thenReturn(false);
 
     assertThrows(
         ExpenseValidationException.class, () -> expenseService.createExpense(payer, command));
 
-    verify(friendshipService, times(1)).areFriends(eq(payer), anyList());
+    verify(friendshipService, times(1)).areFriends(eq(payer), anyCollection());
     verify(splitService, never()).split(any(Expense.class), anySet());
     verify(expenseRepository, never()).save(any(Expense.class));
+    verify(eventPublisher, never()).publishEvent(any(ExpenseCreatedEvent.class));
   }
 
   @Test
@@ -187,16 +197,17 @@ public class ExpenseServiceTest {
                 new ParticipantCommand(participantId2, null, null)),
             Instant.now());
 
-    when(friendshipService.areFriends(eq(payer), anyList())).thenReturn(true);
+    when(friendshipService.areFriends(eq(payer), anyCollection())).thenReturn(true);
     when(expenseRepository.save(any(Expense.class))).thenReturn(expense);
     when(splitService.split(any(Expense.class), anySet())).thenReturn(Set.of());
 
     var result = expenseService.createExpense(payer, command);
 
     assertNotNull(result);
-    verify(friendshipService, times(1)).areFriends(eq(payer), anyList());
+    verify(friendshipService, times(1)).areFriends(eq(payer), anyCollection());
     verify(splitService, times(1)).split(any(Expense.class), anySet());
     verify(expenseRepository, times(1)).save(any(Expense.class));
+    verify(eventPublisher, times(1)).publishEvent(any(ExpenseCreatedEvent.class));
   }
 
   @Test

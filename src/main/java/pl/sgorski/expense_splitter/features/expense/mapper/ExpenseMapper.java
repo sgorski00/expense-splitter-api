@@ -1,5 +1,7 @@
 package pl.sgorski.expense_splitter.features.expense.mapper;
 
+import java.util.Set;
+import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -17,6 +19,7 @@ import pl.sgorski.expense_splitter.features.expense.dto.request.UpdateExpenseReq
 import pl.sgorski.expense_splitter.features.expense.dto.response.DetailedExpenseResponse;
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseResponse;
 import pl.sgorski.expense_splitter.features.expense.dto.response.ExpenseShareResponse;
+import pl.sgorski.expense_splitter.features.expense.event.ExpenseCreatedEvent;
 
 @Mapper(config = CentralMapperConfig.class, imports = SplitType.class)
 public interface ExpenseMapper {
@@ -52,4 +55,12 @@ public interface ExpenseMapper {
   ExpenseResponse toResponse(Expense expense, ExpenseRole role);
 
   DetailedExpenseResponse toDetailedResponse(Expense expense, ExpenseRole role);
+
+  @Mapping(target = "participantIds", source = "participantIds")
+  @Mapping(target = "authorId", source = "expense.payer.id")
+  @Mapping(target = "name", source = "expense.title")
+  @Mapping(target = "description", source = "expense.description")
+  @Mapping(target = "amount", source = "expense.amountTotal")
+  @Mapping(target = "createdAt", source = "expense.createdAt")
+  ExpenseCreatedEvent toCreatedEvent(Expense expense, Set<UUID> participantIds);
 }
