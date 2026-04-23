@@ -74,9 +74,9 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .userDetailsService(userDetailsService)
-        .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(passwordChangeRequiredFilter, JwtAuthenticationFilter.class)
+        .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
         .exceptionHandling(
             ex ->
                 ex.accessDeniedHandler(accessDeniedHandler)
