@@ -26,6 +26,7 @@
 		<jacoco.version>0.8.14</jacoco.version>
 		<bouncycastle.version>1.83</bouncycastle.version>
 		<spotless.version>3.4.0</spotless.version>
+		<bucket4j.version>8.18.0</bucket4j.version>
 	</properties>
 
 	<dependencies>
@@ -64,6 +65,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -153,6 +158,18 @@
 			<artifactId>h2</artifactId>
 			<version>${h2.version}</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-core</artifactId>
+			<version>${bucket4j.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>${caffeine.version}</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

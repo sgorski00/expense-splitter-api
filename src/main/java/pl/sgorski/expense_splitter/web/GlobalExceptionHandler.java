@@ -19,6 +19,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pl.sgorski.expense_splitter.exceptions.DomainObjectValidationException;
 import pl.sgorski.expense_splitter.exceptions.NotFoundException;
+import pl.sgorski.expense_splitter.exceptions.TooManyRequestsException;
 import pl.sgorski.expense_splitter.exceptions.authentication.*;
 import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusChangeException;
 import pl.sgorski.expense_splitter.exceptions.friendship.InvalidFriendshipOperationException;
@@ -487,6 +488,26 @@ public class GlobalExceptionHandler {
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Invalid Friendship Operation");
     log.warn("Invalid friendship operation: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(TooManyRequestsException.class)
+  @ApiResponse(
+      responseCode = "429",
+      description = "Too many requests. Rate limit exceeded.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 429 Too Many Requests status.")))
+  public ProblemDetail handleTooManyRequestsException(TooManyRequestsException ex) {
+    var status = HttpStatus.TOO_MANY_REQUESTS;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("Too Many Requests");
+    log.warn("Rate limit exceeded: {}", ex.getMessage());
     return problemDetail;
   }
 

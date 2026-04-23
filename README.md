@@ -123,6 +123,37 @@ Spowoduje to unieważnienie Refresh Tokena oraz usunięcie HttpOnly cookie `refr
 
 ---
 
+## Rate Limiting
+
+API implementuje rate limiting do ochrony przed nadużyciem. Limity są stosowane per **typ:IP**.
+
+### Limity
+
+- **AUTH endpoints** (`/api/auth/*`): **5 requestów/min** - limit resetuje się w całości co minutę
+- **Inne API endpoints**: **200 requestów/min** - tokeny odnawiają się stopniowo w ciągu minuty (greedy refill)
+
+### HTTP Headers
+
+Każda odpowiedź zawiera informacje o limicie:
+- `X-Rate-Limit-Limit` - limit dla danego typu endpointu
+- `X-Rate-Limit-Remaining` - liczba pozostałych requestów
+- `X-Rate-Limit-Retry-After-Seconds` - liczba sekund do refillu (tylko jeśli limit wyczerpany)
+
+### Przekroczenie Limitu
+
+Status: **HTTP 429 Too Many Requests**
+
+Odpowiedź (RFC 7807 Problem Details):
+```json
+{
+  "title": "Too Many Requests",
+  "status": 429,
+  "detail": "Too many requests. Please try again later."
+}
+```
+
+---
+
 ## WebSocket
 
 API udostępnia WebSocket do powiadomień w czasie rzeczywistym poprzez STOMP + SockJS.
