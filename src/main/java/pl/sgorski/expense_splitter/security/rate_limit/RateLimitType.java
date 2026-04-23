@@ -6,8 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum RateLimitType {
-  AUTH("AUTH"),
-  API("API");
+  AUTH("AUTH", 5),
+  API("API", 200);
 
   private final String keyPrefix;
+  private final int limit;
 }
