@@ -15,7 +15,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
-            cd /home/${{ secrets.SSH_USER }}/app
+            cd ~/app
             docker compose pull es-api
             docker compose up -d es-api
             docker image prune -f
