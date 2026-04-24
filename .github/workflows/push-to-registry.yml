@@ -1,0 +1,32 @@
+name: Push Docker image to registry
+on:
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Extract version
+        id: variables
+        run: echo "VERSION=0.0.1" >> $GITHUB_OUTPUT
+
+      - name: Login to GHCR
+        run: echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build image
+        run: |
+          docker build \
+            -t ghcr.io/${{ github.repository_owner }}/expense-splitter-api:${{ steps.variables.outputs.VERSION }} \
+            -t ghcr.io/${{ github.repository_owner }}/expense-splitter-api:latest \
+            .
+
+      - name: Push image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/expense-splitter-api:${{ steps.variables.outputs.VERSION }}
+          docker push ghcr.io/${{ github.repository_owner }}/expense-splitter-api:latest
