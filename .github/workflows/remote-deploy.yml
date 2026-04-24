@@ -1,6 +1,9 @@
 name: Deploy latest version on the VPS
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   deploy:
