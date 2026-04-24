@@ -1,6 +1,6 @@
 name: Push Docker image to registry
 on:
-  pull_request:
+  workflow_dispatch:
   release:
     types: [published]
 
@@ -14,7 +14,7 @@ jobs:
 
       - name: Extract version
         id: variables
-        run: echo "VERSION=0.0.1" >> $GITHUB_OUTPUT
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Login to GHCR
         run: echo ${{ secrets.GH_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -22,6 +22,7 @@ jobs:
       - name: Build image
         run: |
           docker build \
+            --target runtime \
             -t ghcr.io/${{ github.repository_owner }}/expense-splitter-api:${{ steps.variables.outputs.VERSION }} \
             -t ghcr.io/${{ github.repository_owner }}/expense-splitter-api:latest \
             .
