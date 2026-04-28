@@ -53,7 +53,7 @@ public class SecurityConfig {
                     .requestMatchers("/auth/**")
                     .not()
                     .authenticated()
-                    .requestMatchers("/oauth2/code/**", "/login/auth2/code/**")
+                    .requestMatchers("/oauth2/code/**", "/login/oauth2/code/**")
                     .not()
                     .authenticated()
                     .requestMatchers(
