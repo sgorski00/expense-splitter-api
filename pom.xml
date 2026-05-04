@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>pl.sgorski</groupId>
 	<artifactId>expense-splitter</artifactId>
-	<version>0.9.0</version>
+	<version>0.9.2</version>
 	<name>expense-splitter</name>
 	<description>API of expense-splitter application.</description>
 
@@ -27,6 +27,7 @@
 		<bouncycastle.version>1.83</bouncycastle.version>
 		<spotless.version>3.4.0</spotless.version>
 		<bucket4j.version>8.18.0</bucket4j.version>
+		<sentry-starter.version>8.40.0</sentry-starter.version>
 	</properties>
 
 	<dependencies>
@@ -69,6 +70,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.sentry</groupId>
+			<artifactId>sentry-spring-boot-4</artifactId>
+			<version>${sentry-starter.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>

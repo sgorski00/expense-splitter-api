@@ -1,5 +1,6 @@
 package pl.sgorski.expense_splitter.web;
 
+import io.sentry.Sentry;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -525,12 +526,13 @@ public class GlobalExceptionHandler {
                       description =
                           "Standard RFC 7807 Problem Details response containing error information (type, title, status, detail, instance).")))
   public ProblemDetail handleException(Exception ex) {
+    Sentry.captureException(ex);
+    log.error("Unhandled exception id={}", Sentry.getLastEventId());
     var status = HttpStatus.INTERNAL_SERVER_ERROR;
     var problemDetail =
         ProblemDetail.forStatusAndDetail(
             status, "An unexpected server error occurred. Please try again later.");
     problemDetail.setTitle("Internal Server Error");
-    log.error("Unhandled exception: {}", ex.getMessage(), ex);
     return problemDetail;
   }
 

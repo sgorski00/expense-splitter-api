@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import pl.sgorski.expense_splitter.security.jwt.JwtAuthenticationFilter;
 import pl.sgorski.expense_splitter.security.jwt.PasswordChangeRequiredFilter;
 import pl.sgorski.expense_splitter.security.rate_limit.RateLimitFilter;
+import pl.sgorski.expense_splitter.security.sentry.SentryContextFilter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class SecurityConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final PasswordChangeRequiredFilter passwordChangeRequiredFilter;
   private final RateLimitFilter rateLimitFilter;
+  private final SentryContextFilter sentryContextFilter;
   private final AccessDeniedHandler accessDeniedHandler;
   private final AuthenticationEntryPoint authenticationEntryPoint;
   private final AuthenticationSuccessHandler oauth2SuccessHandler;
@@ -76,6 +78,7 @@ public class SecurityConfig {
         .userDetailsService(userDetailsService)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterAfter(passwordChangeRequiredFilter, JwtAuthenticationFilter.class)
+        .addFilterAfter(sentryContextFilter, PasswordChangeRequiredFilter.class)
         .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
         .exceptionHandling(
             ex ->
