@@ -6,13 +6,12 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 import javax.crypto.SecretKey;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Service
-@RequiredArgsConstructor
 public final class JwtService {
 
   private static final String PASSWORD_CHANGE_REQUIRED_CLAIM = "passwordForChange";
@@ -21,6 +20,11 @@ public final class JwtService {
 
   private final JwtProperties jwtProperties;
   private final SecretKey secretKey;
+
+  public JwtService(JwtProperties jwtProperties, @Qualifier("jwtSecretKey") SecretKey secretKey) {
+    this.jwtProperties = jwtProperties;
+    this.secretKey = secretKey;
+  }
 
   public String generateAccessToken(User user) {
     var now = Instant.now();

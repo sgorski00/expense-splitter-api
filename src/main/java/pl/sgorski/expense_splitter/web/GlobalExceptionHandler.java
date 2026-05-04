@@ -317,6 +317,66 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+  @ExceptionHandler(TwoFactorAlreadySetupException.class)
+  @ApiResponse(
+      responseCode = "409",
+      description = "Two-factor authentication is already set up for this user.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description = "RFC 7807 Problem Details response with 409 Conflict status.")))
+  public ProblemDetail handleTwoFactorAlreadySetupException(TwoFactorAlreadySetupException ex) {
+    var status = HttpStatus.CONFLICT;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("2FA Already Setup");
+    log.warn("2FA setup attempted when already configured: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(TwoFactorNotSetupException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Two-factor authentication is not set up for this user.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 400 Bad Request status.")))
+  public ProblemDetail handleTwoFactorNotSetupException(TwoFactorNotSetupException ex) {
+    var status = HttpStatus.BAD_REQUEST;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("2FA Not Setup");
+    log.warn("2FA operation attempted when not configured: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(TwoFactorVerificationFailedException.class)
+  @ApiResponse(
+      responseCode = "401",
+      description = "Two-factor authentication code verification failed.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 401 Unauthorized status.")))
+  public ProblemDetail handleTwoFactorVerificationFailedException(
+      TwoFactorVerificationFailedException ex) {
+    var status = HttpStatus.UNAUTHORIZED;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("2FA Verification Failed");
+    log.warn("2FA code verification failed: {}", ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(AuthenticationException.class)
   @ApiResponse(
       responseCode = "401",

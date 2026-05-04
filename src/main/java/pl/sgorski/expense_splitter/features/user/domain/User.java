@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
+import pl.sgorski.expense_splitter.features.auth.two_fa.domain.UserTwoFactor;
 import pl.sgorski.expense_splitter.features.friendship.domain.Friendship;
 import pl.sgorski.expense_splitter.notification.domain.UserNotificationPreference;
 
@@ -72,6 +73,10 @@ public class User implements UserDetails {
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Nullable
   private UserNotificationPreference notificationPreference;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Nullable
+  private UserTwoFactor twoFactor;
 
   @CreationTimestamp private Instant createdAt;
 

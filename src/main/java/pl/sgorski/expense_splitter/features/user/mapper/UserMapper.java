@@ -41,6 +41,7 @@ public interface UserMapper {
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
   @Mapping(target = "notificationPreference", ignore = true)
+  @Mapping(target = "twoFactor", ignore = true)
   void updateProfile(UpdateProfileRequest request, @MappingTarget User user);
 
   @Mapping(target = "password", source = "newPassword")
@@ -59,13 +60,8 @@ public interface UserMapper {
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
   @Mapping(target = "notificationPreference", ignore = true)
+  @Mapping(target = "twoFactor", ignore = true)
   void updateUser(UpdateUserCommand command, @MappingTarget User user);
-
-  @Named("encryptedEmail")
-  static String encryptedEmail(String email) {
-    var visibleChars = 3;
-    return StringUtils.encryptEmail(email, visibleChars);
-  }
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
@@ -78,5 +74,12 @@ public interface UserMapper {
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
   @Mapping(target = "notificationPreference", ignore = true)
+  @Mapping(target = "twoFactor", ignore = true)
   User toUser(CreateUserCommand command);
+
+  @Named("encryptedEmail")
+  static String encryptedEmail(String email) {
+    var visibleChars = 3;
+    return StringUtils.encryptEmail(email, visibleChars);
+  }
 }

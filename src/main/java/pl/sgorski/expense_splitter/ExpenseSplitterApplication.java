@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.config.PasswordResetProperties;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.config.RefreshTokenProperties;
+import pl.sgorski.expense_splitter.features.auth.two_fa.config.TwoFactorProperties;
 import pl.sgorski.expense_splitter.notification.config.MailProperties;
 import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
 
@@ -18,7 +19,8 @@ import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
   JwtProperties.class,
   RefreshTokenProperties.class,
   MailProperties.class,
-  PasswordResetProperties.class
+  PasswordResetProperties.class,
+  TwoFactorProperties.class
 })
 @EnableScheduling
 @EnableAsync

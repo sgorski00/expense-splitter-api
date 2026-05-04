@@ -14,7 +14,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import org.jspecify.annotations.Nullable;
-import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 import pl.sgorski.expense_splitter.exceptions.expense.ExpenseShareNotFoundException;
 import pl.sgorski.expense_splitter.exceptions.expense.ExpenseValidationException;
 import pl.sgorski.expense_splitter.features.user.domain.User;
@@ -95,8 +94,7 @@ public class Expense {
     return this.shares.stream()
         .filter(share -> share.getUser().getId().equals(participantId))
         .findFirst()
-        .orElseThrow(
-            () -> new NotFoundException("Expense share not found for user: " + participantId));
+        .orElseThrow(() -> new ExpenseShareNotFoundException(this.id, participantId));
   }
 
   private void setShares(Set<ExpenseShare> shares) {}
