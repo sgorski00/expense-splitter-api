@@ -21,6 +21,6 @@ public record LoginResponse(
         UUID refreshToken,
     @Schema(
             description =
-                    "Indicates if user is required to complete 2-factor authentication. If true, access token will have limited permissions until 2FA is completed.",
+                "Indicates if user is required to complete 2-factor authentication. If true, access token will have limited permissions until 2FA is completed.",
             example = "true")
-    boolean twoFactorRequired) {}
+        boolean twoFactorRequired) {}
