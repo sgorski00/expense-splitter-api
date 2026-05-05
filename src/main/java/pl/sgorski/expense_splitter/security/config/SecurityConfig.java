@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.sgorski.expense_splitter.security.jwt.JwtAuthenticationFilter;
 import pl.sgorski.expense_splitter.security.jwt.PasswordChangeRequiredFilter;
+import pl.sgorski.expense_splitter.security.jwt.TwoFactorRequiredFilter;
 import pl.sgorski.expense_splitter.security.rate_limit.RateLimitFilter;
 import pl.sgorski.expense_splitter.security.sentry.SentryContextFilter;
 
@@ -32,6 +33,7 @@ public class SecurityConfig {
   private final PasswordEncoder passwordEncoder;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final PasswordChangeRequiredFilter passwordChangeRequiredFilter;
+  private final TwoFactorRequiredFilter twoFactorRequiredFilter;
   private final RateLimitFilter rateLimitFilter;
   private final SentryContextFilter sentryContextFilter;
   private final AccessDeniedHandler accessDeniedHandler;
@@ -50,7 +52,7 @@ public class SecurityConfig {
                         "/auth/refresh",
                         "/ws/**")
                     .permitAll()
-                    .requestMatchers("/auth/logout")
+                    .requestMatchers("/auth/logout", "/auth/2fa/**")
                     .authenticated()
                     .requestMatchers("/auth/**")
                     .not()
@@ -77,7 +79,8 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .userDetailsService(userDetailsService)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .addFilterAfter(passwordChangeRequiredFilter, JwtAuthenticationFilter.class)
+        .addFilterAfter(twoFactorRequiredFilter, JwtAuthenticationFilter.class)
+        .addFilterAfter(passwordChangeRequiredFilter, TwoFactorRequiredFilter.class)
         .addFilterAfter(sentryContextFilter, PasswordChangeRequiredFilter.class)
         .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
         .exceptionHandling(

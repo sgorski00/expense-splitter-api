@@ -45,7 +45,7 @@ public class JwtServiceTest {
 
   @Test
   void generateAccessToken_shouldGenerateValidToken_withCorrectUserData() {
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
 
     assertNotNull(token);
     assertFalse(token.isBlank());
@@ -54,7 +54,7 @@ public class JwtServiceTest {
 
   @Test
   void generateAccessToken_shouldEncodeUserIdAsSubject_correctToken() {
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
     var claims = parseToken(token);
 
     assertEquals(String.valueOf(testUser.getId()), claims.getSubject());
@@ -62,7 +62,7 @@ public class JwtServiceTest {
 
   @Test
   void generateAccessToken_shouldIncludeEmailClaim_correctToken() {
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
     var claims = parseToken(token);
 
     assertEquals(testUser.getEmail(), claims.get("email", String.class));
@@ -72,7 +72,7 @@ public class JwtServiceTest {
   void generateAccessToken_shouldIncludeRolesClaim_withUserAuthorities() {
     testUser.setRole(Role.USER);
 
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
     var claims = parseToken(token);
 
     @SuppressWarnings("unchecked")
@@ -85,7 +85,7 @@ public class JwtServiceTest {
   void generateAccessToken_shouldIncludePasswordForChangeClaim_whenTrue() {
     testUser.setPasswordForChange(true);
 
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
     var claims = parseToken(token);
 
     assertEquals(true, claims.get("passwordForChange", Boolean.class));
@@ -95,7 +95,7 @@ public class JwtServiceTest {
   void generateAccessToken_shouldIncludePasswordForChangeClaim_whenFalse() {
     testUser.setPasswordForChange(false);
 
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
     var claims = parseToken(token);
 
     assertEquals(false, claims.get("passwordForChange", Boolean.class));
@@ -104,7 +104,7 @@ public class JwtServiceTest {
   @Test
   void generateAccessToken_shouldSetExpirationTime_correctToken() {
     var beforeToken = Instant.now();
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
     var afterToken = Instant.now();
     var claims = parseToken(token);
 
@@ -117,7 +117,7 @@ public class JwtServiceTest {
 
   @Test
   void isTokenInvalid_shouldReturnFalse_whenTokenIsValid() {
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
 
     var result = jwtService.isTokenInvalid(token);
 
@@ -127,7 +127,7 @@ public class JwtServiceTest {
   @Test
   void isTokenInvalid_shouldReturnTrue_whenTokenIsExpired() {
     when(jwtProperties.expirationTimeInMs()).thenReturn(-1000L);
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
 
     var result = jwtService.isTokenInvalid(token);
 
@@ -145,7 +145,7 @@ public class JwtServiceTest {
 
   @Test
   void getUserId_shouldReturnCorrectUserId_validToken() {
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
 
     var userId = jwtService.getUserId(token);
 
@@ -154,7 +154,7 @@ public class JwtServiceTest {
 
   @Test
   void getEmailFromToken_shouldReturnCorrectEmail_validToken() {
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
 
     var email = jwtService.getEmailFromToken(token);
 
@@ -171,7 +171,7 @@ public class JwtServiceTest {
   @Test
   void getPasswordChangeClaim_shouldReturnTrue_whenUserPasswordMustBeChanged() {
     testUser.setPasswordForChange(true);
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
 
     var result = jwtService.getPasswordChangeClaim(token);
 
@@ -181,7 +181,7 @@ public class JwtServiceTest {
   @Test
   void getPasswordChangeClaim_shouldReturnFalse_whenUserPasswordDoesNotNeedToBeChanged() {
     testUser.setPasswordForChange(false);
-    var token = jwtService.generateAccessToken(testUser);
+    var token = jwtService.generateAccessToken(testUser, false);
 
     var result = jwtService.getPasswordChangeClaim(token);
 
@@ -193,6 +193,31 @@ public class JwtServiceTest {
     var invalidToken = "invalid.token.here";
 
     assertThrows(Exception.class, () -> jwtService.getPasswordChangeClaim(invalidToken));
+  }
+
+  @Test
+  void getTwoFactorClaim_shouldReturnTrue_whenTwoFactorIsPending() {
+    var token = jwtService.generateAccessToken(testUser, true);
+
+    var result = jwtService.getTwoFactorClaim(token);
+
+    assertTrue(result);
+  }
+
+  @Test
+  void getTwoFactorClaim_shouldReturnFalse_whenTwoFactorIsNotPending() {
+    var token = jwtService.generateAccessToken(testUser, false);
+
+    var result = jwtService.getTwoFactorClaim(token);
+
+    assertFalse(result);
+  }
+
+  @Test
+  void getTwoFactorClaim_shouldThrowException_whenTokenIsInvalid() {
+    var invalidToken = "invalid.token.here";
+
+    assertThrows(Exception.class, () -> jwtService.getTwoFactorClaim(invalidToken));
   }
 
   private Claims parseToken(String token) {

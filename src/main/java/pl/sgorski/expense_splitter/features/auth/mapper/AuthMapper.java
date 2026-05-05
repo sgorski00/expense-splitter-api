@@ -32,6 +32,7 @@ public interface AuthMapper {
   @Mapping(target = "sentFriendshipRequests", ignore = true)
   @Mapping(target = "receivedFriendshipRequests", ignore = true)
   @Mapping(target = "notificationPreference", ignore = true)
+  @Mapping(target = "twoFactor", ignore = true)
   User toEntity(RegisterUserCommand command);
 
   @Mapping(target = "id", ignore = true)

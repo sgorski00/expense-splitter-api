@@ -2,8 +2,7 @@ package pl.sgorski.expense_splitter.features.auth.local.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
@@ -38,14 +37,14 @@ public class TokenResponseEntityCreatorTest {
     var refreshToken = UUID.randomUUID();
     var refreshTokenEntity = new RefreshToken();
     refreshTokenEntity.setToken(refreshToken);
-    when(jwtService.generateAccessToken(eq(user))).thenReturn(accessToken);
+    when(jwtService.generateAccessToken(eq(user), anyBoolean())).thenReturn(accessToken);
     when(refreshTokenService.generateRefreshToken(eq(user))).thenReturn(refreshTokenEntity);
     when(refreshTokenService.getExpirationSecond()).thenReturn(1L);
     when(refreshTokenCookieResponseHelper.createRefreshTokenCookie(eq(refreshToken), anyLong()))
         .thenReturn(refreshCookie);
-    var expectedBody = new LoginResponse(accessToken, refreshToken);
+    var expectedBody = new LoginResponse(accessToken, refreshToken, false);
 
-    var response = tokenResponseEntityCreator.generate(user);
+    var response = tokenResponseEntityCreator.generate(user, false);
     var body = response.getBody();
 
     assertNotNull(response);

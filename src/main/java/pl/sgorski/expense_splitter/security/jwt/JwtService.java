@@ -6,23 +6,28 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 import javax.crypto.SecretKey;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 
 @Service
-@RequiredArgsConstructor
 public final class JwtService {
 
   private static final String PASSWORD_CHANGE_REQUIRED_CLAIM = "passwordForChange";
+  private static final String TWO_FACTOR_REQUIRED_CLAIM = "twoFactorRequired";
   private static final String EMAIL_CLAIM = "email";
   private static final String ROLE_CLAIM = "roles";
 
   private final JwtProperties jwtProperties;
   private final SecretKey secretKey;
 
-  public String generateAccessToken(User user) {
+  public JwtService(JwtProperties jwtProperties, @Qualifier("jwtSecretKey") SecretKey secretKey) {
+    this.jwtProperties = jwtProperties;
+    this.secretKey = secretKey;
+  }
+
+  public String generateAccessToken(User user, boolean twoFactorPending) {
     var now = Instant.now();
     var expirationTime = now.plusMillis(jwtProperties.expirationTimeInMs());
     var authorities = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
@@ -31,6 +36,7 @@ public final class JwtService {
         .claim(EMAIL_CLAIM, user.getEmail())
         .claim(ROLE_CLAIM, authorities)
         .claim(PASSWORD_CHANGE_REQUIRED_CLAIM, user.isPasswordForChange())
+        .claim(TWO_FACTOR_REQUIRED_CLAIM, twoFactorPending)
         .issuedAt(Date.from(now))
         .expiration(Date.from(expirationTime))
         .signWith(this.secretKey)
@@ -57,6 +63,11 @@ public final class JwtService {
   public Boolean getPasswordChangeClaim(String token) {
     return Objects.requireNonNull(
         getClaimsFromToken(token).get(PASSWORD_CHANGE_REQUIRED_CLAIM, Boolean.class));
+  }
+
+  public Boolean getTwoFactorClaim(String token) {
+    return Objects.requireNonNull(
+        getClaimsFromToken(token).get(TWO_FACTOR_REQUIRED_CLAIM, Boolean.class));
   }
 
   private Claims getClaimsFromToken(String token) {

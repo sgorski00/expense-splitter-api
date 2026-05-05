@@ -1,6 +1,5 @@
 package pl.sgorski.expense_splitter.security.oauth2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,6 +19,7 @@ import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntity
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.factory.OAuth2UserInfoFactory;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
+import tools.jackson.databind.json.JsonMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
   private final UserIdentityService identityService;
   private final TokenResponseEntityCreator tokenResponseEntityCreator;
-  private final ObjectMapper objectMapper;
+  private final JsonMapper jsonMapper;
 
   @Override
   public void onAuthenticationSuccess(
@@ -43,13 +43,13 @@ public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler 
     try {
       var identity = identityService.findIdentity(userInfo.getProvider(), userInfo.getProviderId());
       var user = identity.getUser();
-      var tokenResponse = tokenResponseEntityCreator.generate(user);
+      var tokenResponse = tokenResponseEntityCreator.generate(user, user.isTwoFactorRequired());
 
       setCookies(response, tokenResponse.getHeaders());
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response.setStatus(200);
       var loginResponse = Objects.requireNonNull(tokenResponse.getBody());
-      response.getWriter().write(objectMapper.writeValueAsString(loginResponse));
+      response.getWriter().write(jsonMapper.writeValueAsString(loginResponse));
 
       log.info("OAuth2 authentication successful for provider: {}", provider);
     } catch (IdentityNotFoundException ex) {

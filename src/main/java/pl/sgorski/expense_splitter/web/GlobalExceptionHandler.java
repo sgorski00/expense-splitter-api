@@ -22,6 +22,7 @@ import pl.sgorski.expense_splitter.exceptions.DomainObjectValidationException;
 import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 import pl.sgorski.expense_splitter.exceptions.TooManyRequestsException;
 import pl.sgorski.expense_splitter.exceptions.authentication.*;
+import pl.sgorski.expense_splitter.exceptions.authentication.two_fa.*;
 import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusChangeException;
 import pl.sgorski.expense_splitter.exceptions.friendship.InvalidFriendshipOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
@@ -113,6 +114,29 @@ public class GlobalExceptionHandler {
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Account Linking Required");
     log.info("Account linking required: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(TwoFactorRequiredException.class)
+  @ApiResponse(
+      responseCode = "403",
+      description = "Two-factor authentication is required to access this resource.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response indicating that 2FA verification is required.")))
+  public ProblemDetail handleTwoFactorRequiredException(TwoFactorRequiredException ex) {
+    var status = HttpStatus.FORBIDDEN;
+    var problemDetail =
+        ProblemDetail.forStatusAndDetail(
+            status,
+            "Two-factor authentication verification is required. Please complete 2FA to access this resource.");
+    problemDetail.setTitle("Two-Factor Authentication Required");
+    log.info("2FA verification required: {}", ex.getMessage());
     return problemDetail;
   }
 
@@ -317,6 +341,66 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+  @ExceptionHandler(TwoFactorAlreadySetupException.class)
+  @ApiResponse(
+      responseCode = "409",
+      description = "Two-factor authentication is already set up for this user.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description = "RFC 7807 Problem Details response with 409 Conflict status.")))
+  public ProblemDetail handleTwoFactorAlreadySetupException(TwoFactorAlreadySetupException ex) {
+    var status = HttpStatus.CONFLICT;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("2FA Already Setup");
+    log.warn("2FA setup attempted when already configured: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(TwoFactorNotSetupException.class)
+  @ApiResponse(
+      responseCode = "400",
+      description = "Two-factor authentication is not set up for this user.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 400 Bad Request status.")))
+  public ProblemDetail handleTwoFactorNotSetupException(TwoFactorNotSetupException ex) {
+    var status = HttpStatus.BAD_REQUEST;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("2FA Not Setup");
+    log.warn("2FA operation attempted when not configured: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(TwoFactorVerificationFailedException.class)
+  @ApiResponse(
+      responseCode = "401",
+      description = "Two-factor authentication code verification failed.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 401 Unauthorized status.")))
+  public ProblemDetail handleTwoFactorVerificationFailedException(
+      TwoFactorVerificationFailedException ex) {
+    var status = HttpStatus.UNAUTHORIZED;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("2FA Verification Failed");
+    log.warn("2FA code verification failed: {}", ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(AuthenticationException.class)
   @ApiResponse(
       responseCode = "401",
@@ -509,6 +593,29 @@ public class GlobalExceptionHandler {
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Too Many Requests");
     log.warn("Rate limit exceeded: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(SecretEncryptionException.class)
+  @ApiResponse(
+      responseCode = "500",
+      description = "Encryption or decryption of 2FA secret failed.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 500 Internal Server Error status.")))
+  public ProblemDetail handleSecretEncryptionException(SecretEncryptionException ex) {
+    Sentry.captureException(ex);
+    log.error("2FA secret encryption/decryption failed. Exception id={}", Sentry.getLastEventId());
+    var status = HttpStatus.INTERNAL_SERVER_ERROR;
+    var problemDetail =
+        ProblemDetail.forStatusAndDetail(
+            status, "An error occurred while processing security credentials.");
+    problemDetail.setTitle("Security Processing Error");
     return problemDetail;
   }
 

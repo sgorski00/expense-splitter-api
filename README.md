@@ -123,6 +123,94 @@ Spowoduje to unieważnienie Refresh Tokena oraz usunięcie HttpOnly cookie `refr
 
 ---
 
+## 2FA (Google Authenticator)
+
+API wspiera opcjonalne uwierzytelnianie dwuetapowe (2FA) oparte o TOTP (Google Authenticator). Domyślnie 2FA jest wyłączone i musi zostać ręcznie aktywowane przez użytkownika.
+
+### Włączenie 2FA (proces 2-etapowy)
+
+1. Inicjalizacja 
+
+```
+POST /api/profile/2fa/enable
+```
+Backend generuje sekret i zwraca obraz QR kodu (`Content-Type: image/png`, body = PNG bytes). 
+
+QR kod należy zeskanować w aplikacji Google Authenticator.
+
+2. Aktywacja
+
+W celu aktywacji 2FA należy wykonać żądanie z kodem TOTP wygenerowanym przez Google Authenticator:
+
+```
+POST /api/profile/2fa/confirm
+{  
+   "code": "123456"  
+}
+```
+
+Po poprawnej weryfikacji 2FA zostaje aktywowane dla użytkownika.
+
+---
+
+### Logowanie z 2FA
+
+Jeżeli użytkownik ma włączone 2FA:
+1.  `POST /api/auth/login` zwraca:
+-   accessToken (ograniczony dostęp)
+-   refreshToken
+-   twoFactorRequired = true
+2.  Użytkownik nie ma pełnego dostępu do API
+3.  Wymagana jest weryfikacja:  
+    
+```
+POST /api/auth/2fa/verify
+
+{  
+   "code": "123456"  
+}
+```
+
+4.  Po poprawnej weryfikacji zwracany jest LoginResponse z pełnym dostępem.
+
+---
+
+### Wyłączanie 2FA
+
+Weryfikację można wyłączyć, wykonując żądanie: `POST /api/profile/2fa/disable`
+
+Żądanie to usunie wpis z bazy danych, przez co kod z aplikacji Google Authenticator nie będzie już ważny.
+
+---
+
+### Wymagania bezpieczeństwa i flow
+
+-   2FA działa na bazie TOTP (Google Authenticator)
+-   sekret jest szyfrowany po stronie backendu
+-   kod jest jednorazowy i czasowy
+-   dopóki 2FA nie zostanie potwierdzone, dostęp jest ograniczony
+
+---
+
+### Konfiguracja środowiska
+
+W .env wymagane: `TWO_FA_ENCRYPTION_KEY`
+
+Brak tej wartości blokuje poprawne szyfrowanie sekretu 2FA.
+
+Aby poprawnie wygenerować klucz, najlepiej w Linuxie wywołac komendę `openssl rand -base64 32` i skopiować wygenerowany klucz do .env.
+
+---
+
+### Dodatkowe informacje
+
+1. Endpointy wyłączone z 2FA:
+   -   /api/auth/2fa/verify
+   -   /api/auth/logout
+2. Weryfikacja 2FA jest wymuszana automatycznie przez backend
+
+---
+
 ## Rate Limiting
 
 API implementuje rate limiting do ochrony przed nadużyciem. Limity są stosowane per **typ:IP**.
