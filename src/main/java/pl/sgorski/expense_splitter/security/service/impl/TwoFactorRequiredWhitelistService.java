@@ -8,7 +8,7 @@ import pl.sgorski.expense_splitter.security.service.WhitelistService;
 public final class TwoFactorRequiredWhitelistService implements WhitelistService {
 
   private static final Set<String> WHITELISTED_PATHS =
-      Set.of("/api/auth/2fa/verify", "/api/auth/logout", "/api/auth/refresh");
+      Set.of("/api/auth/2fa/verify", "/api/auth/logout");
 
   @Override
   public boolean isWhitelisted(String path) {

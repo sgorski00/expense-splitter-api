@@ -4,24 +4,13 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import pl.sgorski.expense_splitter.features.auth.password_reset_token.config.PasswordResetProperties;
-import pl.sgorski.expense_splitter.features.auth.refresh_token.config.RefreshTokenProperties;
-import pl.sgorski.expense_splitter.features.auth.two_fa.config.TwoFactorProperties;
-import pl.sgorski.expense_splitter.notification.config.MailProperties;
-import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({
-  JwtProperties.class,
-  RefreshTokenProperties.class,
-  MailProperties.class,
-  PasswordResetProperties.class,
-  TwoFactorProperties.class
-})
+@ConfigurationPropertiesScan
 @EnableScheduling
 @EnableAsync
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)

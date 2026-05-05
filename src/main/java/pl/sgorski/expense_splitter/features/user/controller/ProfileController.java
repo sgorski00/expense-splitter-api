@@ -205,7 +205,7 @@ public final class ProfileController {
       responseCode = "204",
       description = "2FA second step completed successfully, 2FA enabled.")
   public ResponseEntity<Void> confirmTwoFactor(
-      @RequestBody GoogleAuthenticatorRequest request, Authentication authentication) {
+      @RequestBody @Valid GoogleAuthenticatorRequest request, Authentication authentication) {
     var userId = authenticatedUserResolver.requireUserId(authentication);
     userTwoFactorService.confirm2FA(userId, request.code());
     return ResponseEntity.noContent().build();
