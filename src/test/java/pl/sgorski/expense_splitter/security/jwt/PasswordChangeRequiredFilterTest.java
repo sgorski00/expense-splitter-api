@@ -15,14 +15,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordChangeRequiredException;
-import pl.sgorski.expense_splitter.security.service.WhitelistService;
+import pl.sgorski.expense_splitter.security.service.impl.PasswordChangeRequiredWhitelistService;
 
 @ExtendWith(MockitoExtension.class)
 public class PasswordChangeRequiredFilterTest {
 
   @Mock private JwtService jwtService;
 
-  @Mock private WhitelistService whitelistService;
+  @Mock private PasswordChangeRequiredWhitelistService whitelistService;
 
   @Mock private HandlerExceptionResolver handlerExceptionResolver;
 

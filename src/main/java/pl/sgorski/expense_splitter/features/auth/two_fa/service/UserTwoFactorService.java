@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.sgorski.expense_splitter.exceptions.authentication.TwoFactorAlreadySetupException;
 import pl.sgorski.expense_splitter.exceptions.authentication.TwoFactorNotSetupException;
 import pl.sgorski.expense_splitter.exceptions.authentication.TwoFactorVerificationFailedException;
+import pl.sgorski.expense_splitter.features.auth.dto.request.GoogleAuthenticatorRequest;
 import pl.sgorski.expense_splitter.features.auth.two_fa.domain.UserTwoFactor;
 import pl.sgorski.expense_splitter.features.auth.two_fa.repository.UserTwoFactorRepository;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
@@ -68,5 +69,21 @@ public class UserTwoFactorService {
     userTwoFactorRepository.delete(tf);
     user.setTwoFactor(null);
     log.info("2FA disabled for user: {}", userId);
+  }
+
+  public void verify2FA(UUID userId, GoogleAuthenticatorRequest request) {
+    var tf =
+        userTwoFactorRepository
+            .findByUserId(userId)
+            .orElseThrow(() -> new TwoFactorNotSetupException("2FA is not set up for this user"));
+
+    if (!tf.isEnabled()) throw new TwoFactorNotSetupException("2FA is not enabled for this user");
+    if (tf.getSecret() == null) {
+      throw new TwoFactorNotSetupException("2FA secret is missing for this user");
+    }
+    var secret = secretEncryptor.decrypt(tf.getSecret());
+    if (!totpService.verify(secret, Integer.parseInt(request.code()))) {
+      throw new TwoFactorVerificationFailedException("Invalid 2FA code");
+    }
   }
 }

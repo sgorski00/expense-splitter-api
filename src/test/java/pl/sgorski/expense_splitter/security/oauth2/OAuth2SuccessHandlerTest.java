@@ -67,7 +67,7 @@ public class OAuth2SuccessHandlerTest {
       throws Exception {
     var refreshToken = "test-refresh-token";
     var accessToken = "test-token";
-    var loginResponse = new LoginResponse(accessToken, UUID.randomUUID());
+    var loginResponse = new LoginResponse(accessToken, UUID.randomUUID(), false);
     var responseEntity =
         ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshToken).body(loginResponse);
     var identity = new UserIdentity();
@@ -75,7 +75,8 @@ public class OAuth2SuccessHandlerTest {
     var writer = new StringWriter();
     when(response.getWriter()).thenReturn(new PrintWriter(writer));
     when(principal.getAttributes()).thenReturn(Map.of());
-    when(tokenResponseEntityCreator.generate(any(User.class))).thenReturn(responseEntity);
+    when(tokenResponseEntityCreator.generate(any(User.class), anyBoolean()))
+        .thenReturn(responseEntity);
     when(userIdentityService.findIdentity(any(AuthProvider.class), anyString()))
         .thenReturn(identity);
 
@@ -100,7 +101,9 @@ public class OAuth2SuccessHandlerTest {
         ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, "test-refresh-token").body(null);
     var identity = new UserIdentity();
     identity.setUser(new User());
-    doReturn(responseEntity).when(tokenResponseEntityCreator).generate(any(User.class));
+    doReturn(responseEntity)
+        .when(tokenResponseEntityCreator)
+        .generate(any(User.class), anyBoolean());
     when(userIdentityService.findIdentity(any(AuthProvider.class), anyString()))
         .thenReturn(identity);
 

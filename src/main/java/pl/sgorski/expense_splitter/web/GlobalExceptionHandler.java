@@ -116,6 +116,29 @@ public class GlobalExceptionHandler {
     return problemDetail;
   }
 
+
+  @ExceptionHandler(TwoFactorRequiredException.class)
+  @ApiResponse(
+      responseCode = "403",
+      description = "Two-factor authentication is required to access this resource.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response indicating that 2FA verification is required.")))
+  public ProblemDetail handleTwoFactorRequiredException(TwoFactorRequiredException ex) {
+    var status = HttpStatus.FORBIDDEN;
+    var problemDetail = ProblemDetail.forStatusAndDetail(
+        status,
+        "Two-factor authentication verification is required. Please complete 2FA to access this resource.");
+    problemDetail.setTitle("Two-Factor Authentication Required");
+    log.info("2FA verification required: {}", ex.getMessage());
+    return problemDetail;
+  }
+
   @ExceptionHandler(DuplicateIdentityException.class)
   @ApiResponse(
       responseCode = "409",

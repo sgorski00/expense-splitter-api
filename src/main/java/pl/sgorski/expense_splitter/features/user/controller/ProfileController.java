@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import pl.sgorski.expense_splitter.features.auth.dto.request.EnableGARequest;
+import pl.sgorski.expense_splitter.features.auth.dto.request.GoogleAuthenticatorRequest;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
@@ -109,7 +109,7 @@ public final class ProfileController {
     var user = authenticatedUserResolver.requireUser(authentication);
     localAuthService.setLocalPassword(user, request.newPassword());
     refreshTokenService.revokeAllUserTokens(user.getId());
-    return tokensResponseEntityCreator.generate(user);
+    return tokensResponseEntityCreator.generate(user, false);
   }
 
   @PatchMapping("/password")
@@ -126,7 +126,7 @@ public final class ProfileController {
     var user = authenticatedUserResolver.requireUser(authentication);
     localAuthService.changePassword(user, request.oldPassword(), request.newPassword());
     refreshTokenService.revokeAllUserTokens(user.getId());
-    return tokensResponseEntityCreator.generate(user);
+    return tokensResponseEntityCreator.generate(user, false);
   }
 
   @GetMapping("/link/{provider}")
@@ -205,7 +205,7 @@ public final class ProfileController {
       responseCode = "204",
       description = "2FA second step completed successfully, 2FA enabled.")
   public ResponseEntity<Void> confirmTwoFactor(
-      @RequestBody EnableGARequest request, Authentication authentication) {
+      @RequestBody GoogleAuthenticatorRequest request, Authentication authentication) {
     var userId = authenticatedUserResolver.requireUserId(authentication);
     userTwoFactorService.confirm2FA(userId, request.code());
     return ResponseEntity.noContent().build();

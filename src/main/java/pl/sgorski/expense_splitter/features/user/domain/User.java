@@ -157,4 +157,8 @@ public class User implements UserDetails {
   public boolean isEnabled() {
     return this.deletedAt == null;
   }
+
+  public boolean isTwoFactorRequired() {
+    return this.twoFactor != null && this.twoFactor.isEnabled();
+  }
 }

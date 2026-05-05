@@ -43,7 +43,7 @@ public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler 
     try {
       var identity = identityService.findIdentity(userInfo.getProvider(), userInfo.getProviderId());
       var user = identity.getUser();
-      var tokenResponse = tokenResponseEntityCreator.generate(user);
+      var tokenResponse = tokenResponseEntityCreator.generate(user, user.isTwoFactorRequired());
 
       setCookies(response, tokenResponse.getHeaders());
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);

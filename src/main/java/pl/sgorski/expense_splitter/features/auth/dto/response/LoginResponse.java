@@ -18,4 +18,9 @@ public record LoginResponse(
             description =
                 "Refresh token used to obtain a new access token when it expires. Valid for longer period (default 7 days).",
             example = "550e8400-e29b-41d4-a716-446655440000")
-        UUID refreshToken) {}
+        UUID refreshToken,
+    @Schema(
+            description =
+                    "Indicates if user is required to complete 2-factor authentication. If true, access token will have limited permissions until 2FA is completed.",
+            example = "true")
+    boolean twoFactorRequired) {}

@@ -11,11 +11,9 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pl.sgorski.expense_splitter.features.auth.dto.request.ConfirmPasswordResetRequest;
-import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
-import pl.sgorski.expense_splitter.features.auth.dto.request.PasswordResetRequest;
-import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
+import pl.sgorski.expense_splitter.features.auth.dto.request.*;
 import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
@@ -23,8 +21,10 @@ import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenExtractor;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
+import pl.sgorski.expense_splitter.features.auth.two_fa.service.UserTwoFactorService;
 import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
+import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
 
 @RestController
 @RequestMapping(value = "/auth", version = "1.0.0")
@@ -39,6 +39,8 @@ public final class AuthController {
   private final RefreshTokenService refreshTokenService;
   private final RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
   private final TokenResponseEntityCreator tokensResponseEntityCreator;
+  private final UserTwoFactorService userTwoFactorService;
+  private final AuthenticatedUserResolver authenticatedUserResolver;
 
   @PostMapping("/login")
   @Operation(
@@ -49,7 +51,9 @@ public final class AuthController {
                     If user's password is marked to be changed, the access token will be generated but will allow only to access these endpoints:
                     - /profile/password (PUT and PATCH for password change/set)<br>
                     - /auth/logout (allow users to logout)<br>
-                    - /auth/refresh (allow refresh token)<br>
+                    - /auth/refresh (allow refresh token)<br><br>
+                    If user has 2FA enabled, the access token will be generated with limited permissions and the response will indicate that 2FA verification is required.
+                    User must then verify 2FA code using /auth/2fa/verify endpoint to complete authentication and receive a new access token with full permissions.
                     """)
   @ApiResponse(
       responseCode = "200",
@@ -57,7 +61,20 @@ public final class AuthController {
           "User authenticated successfully. Access and refresh tokens issued in secure httpOnly cookies and in response body.")
   public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
     var user = localAuthService.login(authMapper.toCommand(request));
-    return tokensResponseEntityCreator.generate(user);
+    return tokensResponseEntityCreator.generate(user, user.isTwoFactorRequired());
+  }
+
+  @PostMapping("/2fa/verify")
+  @Operation(
+      summary = "Verify 2FA code",
+      description =
+          "Verifies TOTP code from Google Authenticator. Completes authentication and issues final JWT with full access.")
+  @ApiResponse(responseCode = "200", description = "2FA verified successfully.")
+  public ResponseEntity<LoginResponse> verify2FA(
+      @RequestBody @Valid GoogleAuthenticatorRequest request, Authentication authentication) {
+    var user = authenticatedUserResolver.requireUser(authentication);
+    userTwoFactorService.verify2FA(user.getId(), request);
+    return tokensResponseEntityCreator.generate(user, false);
   }
 
   @PostMapping("/register")
@@ -90,7 +107,7 @@ public final class AuthController {
     var refreshTokenValue = refreshTokenExtractor.extract(refreshTokenCookieValue, request);
     var existingRefreshToken = refreshTokenService.getValidToken(refreshTokenValue);
     refreshTokenService.revokeToken(refreshTokenValue);
-    return tokensResponseEntityCreator.generate(existingRefreshToken.getUser());
+    return tokensResponseEntityCreator.generate(existingRefreshToken.getUser(), false);
   }
 
   @PostMapping("/logout")
