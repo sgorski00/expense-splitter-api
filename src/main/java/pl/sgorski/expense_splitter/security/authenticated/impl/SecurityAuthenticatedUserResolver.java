@@ -20,14 +20,7 @@ public final class SecurityAuthenticatedUserResolver implements AuthenticatedUse
 
   @Override
   public UUID requireUserId(Authentication authentication) {
-    if (!authentication.isAuthenticated()) {
-      throw new IllegalStateException("No authenticated user in security context");
-    }
-
     var principal = authentication.getPrincipal();
-    if (principal == null) {
-      throw new IllegalStateException("Authentication principal is null");
-    }
 
     if (principal instanceof User user) {
       return user.getId();

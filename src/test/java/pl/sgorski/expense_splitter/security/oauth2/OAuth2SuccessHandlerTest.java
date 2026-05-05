@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
@@ -31,6 +30,7 @@ import pl.sgorski.expense_splitter.features.auth.oauth2.provider.OAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class OAuth2SuccessHandlerTest {
@@ -54,8 +54,7 @@ public class OAuth2SuccessHandlerTest {
   @BeforeEach
   void setUp() throws Exception {
     handler =
-        new OAuth2SuccessHandler(
-            userIdentityService, tokenResponseEntityCreator, new ObjectMapper());
+        new OAuth2SuccessHandler(userIdentityService, tokenResponseEntityCreator, new JsonMapper());
     when(authentication.getAuthorizedClientRegistrationId()).thenReturn("google");
     when(authentication.getPrincipal()).thenReturn(principal);
     when(userInfo.getProvider()).thenReturn(AuthProvider.GOOGLE);
