@@ -13,6 +13,8 @@ public final class QrCodeUtils {
   public static final String IMAGE_FORMAT = "PNG";
 
   public static Optional<byte[]> generate(String data, int size) {
+    if (size < 1) return Optional.empty();
+
     try {
       var matrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, size, size);
       var outputStream = new ByteArrayOutputStream();

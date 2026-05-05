@@ -11,6 +11,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import pl.sgorski.expense_splitter.exceptions.authentication.two_fa.SecretEncryptionException;
 
 @Service
 @Slf4j
@@ -44,7 +45,7 @@ public final class SecretEncryptor {
 
     } catch (Exception e) {
       log.error("Encrypt failed", e);
-      throw new RuntimeException(e);
+      throw new SecretEncryptionException("Failed to encrypt secret", e);
     }
   }
 
@@ -69,7 +70,7 @@ public final class SecretEncryptor {
 
     } catch (Exception e) {
       log.error("Decrypt failed", e);
-      throw new RuntimeException(e);
+      throw new SecretEncryptionException("Failed to decrypt secret", e);
     }
   }
 }

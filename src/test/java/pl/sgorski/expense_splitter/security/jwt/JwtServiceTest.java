@@ -195,6 +195,31 @@ public class JwtServiceTest {
     assertThrows(Exception.class, () -> jwtService.getPasswordChangeClaim(invalidToken));
   }
 
+  @Test
+  void getTwoFactorClaim_shouldReturnTrue_whenTwoFactorIsPending() {
+    var token = jwtService.generateAccessToken(testUser, true);
+
+    var result = jwtService.getTwoFactorClaim(token);
+
+    assertTrue(result);
+  }
+
+  @Test
+  void getTwoFactorClaim_shouldReturnFalse_whenTwoFactorIsNotPending() {
+    var token = jwtService.generateAccessToken(testUser, false);
+
+    var result = jwtService.getTwoFactorClaim(token);
+
+    assertFalse(result);
+  }
+
+  @Test
+  void getTwoFactorClaim_shouldThrowException_whenTokenIsInvalid() {
+    var invalidToken = "invalid.token.here";
+
+    assertThrows(Exception.class, () -> jwtService.getTwoFactorClaim(invalidToken));
+  }
+
   private Claims parseToken(String token) {
     return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
   }

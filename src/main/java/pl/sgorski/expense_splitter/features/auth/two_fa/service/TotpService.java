@@ -4,7 +4,7 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 import org.springframework.stereotype.Service;
-import pl.sgorski.expense_splitter.exceptions.CodeGenerationException;
+import pl.sgorski.expense_splitter.exceptions.authentication.two_fa.CodeGenerationException;
 import pl.sgorski.expense_splitter.utils.QrCodeUtils;
 
 @Service

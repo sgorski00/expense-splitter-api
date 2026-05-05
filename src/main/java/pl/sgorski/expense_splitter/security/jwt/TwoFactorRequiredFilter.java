@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import pl.sgorski.expense_splitter.exceptions.authentication.TwoFactorRequiredException;
+import pl.sgorski.expense_splitter.exceptions.authentication.two_fa.TwoFactorRequiredException;
 import pl.sgorski.expense_splitter.security.service.impl.TwoFactorRequiredWhitelistService;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;

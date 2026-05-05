@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.exceptions.authentication;
+package pl.sgorski.expense_splitter.exceptions.authentication.two_fa;
 
 /**
  * Thrown when account is marked with 2fa login flow and trying to visit endpoints that are not

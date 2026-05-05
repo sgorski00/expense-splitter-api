@@ -22,6 +22,7 @@ import pl.sgorski.expense_splitter.exceptions.DomainObjectValidationException;
 import pl.sgorski.expense_splitter.exceptions.NotFoundException;
 import pl.sgorski.expense_splitter.exceptions.TooManyRequestsException;
 import pl.sgorski.expense_splitter.exceptions.authentication.*;
+import pl.sgorski.expense_splitter.exceptions.authentication.two_fa.*;
 import pl.sgorski.expense_splitter.exceptions.friendship.FriendshipStatusChangeException;
 import pl.sgorski.expense_splitter.exceptions.friendship.InvalidFriendshipOperationException;
 import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
@@ -592,6 +593,29 @@ public class GlobalExceptionHandler {
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Too Many Requests");
     log.warn("Rate limit exceeded: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(SecretEncryptionException.class)
+  @ApiResponse(
+      responseCode = "500",
+      description = "Encryption or decryption of 2FA secret failed.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 500 Internal Server Error status.")))
+  public ProblemDetail handleSecretEncryptionException(SecretEncryptionException ex) {
+    Sentry.captureException(ex);
+    log.error("2FA secret encryption/decryption failed. Exception id={}", Sentry.getLastEventId());
+    var status = HttpStatus.INTERNAL_SERVER_ERROR;
+    var problemDetail =
+        ProblemDetail.forStatusAndDetail(
+            status, "An error occurred while processing security credentials.");
+    problemDetail.setTitle("Security Processing Error");
     return problemDetail;
   }
 
