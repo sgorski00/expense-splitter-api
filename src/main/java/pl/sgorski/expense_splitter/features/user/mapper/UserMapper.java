@@ -25,6 +25,7 @@ public interface UserMapper {
 
   UserResponse toResponse(User user);
 
+  @Mapping(target = "isTwoFactorAuthEnabled", source = "twoFactorRequired")
   DetailedUserResponse toDetailedResponse(User user);
 
   UserIdentityResponse toIdentityResponse(UserIdentity identity);
