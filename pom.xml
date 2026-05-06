@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>pl.sgorski</groupId>
 	<artifactId>expense-splitter</artifactId>
-	<version>0.9.3</version>
+	<version>1.0.0</version>
 	<name>expense-splitter</name>
 	<description>API of expense-splitter application.</description>
 
