@@ -21,8 +21,10 @@ public record DetailedUserResponse(
     @Schema(description = "User role assignment.", example = "USER") Role role,
     @Schema(description = "User identities linked to external providers.")
         Set<UserIdentityResponse> identities,
-    @Schema(description = "Indicates if the user has enabled two-factor authentication.", example = "true")
-    boolean isTwoFactorAuthEnabled,
+    @Schema(
+            description = "Indicates if the user has enabled two-factor authentication.",
+            example = "true")
+        boolean isTwoFactorAuthEnabled,
     @Schema(description = "Account creation timestamp.", example = "2026-03-18T10:15:30Z")
         Instant createdAt,
     @Schema(description = "Last update timestamp.", example = "2026-03-18T11:00:00Z")
