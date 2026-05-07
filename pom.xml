@@ -21,8 +21,8 @@
 		<openapi.version>3.0.2</openapi.version>
 		<jjwt.version>0.13.0</jjwt.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
+		<maven-test-plugin.version>3.5.5</maven-test-plugin.version>
 		<openapi-maven-plugin.version>1.5</openapi-maven-plugin.version>
-		<h2.version>2.4.240</h2.version>
 		<jacoco.version>0.8.14</jacoco.version>
 		<bouncycastle.version>1.83</bouncycastle.version>
 		<spotless.version>3.4.0</spotless.version>
@@ -30,6 +30,7 @@
 		<sentry-starter.version>8.40.0</sentry-starter.version>
 		<google.zxing.version>3.5.4</google.zxing.version>
 		<googleauth.version>1.5.0</googleauth.version>
+		<testcontainers-containers.version>1.21.4</testcontainers-containers.version>
 	</properties>
 
 	<dependencies>
@@ -146,44 +147,25 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator-test</artifactId>
+			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa-test</artifactId>
+			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-flyway-test</artifactId>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${testcontainers-containers.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security-oauth2-client-test</artifactId>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${testcontainers-containers.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>${h2.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.bucket4j</groupId>
@@ -225,8 +207,6 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>start</goal>
-							<goal>stop</goal>
 							<goal>repackage</goal>
 							<goal>build-info</goal>
 						</goals>
@@ -240,22 +220,6 @@
 						</exclude>
 					</excludes>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.springdoc</groupId>
-				<artifactId>springdoc-openapi-maven-plugin</artifactId>
-				<version>${openapi-maven-plugin.version}</version>
-				<executions>
-					<execution>
-						<id>integration-test</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<apiDocsUrl>http://localhost:${api.port}/api/v3/api-docs</apiDocsUrl>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -297,6 +261,34 @@
 					<lineEndings>UNIX</lineEndings>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-test-plugin.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>**/*IT.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>${maven-test-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<includes>
+						<include>**/*IT.java</include>
+					</includes>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -310,6 +302,36 @@
 				<spring.profiles.active>test</spring.profiles.active>
 				<api.port>8089</api.port>
 			</properties>
+		</profile>
+		<profile>
+			<id>openapi</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<spring.profiles.active>openapi</spring.profiles.active>
+				<maven.test.skip>true</maven.test.skip>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.springdoc</groupId>
+						<artifactId>springdoc-openapi-maven-plugin</artifactId>
+						<version>${openapi-maven-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>integration-test</id>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<apiDocsUrl>http://localhost:${api.port}/api/v3/api-docs</apiDocsUrl>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>
