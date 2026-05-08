@@ -38,7 +38,7 @@ utest:
 	mvn clean test -Ptest
 
 itest:
-	mvn failsafe:integration-test failsafe:verify -Ptest
+	mvn clean verify -Ptest -Dskip.ut=true
 
 psql:
 	$(COMPOSE) exec es-postgres psql -U postgres -d es-db

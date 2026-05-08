@@ -16,6 +16,7 @@
 
 	<properties>
 		<spring.profiles.active>default</spring.profiles.active>
+		<skip.ut>false</skip.ut>
 		<api.port>8080</api.port>
 		<java.version>25</java.version>
 		<openapi.version>3.0.2</openapi.version>
@@ -266,6 +267,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven-test-plugin.version}</version>
 				<configuration>
+					<skipTests>${skip.ut}</skipTests>
 					<excludes>
 						<exclude>**/*IT.java</exclude>
 					</excludes>
@@ -275,19 +277,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>${maven-test-plugin.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<includes>
-						<include>**/*IT.java</include>
-					</includes>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
