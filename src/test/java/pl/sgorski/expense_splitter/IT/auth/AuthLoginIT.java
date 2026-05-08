@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import pl.sgorski.expense_splitter.IT.base.IntegrationTest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
+import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.two_fa.domain.UserTwoFactor;
 import pl.sgorski.expense_splitter.features.auth.two_fa.repository.UserTwoFactorRepository;
 import pl.sgorski.expense_splitter.features.user.domain.User;
@@ -150,6 +151,55 @@ public class AuthLoginIT extends IntegrationTest {
     }
 
     performLoginRequest(request).expectStatus().isEqualTo(status);
+  }
+
+  @Test
+  void logout_shouldRemoveRefreshTokenAndSetClearCookie_whenUserIsLoggedIn() {
+    var loginRequest = new LoginRequest(email, rawPassword);
+    var loginResponse = login(loginRequest);
+
+    restTestClient
+        .post()
+        .uri("/auth/logout")
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResponse.accessToken())
+        .exchange()
+        .expectStatus()
+        .isNoContent()
+        .expectHeader()
+        .exists(HttpHeaders.SET_COOKIE);
+  }
+
+  @Test
+  void logout_shouldReturn401_whenUserIsNotLoggedIn() {
+    restTestClient.post().uri("/auth/logout").exchange().expectStatus().isUnauthorized();
+  }
+
+  @Test
+  void logout_shouldReturn405_whenTryingToLogoutWithGetMethod() {
+    var expectedStatus = 405;
+    var loginRequest = new LoginRequest(email, rawPassword);
+    var loginResponse = login(loginRequest);
+
+    restTestClient
+        .get()
+        .uri("/auth/logout")
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResponse.accessToken())
+        .exchange()
+        .expectStatus()
+        .isEqualTo(expectedStatus)
+        .expectBody()
+        .jsonPath("$.status")
+        .isEqualTo(expectedStatus)
+        .jsonPath("$.title")
+        .isNotEmpty();
+  }
+
+  private LoginResponse login(LoginRequest loginRequest) {
+    return performLoginRequest(loginRequest)
+        .expectStatus()
+        .isOk()
+        .returnResult(LoginResponse.class)
+        .getResponseBody();
   }
 
   private RestTestClient.ResponseSpec performLoginRequest(LoginRequest request) {

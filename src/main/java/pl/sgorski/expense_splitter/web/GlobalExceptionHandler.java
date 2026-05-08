@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -593,6 +594,27 @@ public class GlobalExceptionHandler {
     var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
     problemDetail.setTitle("Too Many Requests");
     log.warn("Rate limit exceeded: {}", ex.getMessage());
+    return problemDetail;
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  @ApiResponse(
+      responseCode = "405",
+      description = "HTTP method now allowed.",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema =
+                  @Schema(
+                      implementation = ProblemDetail.class,
+                      description =
+                          "RFC 7807 Problem Details response with 405 MethodNotAllowed status.")))
+  public ProblemDetail handleHttpRequestMethodNotSupportedException(
+      HttpRequestMethodNotSupportedException ex) {
+    var status = HttpStatus.METHOD_NOT_ALLOWED;
+    var problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+    problemDetail.setTitle("Method Not Allowed");
+    log.warn("Method not allowed: {}", ex.getMessage());
     return problemDetail;
   }
 
