@@ -1,8 +1,5 @@
 package pl.sgorski.expense_splitter.IT.auth;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import io.github.bucket4j.Bucket;
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +17,9 @@ import pl.sgorski.expense_splitter.security.rate_limit.RateLimitType;
 
 public class AuthLoginIT extends IntegrationTest {
 
-  @Autowired private Flyway flyway;
   @Autowired private UserRepository userRepository;
   @Autowired private UserTwoFactorRepository userTwoFactorRepository;
   @Autowired private PasswordEncoder passwordEncoder;
-  @Autowired Cache<String, Bucket> rateLimitCache;
 
   private final String email = "user@example.com";
   private final String rawPassword = "P@ssword123";
@@ -32,10 +27,6 @@ public class AuthLoginIT extends IntegrationTest {
 
   @BeforeEach
   void setUp() {
-    rateLimitCache.invalidateAll();
-    flyway.clean();
-    flyway.migrate();
-
     user = new User();
     user.setEmail(email);
     user.setPasswordHash(passwordEncoder.encode(rawPassword));
@@ -72,17 +63,17 @@ public class AuthLoginIT extends IntegrationTest {
     var request = new LoginRequest(email, rawPassword);
 
     performLoginRequest(request)
-            .expectStatus()
-            .isOk()
-            .expectHeader()
-            .exists(HttpHeaders.SET_COOKIE)
-            .expectBody()
-            .jsonPath("$.accessToken")
-            .isNotEmpty()
-            .jsonPath("$.refreshToken")
-            .isNotEmpty()
-            .jsonPath("$.twoFactorRequired")
-            .isEqualTo(true);
+        .expectStatus()
+        .isOk()
+        .expectHeader()
+        .exists(HttpHeaders.SET_COOKIE)
+        .expectBody()
+        .jsonPath("$.accessToken")
+        .isNotEmpty()
+        .jsonPath("$.refreshToken")
+        .isNotEmpty()
+        .jsonPath("$.twoFactorRequired")
+        .isEqualTo(true);
   }
 
   @Test
@@ -90,15 +81,15 @@ public class AuthLoginIT extends IntegrationTest {
     var request = new LoginRequest(email, "NotTh3Rig#tPassword");
 
     performLoginRequest(request)
-            .expectStatus()
-            .isUnauthorized()
-            .expectHeader()
-            .doesNotExist(HttpHeaders.SET_COOKIE)
-            .expectBody()
-            .jsonPath("$.status")
-            .isEqualTo(401)
-            .jsonPath("$.title")
-            .isNotEmpty();
+        .expectStatus()
+        .isUnauthorized()
+        .expectHeader()
+        .doesNotExist(HttpHeaders.SET_COOKIE)
+        .expectBody()
+        .jsonPath("$.status")
+        .isEqualTo(401)
+        .jsonPath("$.title")
+        .isNotEmpty();
   }
 
   @Test
@@ -106,15 +97,15 @@ public class AuthLoginIT extends IntegrationTest {
     var request = new LoginRequest("some-email@example.com", rawPassword);
 
     performLoginRequest(request)
-            .expectStatus()
-            .isUnauthorized()
-            .expectHeader()
-            .doesNotExist(HttpHeaders.SET_COOKIE)
-            .expectBody()
-            .jsonPath("$.status")
-            .isEqualTo(401)
-            .jsonPath("$.title")
-            .isNotEmpty();
+        .expectStatus()
+        .isUnauthorized()
+        .expectHeader()
+        .doesNotExist(HttpHeaders.SET_COOKIE)
+        .expectBody()
+        .jsonPath("$.status")
+        .isEqualTo(401)
+        .jsonPath("$.title")
+        .isNotEmpty();
   }
 
   @Test
@@ -122,15 +113,15 @@ public class AuthLoginIT extends IntegrationTest {
     var request = new LoginRequest("not-an-email", rawPassword);
 
     performLoginRequest(request)
-            .expectStatus()
-            .isBadRequest()
-            .expectHeader()
-            .doesNotExist(HttpHeaders.SET_COOKIE)
-            .expectBody()
-            .jsonPath("$.status")
-            .isEqualTo(400)
-            .jsonPath("$.title")
-            .isNotEmpty();
+        .expectStatus()
+        .isBadRequest()
+        .expectHeader()
+        .doesNotExist(HttpHeaders.SET_COOKIE)
+        .expectBody()
+        .jsonPath("$.status")
+        .isEqualTo(400)
+        .jsonPath("$.title")
+        .isNotEmpty();
   }
 
   @Test
@@ -138,15 +129,15 @@ public class AuthLoginIT extends IntegrationTest {
     var request = new LoginRequest(email, "   ");
 
     performLoginRequest(request)
-            .expectStatus()
-            .isBadRequest()
-            .expectHeader()
-            .doesNotExist(HttpHeaders.SET_COOKIE)
-            .expectBody()
-            .jsonPath("$.status")
-            .isEqualTo(400)
-            .jsonPath("$.title")
-            .isNotEmpty();
+        .expectStatus()
+        .isBadRequest()
+        .expectHeader()
+        .doesNotExist(HttpHeaders.SET_COOKIE)
+        .expectBody()
+        .jsonPath("$.status")
+        .isEqualTo(400)
+        .jsonPath("$.title")
+        .isNotEmpty();
   }
 
   @Test
@@ -158,17 +149,15 @@ public class AuthLoginIT extends IntegrationTest {
       performLoginRequest(request);
     }
 
-    performLoginRequest(request)
-            .expectStatus()
-            .isEqualTo(status);
+    performLoginRequest(request).expectStatus().isEqualTo(status);
   }
 
   private RestTestClient.ResponseSpec performLoginRequest(LoginRequest request) {
     return restTestClient
-            .post()
-            .uri("/auth/login")
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(request)
-            .exchange();
+        .post()
+        .uri("/auth/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(request)
+        .exchange();
   }
 }

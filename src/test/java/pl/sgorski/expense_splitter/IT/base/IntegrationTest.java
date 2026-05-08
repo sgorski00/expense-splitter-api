@@ -1,6 +1,10 @@
 package pl.sgorski.expense_splitter.IT.base;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import io.github.bucket4j.Bucket;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -19,6 +23,9 @@ public abstract class IntegrationTest {
 
   @LocalServerPort private int port;
 
+  @Autowired private Flyway flyway;
+  @Autowired protected Cache<String, Bucket> rateLimitCache;
+
   protected RestTestClient restTestClient;
 
   @BeforeEach
@@ -28,5 +35,12 @@ public abstract class IntegrationTest {
             .baseUrl("http://localhost:" + port + "/api")
             .defaultHeader(apiVersionHeaderName, "v1.0.0")
             .build();
+  }
+
+  @BeforeEach
+  void cleanUp() {
+    rateLimitCache.invalidateAll();
+    flyway.clean();
+    flyway.migrate();
   }
 }
