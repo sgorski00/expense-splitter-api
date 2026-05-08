@@ -9,6 +9,7 @@ import pl.sgorski.expense_splitter.IT.base.IntegrationTest;
 import pl.sgorski.expense_splitter.features.auth.dto.request.RegisterRequest;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.repository.UserRepository;
+import pl.sgorski.expense_splitter.security.rate_limit.RateLimitType;
 
 public class AuthRegisterIT extends IntegrationTest {
 
@@ -103,6 +104,18 @@ public class AuthRegisterIT extends IntegrationTest {
         .isEqualTo(status)
         .jsonPath("$.title")
         .isNotEmpty();
+  }
+
+  @Test
+  void register_shouldReturn429_whenRateLimitExceed() {
+    var status = 429;
+    var request = new RegisterRequest(email, firstName, lastName, password, password);
+
+    for (int i = 0; i < RateLimitType.AUTH.getLimit(); i++) {
+      performRegisterRequest(request);
+    }
+
+    performRegisterRequest(request).expectStatus().isEqualTo(status);
   }
 
   private RestTestClient.ResponseSpec performRegisterRequest(RegisterRequest request) {

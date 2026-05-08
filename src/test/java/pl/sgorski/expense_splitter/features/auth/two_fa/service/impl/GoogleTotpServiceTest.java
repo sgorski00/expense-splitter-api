@@ -1,19 +1,20 @@
-package pl.sgorski.expense_splitter.features.auth.two_fa.service;
+package pl.sgorski.expense_splitter.features.auth.two_fa.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.sgorski.expense_splitter.features.auth.two_fa.service.TotpService;
 
-public class TotpServiceTest {
+public class GoogleTotpServiceTest {
 
   private TotpService totpService;
   private GoogleAuthenticator googleAuthenticator;
 
   @BeforeEach
   void setUp() {
-    totpService = new TotpService();
+    totpService = new GoogleTotpService();
     googleAuthenticator = new GoogleAuthenticator();
   }
 
