@@ -20,14 +20,18 @@ public final class TokenResponseEntityCreator {
 
   public ResponseEntity<LoginResponse> generate(User user, boolean twoFactorPending) {
     var accessToken = jwtService.generateAccessToken(user, twoFactorPending);
+    if (twoFactorPending) {
+      var response = new LoginResponse(accessToken, null, true);
+      return ResponseEntity.ok().body(response);
+    }
+
     var refreshTokenEntity = refreshTokenService.generateRefreshToken(user);
     var refreshToken = refreshTokenEntity.getToken();
-
     var refreshTokenCookie =
         refreshTokenCookieResponseHelper.createRefreshTokenCookie(
             refreshToken, refreshTokenService.getExpirationSecond());
 
-    var response = new LoginResponse(accessToken, refreshToken, twoFactorPending);
+    var response = new LoginResponse(accessToken, refreshToken, false);
     return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
         .body(response);

@@ -66,12 +66,12 @@ public class AuthLoginIT extends IntegrationTest {
         .expectStatus()
         .isOk()
         .expectHeader()
-        .exists(HttpHeaders.SET_COOKIE)
+        .doesNotExist(HttpHeaders.SET_COOKIE)
         .expectBody()
         .jsonPath("$.accessToken")
         .isNotEmpty()
         .jsonPath("$.refreshToken")
-        .isNotEmpty()
+        .isEmpty()
         .jsonPath("$.twoFactorRequired")
         .isEqualTo(true);
   }
