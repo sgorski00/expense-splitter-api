@@ -1,0 +1,13 @@
+\chapter{Wnioski projektowe}
+
+Realizacja projektu \verb|Wydatkomat| pozwoliła na zaprojektowanie oraz implementację kompletnego systemu wieloplatformowego opartego o architekturę klient--serwer.
+
+W trakcie realizacji projektu istotnym elementem było zapewnienie bezpieczeństwa systemu. Wdrożone mechanizmy obejmowały m.in. uwierzytelnianie JWT, logowanie OAuth2, uwierzytelnianie dwuetapowe, szyfrowanie komunikacji przy użyciu HTTPS oraz TLS, a także stosowanie bezpiecznego przechowywania haseł z wykorzystaniem algorytmu Argon2. Zastosowane rozwiązania pozwoliły na spełnienie wymagań związanych z ochroną danych użytkowników oraz zabezpieczeniem dostępu do systemu.
+
+Istotnym aspektem projektu była również integracja wielu platform klienckich z jednym wspólnym backendem. Wymagało to zaprojektowania spójnego i stabilnego API, które mogło być wykorzystywane przez aplikację webową, mobilną oraz desktopową bez konieczności modyfikacji logiki biznesowej.
+
+Wdrożeni klienci na trzy różne platformy spełniają w pełni swoje zadanie, dzięki czemu doświadczenie użytkownika końcowego jest pozytywne, a dane wprowadzane do REST API jest walidowane dwuetapowo -- w warstwie prezentacji oraz logicznej. Dzięki zastosowanym mechanikom użytkownicy mogą korzystać z apliakcji desktopowej oraz mobilnej bez połączenia z siecią WWW.
+
+Podczas realizacji projektu napotkano problemy związane z integracją mechanizmów bezpieczeństwa, zarządzaniem sesją użytkownika oraz synchronizacją danych pomiędzy klientami. Problemy te zostały rozwiązane poprzez iteracyjne podejście do implementacji oraz testowanie poszczególnych komponentów systemu.
+
+Projekt umożliwił zdobycie praktycznej wiedzy z zakresu projektowania systemów rozproszonych, bezpieczeństwa aplikacji webowych oraz integracji wielu technologii w ramach jednego ekosystemu. W przyszłości system może zostać rozbudowany o dodatkowe funkcjonalności, takie jak integracja z systemami płatności, rozszerzone statystyki finansowe lub automatyczne rozliczenia między użytkownikami.

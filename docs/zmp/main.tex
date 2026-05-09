@@ -33,37 +33,6 @@
 \titlespacing{\section}{0pt}{12pt}{6pt}
 \titlespacing{\subsection}{0pt}{6pt}{6pt}
 
-% Ustawienie spisu rysunków i listingów
-\renewcommand\lstlistingname{Listing}
-\renewcommand\lstlistlistingname{Spis listingów}
-
-% Ustawienie kolorowania listingów
-\definecolor{pblue}{rgb}{0.13,0.13,1}
-\definecolor{pgreen}{rgb}{0,0.5,0}
-\definecolor{pred}{rgb}{0.9,0,0}
-\definecolor{pyellow}{rgb}{0.65,0.65,0}
-\definecolor{gray}{rgb}{0.95,0.95,0.95}
-\definecolor{darkgray}{rgb}{0.4,0.4,0.4}
-
-\lstset{
-	language=Java,
-	showspaces=false,
-	showtabs=false,
-	breaklines=true,
-	showstringspaces=false,
-	breakatwhitespace=true,
-	commentstyle=\color{pgreen},
-	keywordstyle=\color{pblue},
-	stringstyle=\color{pred},
-	basicstyle=\ttfamily\small,
-	backgroundcolor=\color{gray},
-	frame=single,
-	rulecolor=\color{darkgray},
-	moredelim=[il][\textcolor{pyellow}]{\$\$},
-	moredelim=[is][\textcolor{pyellow}]{\%\%}{\%\%},
-	captionpos=b
-}
-
 % metadata
 \title{Sprawozdanie projektowe Wydatkomat API}
 \author{Sebastian Górski}
@@ -82,13 +51,11 @@
 	%Rozdziały
 	\include{introduction}
 	\include{functional-description}
-	%\include{technical-description}
-	%\include{teamwork}
-	%\include{run-instruction}
-	%\include{conclusions}
-	
-	\listoffigures
-	\lstlistoflistings
+	\include{technical-description}
+	\include{teamwork}
+	\include{run-instruction}
+	\include{conclusions}
+	\include{sources}
 	
 \end{document}
 
