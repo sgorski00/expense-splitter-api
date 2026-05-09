@@ -1,0 +1,89 @@
+\chapter{Opis funkcjonalny systemu}
+
+Poniżej przedstawione zostały najważniejsze funkcje zapewniane przez aplikację \verb|Wydatkomat|. Należy mieć na uwadze, że aplikacja desktopowa została stworzona głównie jako panel administratora, w związku z czym nie zapewnia wszystkich funkcji. Z drugiej strony aplikacja mobilna i webowa nie zapewniają możliwości administrowania użytkownikami.
+
+\section{Uwierzytelnianie i autoryzacja użytkowników}
+
+Aby korzystać z aplikacji należy się zarejestrować. Jest to pierwsza funkcjonalność, która jest obligatoryjna, aby w pełni korzystać z systemu. Użytkownik może zarejestrować się formularzem zaimplementowanym w klientach lub poprzez protokół OAuth2 (Google, Facebook). Obie metody wiążą się z założeniem konta w systemie.
+
+Po rejestracji należy się zalogować, sposoby logowania są analogiczne do sposobów rejestracji.
+
+Użytkownik może połączyć swoje lokalnie utworzone konto z wieloma mediami społecznościowymi za pomocą protokołu OAuth2, co pozwoli na logowanie się obiema metodami.
+
+Z drugiej strony użytkownik, który założył konto logując się przez OAuth2, ma możliwość utworzenia hasła, aby móc logować się formularzem z poziomu aplikacji.
+
+Po poprawnym zalogowaniu przypisane zostają do użytkownika dwa tokeny: \verb|JWT| oraz \verb|refresh token|. Token dostępowy JWT jest ważny przez okres 1 godziny, po tym czasie sesja zostaje unieważniona. Aby ponownie móc korzystać z systemu należy się zalogować lub wykorzystać refresh token, który jest ważny przez tydzień.
+
+Dodatkowo system umożliwia włączenie logowania dwuetapowego przy użyciu aplikacji mobilnej \verb|Google Authenticator|. Aby to zrobić należy uruchomić opcję z poziomu profilu. Po włączeniu tej funkcji i poprawnym połączeniu aplikacji z Wydatkomatem, przy kolejnych próbach logowania należy przejść również drugi etap logowania -- zweryfikowanie się kodem z aplikacji Google Authenticator.
+
+\section{Zarządzanie wydatkami}
+
+Główną funkcją aplikacji jest tworzenie nowych wydatków i edycja już istniejących. Użytkownik może utworzyć wydatek, dodając do niego swoich znajomych. Wydatek może mieć tytuł, opis, kwotę i wielu uczestników. Tylko osoba tworząca wydatek może go edytować. Przy edycji wydatków bez problemu można zmieniać tytuł i opis. Można również zmieniać kwotę i uczestników, lecz w tym przypadku system waliduje aktualnie spłacone kwoty i może zablokować taką edycję. Jeśli edycja zostanie dozwolona, następuje rekalkulacja należnych kwot.
+
+W aktualnej wersji systemu dostępne jest jedynie dzielenie wydatków po równo, co oznacza, że w przypadku utworzenia wydatku na 500 złotych i dodaniu 4 znajomych, kwota zostanie podzielona na 125 zł / osobę. Właściciel wydatku nie może być jego uczestnikiem.
+
+Wydatki oraz ich uczestników można również usuwać.
+
+\section{Znajomi}
+
+Uczestnikami wydatków mogą być jedynie znajomi osoby, która go utworzyła. Każdy użytkownik może dodać znajomego po wyszukaniu go z listy aktywnych użytkowników systemu.
+
+Po wysłaniu zaproszenia do znajomych osoba zapraszana otrzymuje stosowne powiadomienie, które może zaakceptować lub odrzucić.
+
+Użytkownicy mogą sprawdzić oczekujące zaproszenia, zarówno wysłane jak i odebrane. Mogą również zobaczyć listę swoich znajomych.
+
+Istnieje możliwość zakończenia znajomości z innym użytkownikiem. Znajomości są dwukierunkowe, co oznacza, że po akceptacji zaproszenia do znajomych obie strony widzą siebie na liście znajomych i mogą tworzyć między sobą wydatki.
+
+\section{Opłaty}
+
+Uczestnicy wydatku widzą sumaryczną kwotę wydatku, swoją część do spłaty oraz część, którą już spłacili.
+
+Wydatek można opłacać stopniowo, czyli do jednego wydatku pojedynczy użytkownik może stworzyć wiele spłat.
+
+Istnieje możliwość usunięcia stworzonej przez siebie płatności.
+
+\section{Profil}
+
+Zalogowany użytkownik może podejrzeć i edytować swój profil.
+
+Z poziomu profilu można zarządzać swoim kontem, uwzględniając w to:
+\begin{itemize}
+	\item ustawienie hasła lokalnego (jeśli takie jeszcze nie istnieje, dotyczy użytkowników OAuth2),
+	\item połączenie kont społecznościowych,
+	\item zmianę hasła,
+	\item włączenie/wyłączenie logowania dwuetapowego,
+	\item aktualizację swoich danych osobowych,
+	\item usunięcie konta.
+\end{itemize}
+
+\section{Powiadomienia}
+
+Każdy użytkownik może sterować kanałami powiadomień. W aplikacji na obecnym etapie dostępne są dwa kanały -- email i websocket (powiadomienia realtime w aplikacji).
+
+Powiadomienia dotyczą np.:
+\begin{itemize}
+	\item zaproszenia do znajomych,
+	\item nowego wydatku,
+	\item nieudanej próby logowania.
+\end{itemize}
+
+Powiadomienia związane z bezpieczeństwem są na stałe przypisane do kanału \verb|email|.
+
+Preferencje dotyczące powiadomień są edytowalne. Powiadomienia można oznaczyć jako przeczytane w przypadku powiadomień websocket.
+
+\section{Zarządzanie użytkownikami}
+
+Jako administrator istnieje możliwość zarządzania użytkownikami.
+
+Administrator widzi pełną listę aktywnych użytkowników, może dezaktywować użytkownika, zresetować lub zmienić jego hasło oraz utworzyć nowego użytkownika.
+
+\section{Statystyki}
+
+System umożliwia podgląd okresowych statystyk zarówno dotyczących wydatków jak i spłat. Umożliwia to lepsze zrozumienie i kontrolowanie budżetu.
+
+Statystyki uwzględniają:
+\begin{itemize}
+	\item całkowitą liczbę wydatków/spłat,
+	\item całkowitą kwotę wydatków/spłat,
+	\item średnią kwotę wydatków/spłat.
+\end{itemize}
