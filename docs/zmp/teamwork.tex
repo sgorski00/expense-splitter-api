@@ -1,0 +1,109 @@
+\chapter{Podział obowiązków w zespole}
+
+W ramach realizacji projektu prace zostały podzielone pomiędzy członków zespołu w sposób umożliwiający równoległe prowadzenie prac nad różnymi obszarami systemu.
+
+W trakcie realizacji projektu prace były prowadzone w sposób iteracyjny z wykorzystaniem tablicy Kanban. Zadania były dzielone na mniejsze elementy i przypisywane do poszczególnych członków zespołu. Pozwoliło to na bieżące monitorowanie postępu prac, kontrolę priorytetów oraz równoległą realizację poszczególnych modułów systemu.
+
+Poniżej przedstawiono zakres odpowiedzialności poszczególnych osób.
+
+\section{Backend}
+
+Za implementację warstwy backendowej odpowiedzialny był Sebastian Górski.
+
+Zakres obowiązków obejmował:
+\begin{itemize}
+	\item implementację REST API,
+	\item logikę biznesową systemu,
+	\item integrację z bazą danych,
+	\item implementację mechanizmów autoryzacji i uwierzytelniania.
+\end{itemize}
+
+\section{Klient web}
+
+Za implementację aplikacji webowej odpowiedzialny był Jakub Grzymisławski.
+
+Zakres obowiązków obejmował:
+\begin{itemize}
+	\item implementację interfejsu użytkownika w React,
+	\item wykorzystanie TypeScript oraz Vite,
+	\item przygotowanie struktury komponentów aplikacji,
+	\item implementację nawigacji z użyciem React Router,
+	\item integrację z backendem poprzez REST API,
+	\item obsługę stanu aplikacji i komunikacji z API.
+\end{itemize}
+
+\section{Klient mobile}
+
+Za implementację aplikacji mobilnej odpowiedzialny był Rafał Wilczewski.
+
+Zakres obowiązków obejmował:
+\begin{itemize}
+	\item implementację aplikacji w React Native,
+	\item wykorzystanie Expo SDK,
+	\item przygotowanie interfejsu użytkownika w TypeScript,
+	\item konfigurację nawigacji z użyciem Expo Router,
+	\item integrację z backendem poprzez REST API,
+	\item obsługę lokalnego przechowywania danych (Expo Secure Store),
+	\item zarządzanie stanem aplikacji.
+\end{itemize}
+
+\section{Klient desktop}
+
+Za implementację aplikacji desktopowej odpowiedzialny był Łukasz Szenkiel.
+
+Zakres obowiązków obejmował:
+\begin{itemize}
+	\item implementację aplikacji w języku Python,
+	\item przygotowanie interfejsu użytkownika,
+	\item integrację z backendem poprzez REST API,
+	\item implementację funkcjonalności panelu administracyjnego,
+	\item obsługę podstawowych operacji zarządzania użytkownikami.
+\end{itemize}
+
+\section{Bezpieczeństwo systemu}
+
+Za implementację mechanizmów bezpieczeństwa odpowiedzialny był cały zespół.
+
+Zakres obowiązków obejmował:
+\begin{itemize}
+	\item implementację zabezpieczeń systemów we wszystkich modułach,
+	\item skofnigurowanie i opubilkowanie API oraz frontendu z wykrozystaniem protokołu HTTPS i TLS 1.3,
+	\item konfigurację 2FA,
+	\item poprawnie zaporgramowaną walidację danych wejśćiowych użytkownika,
+	\item wdrożenie mechanizmów ochrony przed atakami.
+\end{itemize}
+
+\section{Baza danych}
+
+Za projekt i implementację bazy danych odpowiedzialny był:
+\begin{itemize}
+	\item Sebastian Górski
+\end{itemize}
+
+Zakres obowiązków obejmował:
+\begin{itemize}
+	\item projekt struktury bazy danych,
+	\item implementację encji,
+	\item konfigurację migracji,
+	\item optymalizację relacji między tabelami.
+\end{itemize}
+
+\section{Deployment i infrastruktura}
+
+Za przygotowanie środowiska uruchomieniowego odpowiedzialny był:
+\begin{itemize}
+	\item Sebastian Górski
+	\item Jakub Grzymisławski
+\end{itemize}
+
+Zakres obowiązków obejmował:
+\begin{itemize}
+	\item konfigurację Docker oraz Docker Compose,
+	\item wdrożenie aplikacji na serwer VPS,
+	\item konfigurację HTTPS i certyfikatów TLS,
+	\item automatyzację procesu uruchamiania systemu.
+\end{itemize}
+
+\section{Testy}
+
+Za implementację testów odpowiedzialny był cały zespół. Każda osoba była odpowiedzialna za przetestowanie własnego modułu.

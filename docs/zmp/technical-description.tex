@@ -1,0 +1,88 @@
+\chapter{Opis technologiczny}
+
+\section{API}
+
+\subsection{Architektura aplikacji}
+
+Backend aplikacji \verb|Wydatkomat| został zaimplementowany w architekturze REST API. System wykorzystuje model klient--serwer, w którym aplikacje webowa, mobilna oraz desktopowa komunikują się z centralnym backendem za pomocą protokołu HTTP.
+
+Aplikacja została zaprojektowana zgodnie z architekturą warstwową. Logika systemu została podzielona na warstwy odpowiedzialne za:
+\begin{itemize}
+	\item obsługę żądań HTTP,
+	\item logikę biznesową,
+	\item komunikację z bazą danych,
+	\item bezpieczeństwo i autoryzację użytkowników.
+\end{itemize}
+
+REST API udostępnia endpointy umożliwiające zarządzanie użytkownikami, wydatkami, płatnościami, znajomymi, powiadomieniami oraz statystykami. Dokumentacja endpointów została przygotowana zgodnie ze standardem OpenAPI i udostępniona przy użyciu Swagger UI.
+
+\subsection{Technologie}
+
+Backend aplikacji został napisany w języku Java w wersji 25 z wykorzystaniem frameworka Spring Boot 4. Do implementacji poszczególnych elementów systemu wykorzystano między innymi:
+\begin{itemize}
+	\item Spring Web -- obsługa REST API,
+	\item Spring Security -- uwierzytelnianie i autoryzacja,
+	\item Spring Data JPA -- komunikacja z bazą danych,
+	\item Hibernate -- mapowanie obiektowo-relacyjne,
+	\item PostgreSQL -- relacyjna baza danych,
+	\item JWT -- obsługa tokenów autoryzacyjnych,
+	\item OAuth2 -- logowanie zewnętrzne,
+	\item Docker oraz Docker Compose -- konteneryzacja i wdrożenie aplikacji.
+\end{itemize}
+
+Do dokumentowania API wykorzystano standard OpenAPI oraz narzędzie Swagger UI.
+
+\subsection{Baza danych}
+
+System wykorzystuje relacyjną bazę danych PostgreSQL. Dane aplikacji przechowywane są w postaci encji powiązanych relacjami.
+
+Komunikacja z bazą danych realizowana jest przy użyciu Spring Data JPA oraz Hibernate. Zastosowanie ORM pozwoliło ograniczyć liczbę bezpośrednich zapytań SQL oraz uprościć zarządzanie danymi.
+
+Struktura bazy danych jest wersjonowana przy użyciu narzędzie \verb|Flyway|.
+
+\subsection{Bezpieczeństwo}
+
+Backend aplikacji został zabezpieczony przy użyciu mechanizmów dostępnych w Spring Security. System wykorzystuje uwierzytelnianie JWT, dzięki któremu możliwe jest bezstanowe zarządzanie sesją użytkownika.
+
+Hasła użytkowników przechowywane są w postaci skrótów generowanych przy użyciu algorytmu Argon2. System wspiera również logowanie OAuth2 oraz uwierzytelnianie dwuetapowe z wykorzystaniem aplikacji Google Authenticator.
+
+Komunikacja pomiędzy klientem a serwerem odbywa się wyłącznie przy użyciu protokołu HTTPS zabezpieczonego certyfikatem TLS 1.3. Dodatkowo system wykorzystuje mechanizmy ochrony przed CSRF oraz SQL Injection.
+
+\subsection{Testy}
+
+W projekcie zaimplementowano testy jednostkowe oraz integracyjne backendu. Testy wykorzystywane są do weryfikacji poprawności logiki biznesowej, autoryzacji użytkowników oraz działania endpointów REST API.
+
+Do testów integracyjnych wykorzystano środowisko uruchamiane w kontenerach Docker przy użyciu narzędzia \verb|Testcontainers|. Pozwoliło to na testowanie aplikacji w środowisku zbliżonym do produkcyjnego.
+
+Proces testowania obejmował między innymi:
+\begin{itemize}
+	\item poprawność uwierzytelniania użytkowników,
+	\item działanie autoryzacji endpointów,
+	\item walidację danych wejściowych,
+	\item obsługę błędów,
+	\item poprawność operacji na bazie danych.
+\end{itemize}
+
+\section{Aplikacja webowa}
+
+Aplikacja webowa stanowi główny interfejs użytkownika systemu \verb|Wydatkomat|. Umożliwia zarządzanie wydatkami, znajomymi, płatnościami oraz profilem użytkownika bez konieczności instalowania dodatkowego oprogramowania.
+
+Frontend został zaimplementowany przy użyciu biblioteki React z wykorzystaniem języka TypeScript oraz narzędzia Vite. Nawigacja pomiędzy widokami realizowana jest przy użyciu biblioteki React Router.
+
+Komunikacja z backendem odbywa się przy użyciu REST API oraz protokołu HTTPS.
+
+\section{Aplikacja mobilna}
+
+Aplikacja mobilna została przygotowana dla systemu Android z wykorzystaniem frameworka React Native oraz środowiska Expo SDK 54. Interfejs aplikacji został zaimplementowany w języku TypeScript.
+
+Do zarządzania nawigacją wykorzystano Expo Router, natomiast komunikacja z backendem realizowana jest przy użyciu biblioteki Axios. Dane uwierzytelniające użytkownika przechowywane są lokalnie przy użyciu Expo Secure Store.
+
+Aplikacja mobilna umożliwia korzystanie z podstawowych funkcji systemu z poziomu urządzeń mobilnych.
+
+\section{Aplikacja desktopowa}
+
+Aplikacja desktopowa została napisana w języku Python i pełni głównie funkcję panelu administracyjnego systemu.
+
+Klient desktopowy umożliwia zarządzanie użytkownikami systemu oraz wykonywanie operacji administracyjnych niedostępnych z poziomu aplikacji webowej i mobilnej.
+
+Komunikacja aplikacji z backendem odbywa się przy użyciu REST API.

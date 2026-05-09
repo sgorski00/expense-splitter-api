@@ -1,0 +1,117 @@
+\chapter{Instrukcja uruchomienia systemu}
+
+Poniżej przedstawiono instrukcję uruchomienia poszczególnych modułów systemu \verb|Wydatkomat| w środowisku Linux.
+
+\section{Backend (REST API)}
+
+Uruchomienie backendu realizowane jest przy użyciu konteneryzacji Docker.
+
+\begin{enumerate}
+	\item Przejść do katalogu głównego projektu.
+	\item W przypadku pierwszego uruchomienia skopiować plik konfiguracyjny:
+	\begin{verbatim}
+		cp .env.example .env
+	\end{verbatim}
+	\item Dostosować konfigurację w pliku \verb|.env| (np. dane do bazy danych, konfiguracja środowiska).
+	\item Uruchomić aplikację przy użyciu Makefile:
+	\begin{verbatim}
+		make up
+	\end{verbatim}
+\end{enumerate}
+
+Po wykonaniu powyższych kroków aplikacja backendowa zostanie uruchomiona wraz z wymaganymi usługami w kontenerach Docker.
+
+\section{Aplikacja webowa}
+
+Aplikacja webowa została przygotowana do uruchomienia w trybie produkcyjnym w środowisku lokalnym.
+
+\begin{enumerate}
+	\item Przejść do katalogu projektu:
+	\begin{verbatim}
+		cd expense-splitter-web
+	\end{verbatim}
+	\item Zainstalować zależności:
+	\begin{verbatim}
+		npm install
+	\end{verbatim}
+	\item Utworzyć plik konfiguracyjny:
+	\begin{verbatim}
+		cp .env.example .env
+	\end{verbatim}
+	\item Ustawić adres API w pliku \verb|.env|:
+	\begin{verbatim}
+		VITE_API_URL=https://wydatkomat.tech/api
+	\end{verbatim}
+	\item Zbudować aplikację:
+	\begin{verbatim}
+		npm run build
+	\end{verbatim}
+	\item Uruchomić podgląd wersji produkcyjnej:
+	\begin{verbatim}
+		npm run preview
+	\end{verbatim}
+\end{enumerate}
+
+Aplikacja dostępna jest następnie pod adresem lokalnym wskazanym przez serwer Vite.
+
+\section{Aplikacja mobilna}
+
+Aplikacja mobilna została przygotowana w technologii React Native z wykorzystaniem Expo.
+
+\begin{enumerate}
+	\item Sklonować repozytorium:
+	\begin{verbatim}
+		git clone https://github.com/Rafal-wq/expense-splitter-mobile.git
+	\end{verbatim}
+	\item Przejść do katalogu projektu:
+	\begin{verbatim}
+		cd expense-splitter-mobile
+	\end{verbatim}
+	\item Zainstalować zależności:
+	\begin{verbatim}
+		npm install
+	\end{verbatim}
+	\item Utworzyć plik konfiguracyjny:
+	\begin{verbatim}
+		cp .env.example .env
+	\end{verbatim}
+	\item Ustawić adres backendu:
+	\begin{verbatim}
+		EXPO_PUBLIC_API_URL=https://wydatkomat.tech/api
+	\end{verbatim}
+	\item Uruchomić aplikację:
+	\begin{verbatim}
+		npx expo start
+	\end{verbatim}
+\end{enumerate}
+
+Po uruchomieniu należy zeskanować kod QR przy użyciu aplikacji Expo Go.
+
+\section{Aplikacja desktopowa}
+
+Aplikacja desktopowa została napisana w języku Python i nie wymaga procesu budowania.
+
+\begin{enumerate}
+	\item Przejść do katalogu projektu:
+	\begin{verbatim}
+		cd expense-splitter-desktop
+	\end{verbatim}
+	\item Utworzyć wirtualne środowisko:
+	\begin{verbatim}
+		python3 -m venv venv
+	\end{verbatim}
+	\item Aktywować środowisko:
+	\begin{verbatim}
+		source venv/bin/activate
+	\end{verbatim}
+	\item Zainstalować zależności:
+	\begin{verbatim}
+		pip install -r requirements.txt
+	\end{verbatim}
+	\item Uruchomić aplikację:
+	\begin{verbatim}
+		python main.py
+	\end{verbatim}
+\end{enumerate}
+
+Przy pierwszym uruchomieniu aplikacja wyświetla ekran logowania, a następnie inicjalizuje główne okno systemu.
