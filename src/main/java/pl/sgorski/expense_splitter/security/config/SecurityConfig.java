@@ -52,15 +52,9 @@ public class SecurityConfig {
                         "/auth/refresh",
                         "/ws/**")
                     .permitAll()
-                    .requestMatchers("/auth/logout", "/auth/2fa/**")
-                    .authenticated()
-                    .requestMatchers("/auth/**")
-                    .not()
-                    .authenticated()
-                    .requestMatchers("/oauth2/code/**", "/login/oauth2/code/**")
-                    .not()
-                    .authenticated()
                     .requestMatchers(
+                        "/auth/logout",
+                        "/auth/2fa/**",
                         "/expenses/**",
                         "/friendships/**",
                         "/payments/**",
@@ -69,6 +63,8 @@ public class SecurityConfig {
                         "/notifications/**",
                         "/statistics/**")
                     .authenticated()
+                    .requestMatchers("/auth/**", "/oauth2/code/**", "/login/oauth2/code/**")
+                    .anonymous()
                     .requestMatchers("/admin/**")
                     .hasRole("ADMIN")
                     .anyRequest()
