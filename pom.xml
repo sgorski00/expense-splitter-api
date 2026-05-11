@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>pl.sgorski</groupId>
 	<artifactId>expense-splitter</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>expense-splitter</name>
 	<description>API of expense-splitter application.</description>
 
@@ -303,6 +303,20 @@
 			</properties>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>start</goal>
+									<goal>stop</goal>
+									<goal>repackage</goal>
+									<goal>build-info</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 						<groupId>org.springdoc</groupId>
 						<artifactId>springdoc-openapi-maven-plugin</artifactId>
