@@ -1,123 +1,125 @@
 package pl.sgorski.expense_splitter.IT.security;
 
-import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import pl.sgorski.expense_splitter.IT.base.IntegrationTest;
+import pl.sgorski.expense_splitter.IT.base.factory.UserTestFactory;
+import pl.sgorski.expense_splitter.IT.base.helper.AuthHelper;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
-import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.user.domain.Role;
-import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.repository.UserRepository;
 
 public class EndpointsAccessIT extends IntegrationTest {
 
-  private final String protectedEndpoint = "/profile";
-  private final String protectedAdminEndpoint = "/admin/users";
-  private final String notExistingEndpoint = "/not/exsitsing";
+  private static final String PROTECTED_ENDPOINT = "/profile";
+  private static final String PROTECTED_ADMIN_ENDPOINT = "/admin/users";
+  private static final String NOT_EXISTING_ENDPOINT = "/not/exsitsing";
 
-  private final String userEmail = "user@example.com";
-  private final String userPassword = "Us3rr@2026";
-  private final String adminEmail = "admin@example.com";
-  private final String adminPassword = "4dminP@ssw0rd";
+  private static final String USER_EMAIL = "user@example.com";
+  private static final String USER_PASSWORD = "Us3rr@2026";
+  private static final String ADMIN_EMAIL = "admin@example.com";
+  private static final String ADMIN_PASSWORD = "4dminP@ssw0rd";
 
   @Autowired private UserRepository userRepository;
   @Autowired private PasswordEncoder passwordEncoder;
 
   @BeforeEach
   void setUp() {
-    var user = new User();
-    user.setEmail(userEmail);
-    user.setPasswordHash(passwordEncoder.encode(userPassword));
-    user.setPasswordForChange(false);
+    var user = UserTestFactory.createUser(USER_EMAIL, passwordEncoder.encode(USER_PASSWORD));
     user.setRole(Role.USER);
     userRepository.save(user);
 
-    var admin = new User();
-    admin.setEmail(adminEmail);
-    admin.setPasswordHash(passwordEncoder.encode(adminPassword));
-    admin.setPasswordForChange(false);
+    var admin = UserTestFactory.createUser(ADMIN_EMAIL, passwordEncoder.encode(ADMIN_PASSWORD));
     admin.setRole(Role.ADMIN);
     userRepository.save(admin);
   }
 
   @Test
   void shouldAllowAccessToTheLogin_whenAnonymous() {
-    var loginRequest = new LoginRequest(userEmail, userPassword);
+    var loginRequest = new LoginRequest(USER_EMAIL, USER_PASSWORD);
 
     performLoginRequest(loginRequest, null).expectStatus().isOk();
   }
 
   @Test
   void shouldDenyAccessToProtectedEndpoint_whenAnonymous() {
-    performGet(protectedEndpoint).expectStatus().isUnauthorized();
+    performGet(PROTECTED_ENDPOINT).expectStatus().isUnauthorized();
   }
 
   @Test
   void shouldDenyAccessToProtectedAdminEndpoint_whenAnonymous() {
-    performGet(protectedAdminEndpoint).expectStatus().isUnauthorized();
+    performGet(PROTECTED_ADMIN_ENDPOINT).expectStatus().isUnauthorized();
   }
 
   @Test
   void shouldDenyAccessToAnyOtherEndpoint_whenAnonymous() {
-    performGet(notExistingEndpoint).expectStatus().isUnauthorized();
+    performGet(NOT_EXISTING_ENDPOINT).expectStatus().isUnauthorized();
   }
 
   @Test
   void shouldDenyAccessToTheLogin_whenLoggedAsUser() {
-    var loginRequest = new LoginRequest(userEmail, userPassword);
-    var token = obtainAccessToken(userEmail, userPassword);
+    var loginRequest = new LoginRequest(USER_EMAIL, USER_PASSWORD);
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(USER_EMAIL, USER_PASSWORD));
 
     performLoginRequest(loginRequest, token).expectStatus().isForbidden();
   }
 
   @Test
   void shouldAllowAccessToProtectedEndpoint_whenLoggedAsUser() {
-    var token = obtainAccessToken(userEmail, userPassword);
-    performGet(protectedEndpoint, token).expectStatus().isOk();
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(USER_EMAIL, USER_PASSWORD));
+    performGet(PROTECTED_ENDPOINT, token).expectStatus().isOk();
   }
 
   @Test
   void shouldDenyAccessToProtectedAdminEndpoint_whenLoggedAsUser() {
-    var token = obtainAccessToken(userEmail, userPassword);
-    performGet(protectedAdminEndpoint, token).expectStatus().isForbidden();
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(USER_EMAIL, USER_PASSWORD));
+    performGet(PROTECTED_ADMIN_ENDPOINT, token).expectStatus().isForbidden();
   }
 
   @Test
   void shouldDenyAccessToAnyOtherEndpoint_whenLoggedAsUser() {
-    var token = obtainAccessToken(userEmail, userPassword);
-    performGet(notExistingEndpoint, token).expectStatus().isForbidden();
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(USER_EMAIL, USER_PASSWORD));
+    performGet(NOT_EXISTING_ENDPOINT, token).expectStatus().isForbidden();
   }
 
   @Test
   void shouldDenyAccessToTheLogin_whenLoggedAsAdmin() {
-    var loginRequest = new LoginRequest(userEmail, userPassword);
-    var token = obtainAccessToken(adminEmail, adminPassword);
+    var loginRequest = new LoginRequest(USER_EMAIL, USER_PASSWORD);
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(ADMIN_EMAIL, ADMIN_PASSWORD));
 
     performLoginRequest(loginRequest, token).expectStatus().isForbidden();
   }
 
   @Test
   void shouldAllowAccessToProtectedEndpoint_whenLoggedAsAdmin() {
-    var token = obtainAccessToken(adminEmail, adminPassword);
-    performGet(protectedEndpoint, token).expectStatus().isOk();
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(ADMIN_EMAIL, ADMIN_PASSWORD));
+    performGet(PROTECTED_ENDPOINT, token).expectStatus().isOk();
   }
 
   @Test
   void shouldAllowAccessToProtectedAdminEndpoint_whenLoggedAsAdmin() {
-    var token = obtainAccessToken(adminEmail, adminPassword);
-    performGet(protectedAdminEndpoint, token).expectStatus().isOk();
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(ADMIN_EMAIL, ADMIN_PASSWORD));
+    performGet(PROTECTED_ADMIN_ENDPOINT, token).expectStatus().isOk();
   }
 
   @Test
   void shouldDenyAccessToAnyOtherEndpoint_whenLoggedAsAdmin() {
-    var token = obtainAccessToken(adminEmail, adminPassword);
-    performGet(notExistingEndpoint, token).expectStatus().isForbidden();
+    var token =
+        AuthHelper.obtainAccessToken(restTestClient, new LoginRequest(ADMIN_EMAIL, ADMIN_PASSWORD));
+    performGet(NOT_EXISTING_ENDPOINT, token).expectStatus().isForbidden();
   }
 
   private RestTestClient.ResponseSpec performGet(String url) {
@@ -134,19 +136,16 @@ public class EndpointsAccessIT extends IntegrationTest {
 
   private RestTestClient.ResponseSpec performLoginRequest(
       LoginRequest request, @Nullable String token) {
-    var loginPost = restTestClient.post().uri("/auth/login").body(request);
+    var loginPost =
+        restTestClient
+            .post()
+            .uri("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(request);
 
     if (token != null) {
-      loginPost.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+      loginPost = loginPost.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
     }
     return loginPost.exchange();
-  }
-
-  private String obtainAccessToken(String username, String password) {
-    var loginRequest = new LoginRequest(username, password);
-    var response = performLoginRequest(loginRequest, null);
-    response.expectStatus().isOk();
-    return Objects.requireNonNull(response.returnResult(LoginResponse.class).getResponseBody())
-        .accessToken();
   }
 }

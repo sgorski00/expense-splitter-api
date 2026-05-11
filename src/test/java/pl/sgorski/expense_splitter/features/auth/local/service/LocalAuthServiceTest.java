@@ -155,6 +155,7 @@ public class LocalAuthServiceTest {
 
     verify(userService, times(1)).save(eq(user));
     verify(passwordEncoder, times(1)).encode(eq(rawPassword));
+    verify(refreshTokenService, times(1)).revokeAllUserTokens(eq(user.getId()));
     assertFalse(user.isPasswordForChange());
     assertNotNull(user.getPasswordHash());
   }
@@ -167,8 +168,7 @@ public class LocalAuthServiceTest {
     assertThrows(
         PasswordOperationException.class,
         () -> localAuthService.setLocalPassword(user, rawPassword));
-    verifyNoInteractions(userService);
-    verifyNoInteractions(passwordEncoder);
+    verifyNoInteractions(userService, passwordEncoder, refreshTokenService);
     assertEquals(encodedPassword, user.getPasswordHash());
   }
 

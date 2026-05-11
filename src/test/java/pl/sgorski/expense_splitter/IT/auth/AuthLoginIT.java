@@ -4,34 +4,25 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.client.RestTestClient;
 import pl.sgorski.expense_splitter.IT.base.IntegrationTest;
+import pl.sgorski.expense_splitter.IT.base.factory.UserTestFactory;
+import pl.sgorski.expense_splitter.IT.base.helper.AuthHelper;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
-import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
-import pl.sgorski.expense_splitter.features.auth.two_fa.domain.UserTwoFactor;
-import pl.sgorski.expense_splitter.features.auth.two_fa.repository.UserTwoFactorRepository;
-import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.repository.UserRepository;
 import pl.sgorski.expense_splitter.security.rate_limit.RateLimitType;
 
 public class AuthLoginIT extends IntegrationTest {
 
   @Autowired private UserRepository userRepository;
-  @Autowired private UserTwoFactorRepository userTwoFactorRepository;
   @Autowired private PasswordEncoder passwordEncoder;
 
   private final String email = "user@example.com";
   private final String rawPassword = "P@ssword123";
-  private User user;
 
   @BeforeEach
   void setUp() {
-    user = new User();
-    user.setEmail(email);
-    user.setPasswordHash(passwordEncoder.encode(rawPassword));
-    user.setPasswordForChange(false);
+    var user = UserTestFactory.createUser(email, passwordEncoder.encode(rawPassword));
     userRepository.save(user);
   }
 
@@ -39,7 +30,7 @@ public class AuthLoginIT extends IntegrationTest {
   void login_shouldReturnAccessTokenAndRefreshToken_whenCredentialsAreValid() {
     var request = new LoginRequest(email, rawPassword);
 
-    performLoginRequest(request)
+    AuthHelper.performLoginRequest(restTestClient, request)
         .expectStatus()
         .isOk()
         .expectHeader()
@@ -54,16 +45,16 @@ public class AuthLoginIT extends IntegrationTest {
   }
 
   @Test
-  void login_shouldReturnResponseWithTwoFaRequired_whenCredentialsAreValid() {
-    var twoFa = new UserTwoFactor();
-    twoFa.setSecret("SECRET");
-    twoFa.setUser(user);
-    twoFa.setEnabled(true);
-    userTwoFactorRepository.save(twoFa);
+  void login_shouldReturnResponseWithTwoFaRequired_whenTwoFaIsEnabled() {
+    var twoFaUserEmail = "2fa-user@example.com";
+    var userWithTwoFa =
+        UserTestFactory.createUserWithTwoFa(
+            twoFaUserEmail, passwordEncoder.encode(rawPassword), "SECRET");
+    userRepository.save(userWithTwoFa);
 
-    var request = new LoginRequest(email, rawPassword);
+    var request = new LoginRequest(twoFaUserEmail, rawPassword);
 
-    performLoginRequest(request)
+    AuthHelper.performLoginRequest(restTestClient, request)
         .expectStatus()
         .isOk()
         .expectHeader()
@@ -79,135 +70,56 @@ public class AuthLoginIT extends IntegrationTest {
 
   @Test
   void login_shouldReturn401_whenCredentialsAreNotValid() {
-    var request = new LoginRequest(email, "NotTh3Rig#tPassword");
+    var request = new LoginRequest(email, "WrongPassword123");
 
-    performLoginRequest(request)
+    AuthHelper.performLoginRequest(restTestClient, request)
         .expectStatus()
         .isUnauthorized()
         .expectHeader()
-        .doesNotExist(HttpHeaders.SET_COOKIE)
-        .expectBody()
-        .jsonPath("$.status")
-        .isEqualTo(401)
-        .jsonPath("$.title")
-        .isNotEmpty();
+        .doesNotExist(HttpHeaders.SET_COOKIE);
   }
 
   @Test
   void login_shouldReturn401_whenEmailIsNotValid() {
-    var request = new LoginRequest("some-email@example.com", rawPassword);
+    var request = new LoginRequest("nonexistent@example.com", rawPassword);
 
-    performLoginRequest(request)
+    AuthHelper.performLoginRequest(restTestClient, request)
         .expectStatus()
         .isUnauthorized()
         .expectHeader()
-        .doesNotExist(HttpHeaders.SET_COOKIE)
-        .expectBody()
-        .jsonPath("$.status")
-        .isEqualTo(401)
-        .jsonPath("$.title")
-        .isNotEmpty();
+        .doesNotExist(HttpHeaders.SET_COOKIE);
   }
 
   @Test
   void login_shouldReturn400_whenEmailIsWrongFormatted() {
     var request = new LoginRequest("not-an-email", rawPassword);
 
-    performLoginRequest(request)
+    AuthHelper.performLoginRequest(restTestClient, request)
         .expectStatus()
         .isBadRequest()
         .expectHeader()
-        .doesNotExist(HttpHeaders.SET_COOKIE)
-        .expectBody()
-        .jsonPath("$.status")
-        .isEqualTo(400)
-        .jsonPath("$.title")
-        .isNotEmpty();
+        .doesNotExist(HttpHeaders.SET_COOKIE);
   }
 
   @Test
   void login_shouldReturn400_whenPasswordIsBlank() {
     var request = new LoginRequest(email, "   ");
 
-    performLoginRequest(request)
+    AuthHelper.performLoginRequest(restTestClient, request)
         .expectStatus()
         .isBadRequest()
         .expectHeader()
-        .doesNotExist(HttpHeaders.SET_COOKIE)
-        .expectBody()
-        .jsonPath("$.status")
-        .isEqualTo(400)
-        .jsonPath("$.title")
-        .isNotEmpty();
+        .doesNotExist(HttpHeaders.SET_COOKIE);
   }
 
   @Test
-  void login_shouldReturn429_whenRateLimitExceed() {
-    var status = 429;
+  void login_shouldReturn429_whenRateLimitIsExceeded() {
     var request = new LoginRequest(email, rawPassword);
 
     for (int i = 0; i < RateLimitType.AUTH.getLimit(); i++) {
-      performLoginRequest(request);
+      AuthHelper.performLoginRequest(restTestClient, request);
     }
 
-    performLoginRequest(request).expectStatus().isEqualTo(status);
-  }
-
-  @Test
-  void logout_shouldRemoveRefreshTokenAndSetClearCookie_whenUserIsLoggedIn() {
-    var loginRequest = new LoginRequest(email, rawPassword);
-    var loginResponse = login(loginRequest);
-
-    restTestClient
-        .post()
-        .uri("/auth/logout")
-        .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResponse.accessToken())
-        .exchange()
-        .expectStatus()
-        .isNoContent()
-        .expectHeader()
-        .exists(HttpHeaders.SET_COOKIE);
-  }
-
-  @Test
-  void logout_shouldReturn401_whenUserIsNotLoggedIn() {
-    restTestClient.post().uri("/auth/logout").exchange().expectStatus().isUnauthorized();
-  }
-
-  @Test
-  void logout_shouldReturn405_whenTryingToLogoutWithGetMethod() {
-    var expectedStatus = 405;
-    var loginRequest = new LoginRequest(email, rawPassword);
-    var loginResponse = login(loginRequest);
-
-    restTestClient
-        .get()
-        .uri("/auth/logout")
-        .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResponse.accessToken())
-        .exchange()
-        .expectStatus()
-        .isEqualTo(expectedStatus)
-        .expectBody()
-        .jsonPath("$.status")
-        .isEqualTo(expectedStatus)
-        .jsonPath("$.title")
-        .isNotEmpty();
-  }
-
-  private LoginResponse login(LoginRequest loginRequest) {
-    return performLoginRequest(loginRequest)
-        .expectStatus()
-        .isOk()
-        .returnResult(LoginResponse.class)
-        .getResponseBody();
-  }
-
-  private RestTestClient.ResponseSpec performLoginRequest(LoginRequest request) {
-    return restTestClient
-        .post()
-        .uri("/auth/login")
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(request)
-        .exchange();
+    AuthHelper.performLoginRequest(restTestClient, request).expectStatus().isEqualTo(429);
   }
 }

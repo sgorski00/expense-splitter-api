@@ -108,7 +108,6 @@ public final class ProfileController {
       @RequestBody @Valid PasswordSetRequest request, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
     localAuthService.setLocalPassword(user, request.newPassword());
-    refreshTokenService.revokeAllUserTokens(user.getId());
     return tokensResponseEntityCreator.generate(user, false);
   }
 
@@ -125,7 +124,6 @@ public final class ProfileController {
       @RequestBody @Valid PasswordChangeRequest request, Authentication authentication) {
     var user = authenticatedUserResolver.requireUser(authentication);
     localAuthService.changePassword(user, request.oldPassword(), request.newPassword());
-    refreshTokenService.revokeAllUserTokens(user.getId());
     return tokensResponseEntityCreator.generate(user, false);
   }
 

@@ -76,6 +76,7 @@ public class LocalAuthService {
     user.setPasswordHash(passwordEncoder.encode(rawPassword));
     user.setPasswordForChange(false);
     userService.save(user);
+    refreshTokenService.revokeAllUserTokens(user.getId());
   }
 
   @Transactional

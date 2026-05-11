@@ -9,11 +9,13 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class OpenApiConfig {
 
   @Bean
+  @Profile("!test")
   public OpenAPI customOpenAPI(BuildProperties buildProperties) {
     var contact = new Contact();
     contact.setName("Sebastian Górski");

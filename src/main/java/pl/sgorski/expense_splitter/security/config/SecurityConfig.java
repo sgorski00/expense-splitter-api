@@ -50,10 +50,10 @@ public class SecurityConfig {
                         "/swagger-ui/**",
                         "/actuator/**",
                         "/auth/refresh",
-                        "/ws/**")
+                        "/ws/**",
+                        "/auth/logout")
                     .permitAll()
                     .requestMatchers(
-                        "/auth/logout",
                         "/auth/2fa/**",
                         "/expenses/**",
                         "/friendships/**",
