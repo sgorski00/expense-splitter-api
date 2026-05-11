@@ -1,7 +1,6 @@
 package pl.sgorski.expense_splitter.features.auth.local.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +48,24 @@ public class TokenResponseEntityCreatorTest {
 
     assertNotNull(response);
     assertEquals(refreshCookie.toString(), response.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
+    assertEquals(expectedBody, body);
+    assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+  }
+
+  @Test
+  void
+      generate_shouldReturnResponseEntityWithAccessAndWithoutRefreshToken_whenUserIsValidButTwoFaIsPending() {
+    var refreshCookie = ResponseCookie.from("test-refresh-cookie").build();
+    var user = new User();
+    var accessToken = "access-token";
+    when(jwtService.generateAccessToken(eq(user), anyBoolean())).thenReturn(accessToken);
+    var expectedBody = new LoginResponse(accessToken, null, true);
+
+    var response = tokenResponseEntityCreator.generate(user, true);
+    var body = response.getBody();
+
+    assertNotNull(response);
+    assertNull(response.getHeaders().getFirst(HttpHeaders.SET_COOKIE));
     assertEquals(expectedBody, body);
     assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
   }

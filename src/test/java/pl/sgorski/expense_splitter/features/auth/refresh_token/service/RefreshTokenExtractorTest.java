@@ -1,71 +1,120 @@
 package pl.sgorski.expense_splitter.features.auth.refresh_token.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.sgorski.expense_splitter.exceptions.authentication.RefreshTokenValidationException;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 
-public class RefreshTokenExtractorTest {
+class RefreshTokenExtractorTest {
 
-  private RefreshTokenExtractor refreshTokenExtractor;
+  private RefreshTokenExtractor extractor;
   private HttpServletRequest request;
 
   @BeforeEach
   void setUp() {
-    refreshTokenExtractor = new RefreshTokenExtractor();
+    extractor = new RefreshTokenExtractor();
     request = mock(HttpServletRequest.class);
   }
 
   @Test
-  void extract_shouldExtractTokenFromCookie() {
-    var cookieUuid = UUID.randomUUID();
+  void requireExtract_shouldReturnToken_fromCookie() {
+    var cookie = UUID.randomUUID();
 
-    var tokenUuid = refreshTokenExtractor.extract(cookieUuid, request);
+    var result = extractor.requireExtract(cookie, request);
 
-    assertEquals(cookieUuid, tokenUuid);
+    assertEquals(cookie, result);
   }
 
   @Test
-  void extract_shouldExtractTokenFromHeader_notFoundInCookieAndHeaderValid() {
-    var headerUuid = UUID.randomUUID();
-    var header = "Bearer " + headerUuid;
-    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER)).thenReturn(header);
+  void requireExtract_shouldReturnToken_fromHeader() {
+    var uuid = UUID.randomUUID();
+    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER))
+        .thenReturn("Bearer " + uuid);
 
-    var tokenUuid = refreshTokenExtractor.extract(null, request);
+    var result = extractor.requireExtract(null, request);
 
-    assertEquals(headerUuid, tokenUuid);
+    assertEquals(uuid, result);
   }
 
   @Test
-  void extract_shouldThrow_notFoundInCookieAndHeaderValueInvalid() {
-    var header = "Bearer not-valid-uuid";
-    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER)).thenReturn(header);
-
-    assertThrows(
-        RefreshTokenValidationException.class, () -> refreshTokenExtractor.extract(null, request));
-  }
-
-  @Test
-  void extract_shouldThrow_notFoundInCookieAndHeaderIsNull() {
+  void requireExtract_shouldThrow_whenNoTokenProvided() {
     when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER)).thenReturn(null);
 
     assertThrows(
-        RefreshTokenValidationException.class, () -> refreshTokenExtractor.extract(null, request));
+        RefreshTokenValidationException.class, () -> extractor.requireExtract(null, request));
   }
 
   @Test
-  void extract_shouldThrow_notFoundInCookieAndHeaderDontStartWithBearer() {
-    var header = "NOT-A-BEARER " + UUID.randomUUID();
-    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER)).thenReturn(header);
+  void requireExtract_shouldThrow_whenHeaderIsInvalidUuid() {
+    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER))
+        .thenReturn("Bearer not-uuid");
 
     assertThrows(
-        RefreshTokenValidationException.class, () -> refreshTokenExtractor.extract(null, request));
+        RefreshTokenValidationException.class, () -> extractor.requireExtract(null, request));
+  }
+
+  @Test
+  void requireExtract_shouldThrow_whenHeaderDoesNotStartWithBearer() {
+    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER))
+        .thenReturn("INVALID " + UUID.randomUUID());
+
+    assertThrows(
+        RefreshTokenValidationException.class, () -> extractor.requireExtract(null, request));
+  }
+
+  @Test
+  void extract_shouldReturnOptionalFromCookie() {
+    var cookie = UUID.randomUUID();
+
+    var result = extractor.extract(cookie, request);
+
+    assertEquals(Optional.of(cookie), result);
+  }
+
+  @Test
+  void extract_shouldReturnOptionalFromHeader() {
+    var uuid = UUID.randomUUID();
+    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER))
+        .thenReturn("Bearer " + uuid);
+
+    var result = extractor.extract(null, request);
+
+    assertEquals(Optional.of(uuid), result);
+  }
+
+  @Test
+  void extract_shouldReturnEmpty_whenNoToken() {
+    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER)).thenReturn(null);
+
+    var result = extractor.extract(null, request);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void extract_shouldReturnEmpty_whenInvalidUuid() {
+    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER))
+        .thenReturn("Bearer not-uuid");
+
+    var result = extractor.extract(null, request);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void extract_shouldReturnEmpty_whenHeaderDoesNotStartWithBearer() {
+    when(request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER))
+        .thenReturn("INVALID " + UUID.randomUUID());
+
+    var result = extractor.extract(null, request);
+
+    assertTrue(result.isEmpty());
   }
 }

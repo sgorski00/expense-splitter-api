@@ -2,6 +2,7 @@ package pl.sgorski.expense_splitter.features.auth.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 @Schema(
     name = "Login Response",
@@ -16,9 +17,9 @@ public record LoginResponse(
         String accessToken,
     @Schema(
             description =
-                "Refresh token used to obtain a new access token when it expires. Valid for longer period (default 7 days).",
+                "Refresh token used to obtain a new access token when it expires. Valid for longer period (default 7 days). Returned only if 2FA is not required or already completed.",
             example = "550e8400-e29b-41d4-a716-446655440000")
-        UUID refreshToken,
+        @Nullable UUID refreshToken,
     @Schema(
             description =
                 "Indicates if user is required to complete 2-factor authentication. If true, access token will have limited permissions until 2FA is completed.",

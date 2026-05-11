@@ -112,9 +112,11 @@ Po poprawnym odświeżeniu otrzymasz nowy token JWT oraz Refresh Token.
 
 ### Wylogowanie
 
-Aby wylogować się z systemu, należy wykonać żądanie POST na endpoint `/api/auth/logout`. 
+Aby wylogować się z systemu, należy wykonać żądanie POST na endpoint `/api/auth/logout`.
 
-Spowoduje to unieważnienie Refresh Tokena oraz usunięcie HttpOnly cookie `refreshToken` oraz `accessToken`.
+Do wylogowania należy podać używany `refreshToken` jako HttpOnly cookie o nazwie `refreshToken` lub przesłać go w nagłówku `Authorization` w formacie `Bearer {refreshToken}`.
+
+Spowoduje to unieważnienie Refresh Tokena oraz usunięcie HttpOnly cookie `refreshToken`.
 
 ### Dodatkowe informacje
 - Przy zmianie/ustawieniu hasła, wszystkie istniejące Refresh Tokeny dla danego użytkownika zostaną unieważnione, co wymusi ponowne logowanie się użytkownika.

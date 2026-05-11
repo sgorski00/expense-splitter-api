@@ -104,7 +104,7 @@ public final class AuthController {
               required = false)
           UUID refreshTokenCookieValue,
       HttpServletRequest request) {
-    var refreshTokenValue = refreshTokenExtractor.extract(refreshTokenCookieValue, request);
+    var refreshTokenValue = refreshTokenExtractor.requireExtract(refreshTokenCookieValue, request);
     var existingRefreshToken = refreshTokenService.getValidToken(refreshTokenValue);
     refreshTokenService.revokeToken(refreshTokenValue);
     return tokensResponseEntityCreator.generate(existingRefreshToken.getUser(), false);
@@ -120,11 +120,15 @@ public final class AuthController {
           @CookieValue(
               value = RefreshTokenCookieResponseHelper.REFRESH_TOKEN_COOKIE_KEY,
               required = false)
-          UUID refreshTokenCookie) {
-    var refreshTokenClearCookie = refreshTokenCookieResponseHelper.createClearRefreshTokenCookie();
-    if (refreshTokenCookie != null) refreshTokenService.revokeToken(refreshTokenCookie);
+          UUID refreshTokenCookie,
+      HttpServletRequest request) {
+    refreshTokenExtractor
+        .extract(refreshTokenCookie, request)
+        .ifPresent(refreshTokenService::revokeToken);
     return ResponseEntity.noContent()
-        .header(HttpHeaders.SET_COOKIE, refreshTokenClearCookie.toString())
+        .header(
+            HttpHeaders.SET_COOKIE,
+            refreshTokenCookieResponseHelper.createClearRefreshTokenCookie().toString())
         .build();
   }
 
