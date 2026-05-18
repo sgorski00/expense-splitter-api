@@ -55,7 +55,7 @@ public class OAuth2AccountLinkServiceTest {
 
   @Test
   void handle_shouldLinkAccount_correctRequest() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
     when(userService.getUserWithIdentities(linkUserId)).thenReturn(existingUser);
 
@@ -71,7 +71,7 @@ public class OAuth2AccountLinkServiceTest {
 
   @Test
   void handle_shouldThrowException_accountAlreadyLinked() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(true);
 
     assertThrows(AccountLinkingException.class, () -> oAuth2AccountLinkService.handle(context));
@@ -82,7 +82,7 @@ public class OAuth2AccountLinkServiceTest {
 
   @Test
   void handle_shouldThrowException_userIdNotPresent() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, null);
+    var context = new OAuth2LoginContext(userInfo, true, null);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
 
     assertThrows(AccountLinkingException.class, () -> oAuth2AccountLinkService.handle(context));

@@ -2,12 +2,12 @@ package pl.sgorski.expense_splitter.features.auth.oauth2.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.exceptions.authentication.AccountLinkingException;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.oauth2.dto.OAuth2LoginContext;
 import pl.sgorski.expense_splitter.features.auth.oauth2.service.OAuth2LoginService;
+import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
@@ -20,7 +20,7 @@ public class OAuth2AccountLinkService implements OAuth2LoginService {
   private final UserService userService;
   private final UserIdentityService userIdentityService;
 
-  public OAuth2User handle(OAuth2LoginContext context) {
+  public User handle(OAuth2LoginContext context) {
     var userInfo = context.userInfo();
     var userId = context.linkUserId();
 
@@ -44,7 +44,6 @@ public class OAuth2AccountLinkService implements OAuth2LoginService {
         user.getEmail());
     var identity = authMapper.toIdentity(userInfo);
     user.addIdentity(identity);
-    userService.save(user);
-    return context.oauthUser();
+    return userService.save(user);
   }
 }

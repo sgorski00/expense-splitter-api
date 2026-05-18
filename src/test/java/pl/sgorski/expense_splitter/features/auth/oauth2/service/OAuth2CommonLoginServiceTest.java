@@ -53,7 +53,7 @@ public class OAuth2CommonLoginServiceTest {
 
   @Test
   void handle_shouldRegisterAccount_correctRequestIdentityNotFound() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
     when(userService.isUserPresent(eq(email))).thenReturn(false);
 
@@ -68,7 +68,7 @@ public class OAuth2CommonLoginServiceTest {
 
   @Test
   void handle_shouldLoginWithPresentIdentity_correctRequestIdentityFound() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(true);
 
     var logged = oAuth2CommonLoginService.handle(context);
@@ -81,7 +81,7 @@ public class OAuth2CommonLoginServiceTest {
 
   @Test
   void handle_shouldThrowException_emailTakenByLocalUser() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
     when(userService.isUserPresent(eq(email))).thenReturn(true);
 
