@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import pl.sgorski.expense_splitter.exceptions.authentication.AccountLinkRequiredException;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
@@ -19,6 +18,7 @@ import pl.sgorski.expense_splitter.features.auth.oauth2.dto.OAuth2LoginContext;
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.OAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.auth.oauth2.service.impl.OAuth2CommonLoginService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
+import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 
@@ -33,14 +33,19 @@ public class OAuth2CommonLoginServiceTest {
   private final String email = "user@example.com";
 
   private UUID linkUserId;
-  private OAuth2User oAuth2User;
+  private User registeredUser;
+  private User linkedUser;
+  private UserIdentity existingIdentity;
   private OAuth2UserInfo userInfo;
 
   @BeforeEach
   void setUp() {
     linkUserId = UUID.randomUUID();
+    registeredUser = new User();
+    linkedUser = new User();
+    existingIdentity = new UserIdentity();
+    existingIdentity.setUser(linkedUser);
 
-    oAuth2User = mock(OAuth2User.class);
     userInfo = mock(OAuth2UserInfo.class);
     when(userInfo.getProviderId()).thenReturn(providerId);
     when(userInfo.getProvider()).thenReturn(provider);
@@ -53,13 +58,14 @@ public class OAuth2CommonLoginServiceTest {
 
   @Test
   void handle_shouldRegisterAccount_correctRequestIdentityNotFound() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
     when(userService.isUserPresent(eq(email))).thenReturn(false);
+    when(userService.save(any(User.class))).thenReturn(registeredUser);
 
-    var processedOAuth2User = oAuth2CommonLoginService.handle(context);
+    var processedUser = oAuth2CommonLoginService.handle(context);
 
-    assertEquals(oAuth2User, processedOAuth2User);
+    assertEquals(registeredUser, processedUser);
     verify(userIdentityService, times(1)).isUserIdentityPresent(providerId, provider);
     verify(userService, times(1)).isUserPresent(email);
     verify(userService, times(1)).save(any(User.class));
@@ -68,20 +74,23 @@ public class OAuth2CommonLoginServiceTest {
 
   @Test
   void handle_shouldLoginWithPresentIdentity_correctRequestIdentityFound() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(true);
+    when(userIdentityService.findIdentity(eq(provider), eq(providerId)))
+        .thenReturn(existingIdentity);
 
-    var logged = oAuth2CommonLoginService.handle(context);
+    var loggedUser = oAuth2CommonLoginService.handle(context);
 
-    assertEquals(oAuth2User, logged);
+    assertEquals(linkedUser, loggedUser);
     verify(userIdentityService, times(1)).isUserIdentityPresent(eq(providerId), eq(provider));
+    verify(userIdentityService, times(1)).findIdentity(eq(provider), eq(providerId));
     verifyNoMoreInteractions(userIdentityService);
     verifyNoInteractions(userService);
   }
 
   @Test
   void handle_shouldThrowException_emailTakenByLocalUser() {
-    var context = new OAuth2LoginContext(oAuth2User, userInfo, true, linkUserId);
+    var context = new OAuth2LoginContext(userInfo, true, linkUserId);
     when(userIdentityService.isUserIdentityPresent(eq(providerId), eq(provider))).thenReturn(false);
     when(userService.isUserPresent(eq(email))).thenReturn(true);
 

@@ -18,6 +18,7 @@ import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.mapper.AuthMapper;
+import pl.sgorski.expense_splitter.features.auth.oauth2.service.impl.GoogleOAuth2MobileLoginService;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenExtractor;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
@@ -41,6 +42,7 @@ public final class AuthController {
   private final TokenResponseEntityCreator tokensResponseEntityCreator;
   private final UserTwoFactorService userTwoFactorService;
   private final AuthenticatedUserResolver authenticatedUserResolver;
+  private final GoogleOAuth2MobileLoginService googleOauth2MobileLoginService;
 
   @PostMapping("/login")
   @Operation(
@@ -153,5 +155,17 @@ public final class AuthController {
     var command = authMapper.toConfirmPasswordResetCommand(request);
     localAuthService.resetPassword(command);
     return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping("/oauth2/google/token")
+  @Operation(
+      summary = "Exchange Google OAuth token",
+      description =
+          "Uses a Google OAuth access token to authenticate the user and issue local access and refresh tokens. This endpoint is intended for mobile clients that perform OAuth flow on the client side and need to exchange the obtained Google token for local tokens.")
+  @ApiResponse(responseCode = "200", description = "OAuth2 Google login successful.")
+  public ResponseEntity<LoginResponse> exchangeGoogleOAuthToken(
+      @RequestBody @Valid GoogleOAuthTokenExchangeRequest request) {
+    var user = googleOauth2MobileLoginService.handle(request.token());
+    return tokensResponseEntityCreator.generate(user, user.isTwoFactorRequired());
   }
 }

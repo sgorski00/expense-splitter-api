@@ -36,7 +36,6 @@ public final class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
     var session = getSession();
     var context =
         new OAuth2LoginContext(
-            oauthUser,
             OAuth2UserInfoFactory.create(provider, oauthUser.getAttributes()),
             oAuth2SessionService.isLinkMode(session),
             oAuth2SessionService.getOAuthLinkUserId(session));
@@ -45,9 +44,11 @@ public final class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
     log.debug(
         "Processing user {} from OAuth2 provider: {}", context.userInfo().getEmail(), providerStr);
     if (context.linkMode()) {
-      return oAuth2AccountLinkService.handle(context);
+      oAuth2AccountLinkService.handle(context);
+    } else {
+      oAuth2CommonLoginService.handle(context);
     }
-    return oAuth2CommonLoginService.handle(context);
+    return oauthUser;
   }
 
   public OAuth2User loadUserFromProvider(OAuth2UserRequest userRequest) {

@@ -26,6 +26,7 @@ import pl.sgorski.expense_splitter.features.auth.oauth2.factory.OAuth2UserInfoFa
 import pl.sgorski.expense_splitter.features.auth.oauth2.provider.OAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.auth.oauth2.service.impl.OAuth2AccountLinkService;
 import pl.sgorski.expense_splitter.features.auth.oauth2.service.impl.OAuth2CommonLoginService;
+import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.security.oauth2.session.OAuth2SessionService;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +43,8 @@ public class OAuth2UserServiceTest {
   @Mock private OAuth2UserRequest userRequest;
 
   @Mock private OAuth2User providerUser;
+
+  @Mock private User user;
 
   @Mock private OAuth2UserInfo userInfo;
 
@@ -65,11 +68,11 @@ public class OAuth2UserServiceTest {
       when(oAuth2SessionService.isLinkMode(any(HttpSession.class))).thenReturn(false);
       when(oAuth2SessionService.getOAuthLinkUserId(any(HttpSession.class)))
           .thenReturn(UUID.randomUUID());
-      when(oAuth2CommonLoginService.handle(any(OAuth2LoginContext.class))).thenReturn(providerUser);
+      when(oAuth2CommonLoginService.handle(any(OAuth2LoginContext.class))).thenReturn(user);
 
-      var user = oAuth2UserService.loadUser(userRequest);
+      var loadedUser = oAuth2UserService.loadUser(userRequest);
 
-      assertEquals(providerUser, user);
+      assertEquals(providerUser, loadedUser);
       verify(oAuth2CommonLoginService, times(1)).handle(any(OAuth2LoginContext.class));
       verify(oAuth2SessionService, times(1)).clearOAuthAttributes(any(HttpSession.class));
       verifyNoInteractions(oAuth2AccountLinkService);
@@ -87,11 +90,11 @@ public class OAuth2UserServiceTest {
       when(oAuth2SessionService.isLinkMode(any(HttpSession.class))).thenReturn(true);
       when(oAuth2SessionService.getOAuthLinkUserId(any(HttpSession.class)))
           .thenReturn(UUID.randomUUID());
-      when(oAuth2AccountLinkService.handle(any(OAuth2LoginContext.class))).thenReturn(providerUser);
+      when(oAuth2AccountLinkService.handle(any(OAuth2LoginContext.class))).thenReturn(user);
 
-      var user = oAuth2UserService.loadUser(userRequest);
+      var loadedUser = oAuth2UserService.loadUser(userRequest);
 
-      assertEquals(providerUser, user);
+      assertEquals(providerUser, loadedUser);
       verify(oAuth2AccountLinkService, times(1)).handle(any(OAuth2LoginContext.class));
       verify(oAuth2SessionService, times(1)).clearOAuthAttributes(any(HttpSession.class));
       verifyNoInteractions(oAuth2CommonLoginService);
