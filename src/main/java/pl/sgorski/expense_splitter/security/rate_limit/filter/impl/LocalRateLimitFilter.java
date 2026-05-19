@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.rate_limit;
+package pl.sgorski.expense_splitter.security.rate_limit.filter.impl;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,14 +8,18 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import pl.sgorski.expense_splitter.exceptions.TooManyRequestsException;
+import pl.sgorski.expense_splitter.security.rate_limit.filter.RateLimitFilter;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
+import pl.sgorski.expense_splitter.security.rate_limit.service.RateLimitService;
 
 @Component
 @Slf4j
-public final class RateLimitFilter extends OncePerRequestFilter {
+@ConditionalOnProperty(name = "es.rate-limit.provider", havingValue = "local")
+public final class LocalRateLimitFilter extends RateLimitFilter {
 
   private static final String RATE_LIMIT_LIMIT_HEADER = "X-Rate-Limit-Limit";
   private static final String RATE_LIMIT_REMAINING_HEADER = "X-Rate-Limit-Remaining";
@@ -25,7 +29,7 @@ public final class RateLimitFilter extends OncePerRequestFilter {
   private final RateLimitService rateLimitService;
   private final HandlerExceptionResolver resolver;
 
-  public RateLimitFilter(
+  public LocalRateLimitFilter(
       RateLimitService rateLimitService,
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
     this.rateLimitService = rateLimitService;

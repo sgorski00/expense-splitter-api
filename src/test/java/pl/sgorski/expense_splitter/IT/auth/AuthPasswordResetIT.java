@@ -15,7 +15,7 @@ import pl.sgorski.expense_splitter.features.auth.dto.request.ConfirmPasswordRese
 import pl.sgorski.expense_splitter.features.auth.dto.request.PasswordResetRequest;
 import pl.sgorski.expense_splitter.features.auth.password_reset_token.repository.PasswordResetTokenRepository;
 import pl.sgorski.expense_splitter.features.user.repository.UserRepository;
-import pl.sgorski.expense_splitter.security.rate_limit.RateLimitType;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
 
 public class AuthPasswordResetIT extends IntegrationTest {
 

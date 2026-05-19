@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.rate_limit;
+package pl.sgorski.expense_splitter.security.rate_limit.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,6 +7,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bucket;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.sgorski.expense_splitter.security.rate_limit.config.RateLimitConfig;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
 
 public class RateLimitServiceTest {
 

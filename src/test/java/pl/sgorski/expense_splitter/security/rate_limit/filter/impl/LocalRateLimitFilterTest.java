@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.rate_limit;
+package pl.sgorski.expense_splitter.security.rate_limit.filter.impl;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,13 +18,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import pl.sgorski.expense_splitter.exceptions.TooManyRequestsException;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
+import pl.sgorski.expense_splitter.security.rate_limit.service.RateLimitService;
 
 @ExtendWith(MockitoExtension.class)
-public class RateLimitFilterTest {
+public class LocalRateLimitFilterTest {
 
   @Mock private RateLimitService rateLimitService;
   @Mock private HandlerExceptionResolver resolver;
-  @InjectMocks private RateLimitFilter filter;
+  @InjectMocks private LocalRateLimitFilter filter;
 
   @Mock private HttpServletRequest request;
   @Mock private HttpServletResponse response;

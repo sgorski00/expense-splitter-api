@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.rate_limit;
+package pl.sgorski.expense_splitter.security.rate_limit.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
