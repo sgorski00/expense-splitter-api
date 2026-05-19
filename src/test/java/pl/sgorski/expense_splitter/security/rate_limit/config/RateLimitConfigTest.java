@@ -1,8 +1,9 @@
-package pl.sgorski.expense_splitter.security.rate_limit;
+package pl.sgorski.expense_splitter.security.rate_limit.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
 
 public class RateLimitConfigTest {
 

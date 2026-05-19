@@ -1,12 +1,16 @@
-package pl.sgorski.expense_splitter.security.rate_limit;
+package pl.sgorski.expense_splitter.security.rate_limit.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import pl.sgorski.expense_splitter.security.rate_limit.config.RateLimitConfig;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
 
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "es.rate-limit.provider", havingValue = "local")
 public final class RateLimitService {
 
   private final RateLimitConfig rateLimitConfig;

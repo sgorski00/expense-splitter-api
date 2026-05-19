@@ -1,13 +1,16 @@
-package pl.sgorski.expense_splitter.security.rate_limit;
+package pl.sgorski.expense_splitter.security.rate_limit.config;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import java.time.Duration;
 import lombok.Getter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
 
 @Component
 @Getter
+@ConditionalOnProperty(name = "es.rate-limit.provider", havingValue = "local")
 public final class RateLimitConfig {
 
   public Bucket authBucket() {

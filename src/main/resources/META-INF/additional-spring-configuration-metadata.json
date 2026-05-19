@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "es.rate-limit.provider",
+      "type": "java.lang.String",
+      "description": "Declaring what provider of rate limiting should be used. Allowed options are: local, waf."
+  }
+] }

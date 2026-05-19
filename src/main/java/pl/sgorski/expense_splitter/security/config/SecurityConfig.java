@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import pl.sgorski.expense_splitter.security.jwt.JwtAuthenticationFilter;
 import pl.sgorski.expense_splitter.security.jwt.PasswordChangeRequiredFilter;
 import pl.sgorski.expense_splitter.security.jwt.TwoFactorRequiredFilter;
-import pl.sgorski.expense_splitter.security.rate_limit.RateLimitFilter;
+import pl.sgorski.expense_splitter.security.rate_limit.filter.RateLimitFilter;
 import pl.sgorski.expense_splitter.security.sentry.SentryContextFilter;
 
 @Configuration
