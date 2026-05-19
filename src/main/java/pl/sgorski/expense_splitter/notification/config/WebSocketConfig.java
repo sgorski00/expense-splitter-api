@@ -23,6 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
+    //TODO: Refactor for both possibilities: VPC and Cloud.
     registry.enableSimpleBroker();
     registry.setUserDestinationPrefix("/user");
   }

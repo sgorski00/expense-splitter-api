@@ -4,5 +4,10 @@
       "name": "es.rate-limit.provider",
       "type": "java.lang.String",
       "description": "Declaring what provider of rate limiting should be used. Allowed options are: local, waf."
-  }
-] }
+    },
+    {
+      "name": "es.scheduler.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Decides whether the scheduler should be enabled."
+    }
+  ] }
