@@ -1,6 +1,7 @@
 package pl.sgorski.expense_splitter.notification.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -12,6 +13,7 @@ import pl.sgorski.expense_splitter.security.websocket.StompAuthChannelIntercepto
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "es.websocket.enabled", havingValue = "true")
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
@@ -23,7 +25,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    // TODO: Refactor for both possibilities: VPC and Cloud.
     registry.enableSimpleBroker();
     registry.setUserDestinationPrefix("/user");
   }
