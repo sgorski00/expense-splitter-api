@@ -32,13 +32,13 @@ runtime-logs:
 	$(COMPOSE) $(RUNTIME) logs -f
 
 test:
-	mvn clean verify -Ptest
+	mvn clean verify -Dspring.profiles.active=test
 
 utest:
-	mvn clean test -Ptest
+	mvn clean test -Dspring.profiles.active=test
 
 itest:
-	mvn clean verify -Ptest -Dskip.ut=true
+	mvn clean verify -Dspring.profiles.active=test -Dskip.ut=true
 
 psql:
 	$(COMPOSE) exec es-postgres psql -U postgres -d es-db

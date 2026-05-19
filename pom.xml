@@ -15,9 +15,7 @@
 	<description>API of expense-splitter application.</description>
 
 	<properties>
-		<spring.profiles.active>default</spring.profiles.active>
 		<skip.ut>false</skip.ut>
-		<api.port>8080</api.port>
 		<java.version>25</java.version>
 		<openapi.version>3.0.2</openapi.version>
 		<jjwt.version>0.13.0</jjwt.version>
@@ -293,22 +291,11 @@
 
 	<profiles>
 		<profile>
-			<id>test</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<spring.profiles.active>test</spring.profiles.active>
-				<api.port>8089</api.port>
-			</properties>
-		</profile>
-		<profile>
 			<id>openapi</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
-				<spring.profiles.active>openapi</spring.profiles.active>
 				<maven.test.skip>true</maven.test.skip>
 			</properties>
 			<build>
@@ -316,6 +303,11 @@
 					<plugin>
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
+						<configuration>
+							<jvmArguments>
+								-Dspring.profiles.active=openapi
+							</jvmArguments>
+						</configuration>
 						<executions>
 							<execution>
 								<goals>
