@@ -305,7 +305,7 @@
 						<artifactId>spring-boot-maven-plugin</artifactId>
 						<configuration>
 							<jvmArguments>
-								-Dspring.profiles.active=openapi
+								-Dspring.profiles.active=cicd
 							</jvmArguments>
 						</configuration>
 						<executions>
