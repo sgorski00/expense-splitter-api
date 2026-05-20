@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt;
+package pl.sgorski.expense_splitter.security.jwt.filter;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -15,12 +15,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import pl.sgorski.expense_splitter.exceptions.authentication.PasswordChangeRequiredException;
+import pl.sgorski.expense_splitter.security.jwt.payload.AccessTokenPayload;
+import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
+import pl.sgorski.expense_splitter.security.jwt.service.JwtProvider;
 import pl.sgorski.expense_splitter.security.service.impl.PasswordChangeRequiredWhitelistService;
 
 @ExtendWith(MockitoExtension.class)
 public class PasswordChangeRequiredFilterTest {
 
-  @Mock private JwtService jwtService;
+  @Mock private JwtProvider jwtProvider;
+
+  @Mock private AccessTokenService accessTokenService;
 
   @Mock private PasswordChangeRequiredWhitelistService whitelistService;
 
@@ -42,7 +47,7 @@ public class PasswordChangeRequiredFilterTest {
 
     verify(filterChain, times(1)).doFilter(request, response);
     verifyNoMoreInteractions(filterChain);
-    verifyNoInteractions(jwtService, handlerExceptionResolver);
+    verifyNoInteractions(jwtProvider, handlerExceptionResolver);
   }
 
   @Test
@@ -54,7 +59,7 @@ public class PasswordChangeRequiredFilterTest {
 
     verify(filterChain, times(1)).doFilter(request, response);
     verifyNoMoreInteractions(filterChain);
-    verifyNoInteractions(jwtService, handlerExceptionResolver);
+    verifyNoInteractions(jwtProvider, handlerExceptionResolver);
   }
 
   @Test
@@ -62,13 +67,13 @@ public class PasswordChangeRequiredFilterTest {
     var token = "invalidToken";
     var header = "Bearer " + token;
     when(request.getHeader(anyString())).thenReturn(header);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(true);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(true);
 
     filter.doFilterInternal(request, response, filterChain);
 
     verify(filterChain, times(1)).doFilter(request, response);
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verifyNoMoreInteractions(filterChain, jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verifyNoMoreInteractions(filterChain, jwtProvider);
     verifyNoInteractions(handlerExceptionResolver);
   }
 
@@ -76,16 +81,19 @@ public class PasswordChangeRequiredFilterTest {
   void doFilterInternal_shouldPass_whenPasswordChangeNotRequired() throws Exception {
     var token = "validToken";
     var header = "Bearer " + token;
+    var passwordChangeRequired = false;
+    var payload =
+        new AccessTokenPayload(
+            UUID.randomUUID(), "user@example.com", passwordChangeRequired, false);
     when(request.getHeader(anyString())).thenReturn(header);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getPasswordChangeClaim(eq(token))).thenReturn(false);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenReturn(payload);
 
     filter.doFilterInternal(request, response, filterChain);
 
     verify(filterChain, times(1)).doFilter(request, response);
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verify(jwtService, times(1)).getPasswordChangeClaim(eq(token));
-    verifyNoMoreInteractions(filterChain, jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verifyNoMoreInteractions(filterChain, jwtProvider);
     verifyNoInteractions(handlerExceptionResolver);
   }
 
@@ -95,18 +103,22 @@ public class PasswordChangeRequiredFilterTest {
     var token = "validToken";
     var header = "Bearer " + token;
     var requestPath = "/allowed/path";
+    var passwordChangeRequired = true;
+    var payload =
+        new AccessTokenPayload(
+            UUID.randomUUID(), "user@example.com", passwordChangeRequired, false);
     when(request.getHeader(anyString())).thenReturn(header);
     when(request.getRequestURI()).thenReturn(requestPath);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getPasswordChangeClaim(eq(token))).thenReturn(true);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenReturn(payload);
     when(whitelistService.isWhitelisted(eq(requestPath))).thenReturn(true);
 
     filter.doFilterInternal(request, response, filterChain);
 
     verify(filterChain, times(1)).doFilter(request, response);
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verify(jwtService, times(1)).getPasswordChangeClaim(eq(token));
-    verifyNoMoreInteractions(filterChain, jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verify(accessTokenService, times(1)).parse(eq(token));
+    verifyNoMoreInteractions(filterChain, jwtProvider);
     verifyNoInteractions(handlerExceptionResolver);
   }
 
@@ -116,10 +128,14 @@ public class PasswordChangeRequiredFilterTest {
     var token = "validToken";
     var header = "Bearer " + token;
     var requestPath = "/allowed/path";
+    var passwordChangeRequired = true;
+    var payload =
+        new AccessTokenPayload(
+            UUID.randomUUID(), "user@example.com", passwordChangeRequired, false);
     when(request.getHeader(anyString())).thenReturn(header);
     when(request.getRequestURI()).thenReturn(requestPath);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getPasswordChangeClaim(eq(token))).thenReturn(true);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenReturn(payload);
     when(whitelistService.isWhitelisted(eq(requestPath))).thenReturn(false);
 
     filter.doFilterInternal(request, response, filterChain);
@@ -127,9 +143,9 @@ public class PasswordChangeRequiredFilterTest {
     verify(handlerExceptionResolver, times(1))
         .resolveException(
             eq(request), eq(response), isNull(), any(PasswordChangeRequiredException.class));
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verify(jwtService, times(1)).getPasswordChangeClaim(eq(token));
-    verifyNoMoreInteractions(handlerExceptionResolver, jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verify(accessTokenService, times(1)).parse(eq(token));
+    verifyNoMoreInteractions(handlerExceptionResolver, jwtProvider);
     verifyNoInteractions(filterChain);
   }
 
@@ -138,16 +154,16 @@ public class PasswordChangeRequiredFilterTest {
     var token = "validToken";
     var header = "Bearer " + token;
     when(request.getHeader(anyString())).thenReturn(header);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getPasswordChangeClaim(eq(token))).thenThrow(JwtException.class);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenThrow(JwtException.class);
 
     filter.doFilterInternal(request, response, filterChain);
 
     verify(handlerExceptionResolver, times(1))
         .resolveException(eq(request), eq(response), isNull(), any(JwtException.class));
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verify(jwtService, times(1)).getPasswordChangeClaim(eq(token));
-    verifyNoMoreInteractions(handlerExceptionResolver, jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verify(accessTokenService, times(1)).parse(eq(token));
+    verifyNoMoreInteractions(handlerExceptionResolver, jwtProvider);
     verifyNoInteractions(filterChain);
   }
 
@@ -156,17 +172,17 @@ public class PasswordChangeRequiredFilterTest {
     var token = "validToken";
     var header = "Bearer " + token;
     when(request.getHeader(anyString())).thenReturn(header);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getPasswordChangeClaim(eq(token))).thenThrow(NullPointerException.class);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenThrow(NullPointerException.class);
 
     filter.doFilterInternal(request, response, filterChain);
 
     verify(handlerExceptionResolver, times(1))
         .resolveException(
             eq(request), eq(response), isNull(), any(PasswordChangeRequiredException.class));
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verify(jwtService, times(1)).getPasswordChangeClaim(eq(token));
-    verifyNoMoreInteractions(handlerExceptionResolver, jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verify(accessTokenService, times(1)).parse(eq(token));
+    verifyNoMoreInteractions(handlerExceptionResolver, jwtProvider);
     verifyNoInteractions(filterChain);
   }
 }

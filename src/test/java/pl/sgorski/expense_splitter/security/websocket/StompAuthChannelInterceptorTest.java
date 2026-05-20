@@ -16,12 +16,15 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import pl.sgorski.expense_splitter.security.jwt.JwtService;
+import pl.sgorski.expense_splitter.security.jwt.payload.AccessTokenPayload;
+import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
+import pl.sgorski.expense_splitter.security.jwt.service.JwtProvider;
 
 @ExtendWith(MockitoExtension.class)
 public class StompAuthChannelInterceptorTest {
 
-  @Mock private JwtService jwtService;
+  @Mock private JwtProvider jwtProvider;
+  @Mock private AccessTokenService accessTokenService;
 
   @InjectMocks private StompAuthChannelInterceptor interceptor;
 
@@ -44,7 +47,7 @@ public class StompAuthChannelInterceptorTest {
       var result = interceptor.preSend(message, channel);
 
       assertEquals(message, result);
-      verifyNoInteractions(jwtService);
+      verifyNoInteractions(jwtProvider);
     }
   }
 
@@ -56,7 +59,7 @@ public class StompAuthChannelInterceptorTest {
     var result = interceptor.preSend(message, channel);
 
     assertEquals(message, result);
-    verifyNoInteractions(jwtService);
+    verifyNoInteractions(jwtProvider);
   }
 
   @Test
@@ -66,7 +69,7 @@ public class StompAuthChannelInterceptorTest {
     var message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 
     assertThrows(IllegalArgumentException.class, () -> interceptor.preSend(message, channel));
-    verifyNoInteractions(jwtService);
+    verifyNoInteractions(jwtProvider);
   }
 
   @Test
@@ -76,32 +79,33 @@ public class StompAuthChannelInterceptorTest {
     accessor.setNativeHeader("Authorization", "Bearer " + token);
     accessor.setLeaveMutable(true);
     var message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(true);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(true);
 
     assertThrows(IllegalArgumentException.class, () -> interceptor.preSend(message, channel));
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verifyNoMoreInteractions(jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verifyNoMoreInteractions(jwtProvider);
   }
 
   @Test
   void preSend_shouldSetUserWithUserId_whenTokenIsValid() {
     var token = "validToken";
-    var userId = UUID.randomUUID().toString();
+    var userId = UUID.randomUUID();
+    var payload = new AccessTokenPayload(userId, "user@example.com", false, false);
     var accessor = StompHeaderAccessor.create(StompCommand.CONNECT);
     accessor.setNativeHeader("Authorization", "Bearer " + token);
     accessor.setLeaveMutable(true);
     var message = MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getUserId(eq(token))).thenReturn(userId);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenReturn(payload);
 
     var result = interceptor.preSend(message, channel);
 
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verify(jwtService, times(1)).getUserId(eq(token));
-    verifyNoMoreInteractions(jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verify(accessTokenService, times(1)).parse(eq(token));
+    verifyNoMoreInteractions(jwtProvider);
     var resultAccessor = MessageHeaderAccessor.getAccessor(result, StompHeaderAccessor.class);
     assertNotNull(resultAccessor);
     assertNotNull(resultAccessor.getUser());
-    assertEquals(userId, resultAccessor.getUser().getName());
+    assertEquals(userId.toString(), resultAccessor.getUser().getName());
   }
 }

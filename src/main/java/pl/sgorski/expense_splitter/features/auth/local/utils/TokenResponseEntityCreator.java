@@ -8,18 +8,18 @@ import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
-import pl.sgorski.expense_splitter.security.jwt.JwtService;
+import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
 
 @Service
 @RequiredArgsConstructor
 public final class TokenResponseEntityCreator {
 
-  private final JwtService jwtService;
+  private final AccessTokenService accessTokenService;
   private final RefreshTokenService refreshTokenService;
   private final RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
 
   public ResponseEntity<LoginResponse> generate(User user, boolean twoFactorPending) {
-    var accessToken = jwtService.generateAccessToken(user, twoFactorPending);
+    var accessToken = accessTokenService.generate(user, twoFactorPending);
     if (twoFactorPending) {
       var response = new LoginResponse(accessToken, null, true);
       return ResponseEntity.ok().body(response);
