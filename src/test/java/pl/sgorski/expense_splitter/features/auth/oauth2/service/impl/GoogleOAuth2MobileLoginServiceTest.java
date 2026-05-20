@@ -77,7 +77,7 @@ class GoogleOAuth2MobileLoginServiceTest {
     when(jwt.getIssuer()).thenReturn(new URL(googleIssuerUrl));
     when(jwt.getClaims())
         .thenReturn(
-            Map.<String, Object>of(
+            Map.of(
                 "sub", "123456789",
                 "email", "user@example.com",
                 "given_name", "John",
@@ -99,7 +99,7 @@ class GoogleOAuth2MobileLoginServiceTest {
   }
 
   @Test
-  void handle_shouldThrowException_whenAudienceIsInvalid() throws Exception {
+  void handle_shouldThrowException_whenAudienceIsInvalid() {
     var jwt = mock(Jwt.class);
     when(jwt.getAudience()).thenReturn(List.of("wrong-client-id"));
 
@@ -111,7 +111,7 @@ class GoogleOAuth2MobileLoginServiceTest {
   }
 
   @Test
-  void handle_shouldThrowException_whenAudienceNull() throws Exception {
+  void handle_shouldThrowException_whenAudienceNull() {
     var jwt = mock(Jwt.class);
     when(jwt.getAudience()).thenReturn(null);
 
@@ -135,7 +135,7 @@ class GoogleOAuth2MobileLoginServiceTest {
   }
 
   @Test
-  void handle_shouldThrowException_whenIssuerIsNull() throws Exception {
+  void handle_shouldThrowException_whenIssuerIsNull() {
     var jwt = mock(Jwt.class);
     when(jwt.getAudience()).thenReturn(List.of(clientId));
     when(jwt.getIssuer()).thenReturn(null);
@@ -148,7 +148,7 @@ class GoogleOAuth2MobileLoginServiceTest {
   }
 
   @Test
-  void handle_shouldAcceptValidGoogleIssuersFormats_withHttpsPrefix() throws Exception {
+  void handle_shouldAcceptValidGoogleIssuersFormats_withHttpsPrefix() {
     var jwt = mock(Jwt.class);
     when(jwt.getAudience()).thenReturn(List.of(clientId));
     var mockIssuer = mock(URL.class);
@@ -156,7 +156,7 @@ class GoogleOAuth2MobileLoginServiceTest {
     when(jwt.getIssuer()).thenReturn(mockIssuer);
     when(jwt.getClaims())
         .thenReturn(
-            Map.<String, Object>of(
+            Map.of(
                 "sub", "123456789",
                 "email", "user@example.com",
                 "given_name", "John",
@@ -172,7 +172,7 @@ class GoogleOAuth2MobileLoginServiceTest {
   }
 
   @Test
-  void handle_shouldAcceptValidGoogleIssuersFormats_withoutHttpsPrefix() throws Exception {
+  void handle_shouldAcceptValidGoogleIssuersFormats_withoutHttpsPrefix() {
     var jwt = mock(Jwt.class);
     when(jwt.getAudience()).thenReturn(List.of(clientId));
     var mockIssuer = mock(URL.class);
@@ -180,7 +180,7 @@ class GoogleOAuth2MobileLoginServiceTest {
     when(jwt.getIssuer()).thenReturn(mockIssuer);
     when(jwt.getClaims())
         .thenReturn(
-            Map.<String, Object>of(
+            Map.of(
                 "sub", "123456789",
                 "email", "user@example.com",
                 "given_name", "John",
