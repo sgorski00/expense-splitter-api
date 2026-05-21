@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;
 
@@ -20,7 +21,8 @@ import pl.sgorski.expense_splitter.utils.UuidUtils;
 @RequiredArgsConstructor
 public final class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtService jwtService;
+  private final JwtProvider jwtProvider;
+  private final AccessTokenService accessTokenService;
   private final UserDetailsService userDetailsService;
 
   @Override
@@ -29,12 +31,12 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     var header = request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER);
     var token = AuthorizationTokenUtils.getTokenFromHeader(header);
-    if (token == null || UuidUtils.isValidUuid(token) || jwtService.isTokenInvalid(token)) {
+    if (token == null || UuidUtils.isValidUuid(token) || jwtProvider.isInvalid(token)) {
       filterChain.doFilter(request, response);
       return;
     }
 
-    var email = jwtService.getEmailFromToken(Objects.requireNonNull(token));
+    var email = accessTokenService.parse(Objects.requireNonNull(token)).email();
     var securityContext = SecurityContextHolder.getContext();
     if (securityContext.getAuthentication() == null) {
       var userDetails = userDetailsService.loadUserByUsername(email);

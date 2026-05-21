@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,11 +19,14 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtAuthenticationFilterTest {
 
-  @Mock private JwtService jwtService;
+  @Mock private JwtProvider jwtProvider;
+
+  @Mock private AccessTokenService accessTokenService;
 
   @Mock private UserDetailsService userDetailsService;
 
@@ -47,7 +50,7 @@ public class JwtAuthenticationFilterTest {
 
     verify(filterChain, times(1)).doFilter(request, response);
     verifyNoMoreInteractions(filterChain);
-    verifyNoInteractions(jwtService, userDetailsService);
+    verifyNoInteractions(jwtProvider, userDetailsService);
   }
 
   @Test
@@ -59,7 +62,7 @@ public class JwtAuthenticationFilterTest {
 
     verify(filterChain, times(1)).doFilter(request, response);
     verifyNoMoreInteractions(filterChain);
-    verifyNoInteractions(jwtService, userDetailsService);
+    verifyNoInteractions(jwtProvider, userDetailsService);
   }
 
   @Test
@@ -67,13 +70,13 @@ public class JwtAuthenticationFilterTest {
     var token = "invalidToken";
     var header = "Bearer " + token;
     when(request.getHeader(anyString())).thenReturn(header);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(true);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(true);
 
     filter.doFilterInternal(request, response, filterChain);
 
     verify(filterChain, times(1)).doFilter(request, response);
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verifyNoMoreInteractions(filterChain, jwtService);
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
+    verifyNoMoreInteractions(filterChain, jwtProvider);
     verifyNoInteractions(userDetailsService);
   }
 
@@ -83,18 +86,18 @@ public class JwtAuthenticationFilterTest {
     var token = "validToken";
     var header = "Bearer " + token;
     var email = "user@example.com";
+    var payload = new AccessTokenPayload(UUID.randomUUID(), email, false, false);
     when(request.getHeader(anyString())).thenReturn(header);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getEmailFromToken(eq(token))).thenReturn(email);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenReturn(payload);
     when(userDetailsService.loadUserByUsername(eq(email))).thenReturn(userDetails);
 
     filter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).isTokenInvalid(eq(token));
-    verify(jwtService, times(1)).getEmailFromToken(eq(token));
+    verify(jwtProvider, times(1)).isInvalid(eq(token));
     verify(userDetailsService, times(1)).loadUserByUsername(eq(email));
     verify(filterChain, times(1)).doFilter(request, response);
-    verifyNoMoreInteractions(filterChain, jwtService, userDetailsService);
+    verifyNoMoreInteractions(filterChain, jwtProvider, userDetailsService);
   }
 
   @Test
@@ -103,9 +106,10 @@ public class JwtAuthenticationFilterTest {
     var token = "validToken";
     var header = "Bearer " + token;
     var email = "user@example.com";
+    var payload = new AccessTokenPayload(UUID.randomUUID(), email, false, false);
     when(request.getHeader(anyString())).thenReturn(header);
-    when(jwtService.isTokenInvalid(eq(token))).thenReturn(false);
-    when(jwtService.getEmailFromToken(eq(token))).thenReturn(email);
+    when(jwtProvider.isInvalid(eq(token))).thenReturn(false);
+    when(accessTokenService.parse(eq(token))).thenReturn(payload);
 
     var securityContext = mock(SecurityContext.class);
     when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -119,7 +123,7 @@ public class JwtAuthenticationFilterTest {
       verify(securityContext, never()).setAuthentication(any());
       verify(userDetailsService, never()).loadUserByUsername(anyString());
       verify(filterChain, times(1)).doFilter(request, response);
-      verifyNoMoreInteractions(filterChain, jwtService, securityContext);
+      verifyNoMoreInteractions(filterChain, jwtProvider, securityContext);
     }
   }
 }

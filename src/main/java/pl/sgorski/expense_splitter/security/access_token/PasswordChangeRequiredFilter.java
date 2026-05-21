@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -10,24 +10,28 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-import pl.sgorski.expense_splitter.exceptions.authentication.two_fa.TwoFactorRequiredException;
-import pl.sgorski.expense_splitter.security.service.impl.TwoFactorRequiredWhitelistService;
+import pl.sgorski.expense_splitter.exceptions.authentication.PasswordChangeRequiredException;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
+import pl.sgorski.expense_splitter.security.service.impl.PasswordChangeRequiredWhitelistService;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;
 
 @Component
-public final class TwoFactorRequiredFilter extends OncePerRequestFilter {
+public final class PasswordChangeRequiredFilter extends OncePerRequestFilter {
 
-  private final JwtService jwtService;
+  private final JwtProvider jwtProvider;
+  private final AccessTokenService accessTokenService;
   private final HandlerExceptionResolver resolver;
-  private final TwoFactorRequiredWhitelistService whitelistService;
+  private final PasswordChangeRequiredWhitelistService whitelistService;
 
-  public TwoFactorRequiredFilter(
+  public PasswordChangeRequiredFilter(
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
-      JwtService jwtService,
-      TwoFactorRequiredWhitelistService whitelistService) {
-    this.jwtService = jwtService;
+      JwtProvider jwtProvider,
+      AccessTokenService accessTokenService,
+      PasswordChangeRequiredWhitelistService whitelistService) {
+    this.jwtProvider = jwtProvider;
     this.resolver = resolver;
+    this.accessTokenService = accessTokenService;
     this.whitelistService = whitelistService;
   }
 
@@ -37,17 +41,17 @@ public final class TwoFactorRequiredFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     var header = request.getHeader(AuthorizationTokenUtils.AUTHORIZATION_HEADER);
     var token = AuthorizationTokenUtils.getTokenFromHeader(header);
-    if (token == null || UuidUtils.isValidUuid(token) || jwtService.isTokenInvalid(token)) {
+    if (token == null || UuidUtils.isValidUuid(token) || jwtProvider.isInvalid(token)) {
       filterChain.doFilter(request, response);
       return;
     }
 
     try {
-      var twoFactorRequired = jwtService.getTwoFactorClaim(token);
-      if (twoFactorRequired) {
+      var isPasswordChangeRequired = accessTokenService.parse(token).passwordForChange();
+      if (isPasswordChangeRequired) {
         var requestPath = request.getRequestURI();
         if (!whitelistService.isWhitelisted(requestPath)) {
-          resolver.resolveException(request, response, null, new TwoFactorRequiredException());
+          resolver.resolveException(request, response, null, new PasswordChangeRequiredException());
           return;
         }
       }
@@ -59,7 +63,7 @@ public final class TwoFactorRequiredFilter extends OncePerRequestFilter {
           request,
           response,
           null,
-          new TwoFactorRequiredException("Two factor claim is missing from token"));
+          new PasswordChangeRequiredException("Password change claim is missing from token"));
       return;
     }
 

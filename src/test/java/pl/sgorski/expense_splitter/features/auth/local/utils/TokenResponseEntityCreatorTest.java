@@ -18,12 +18,12 @@ import pl.sgorski.expense_splitter.features.auth.refresh_token.domain.RefreshTok
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
-import pl.sgorski.expense_splitter.security.jwt.JwtService;
+import pl.sgorski.expense_splitter.security.access_token.AccessTokenService;
 
 @ExtendWith(MockitoExtension.class)
 public class TokenResponseEntityCreatorTest {
 
-  @Mock private JwtService jwtService;
+  @Mock private AccessTokenService accessTokenService;
   @Mock private RefreshTokenService refreshTokenService;
   @Mock private RefreshTokenCookieResponseHelper refreshTokenCookieResponseHelper;
   @InjectMocks private TokenResponseEntityCreator tokenResponseEntityCreator;
@@ -36,7 +36,7 @@ public class TokenResponseEntityCreatorTest {
     var refreshToken = UUID.randomUUID();
     var refreshTokenEntity = new RefreshToken();
     refreshTokenEntity.setToken(refreshToken);
-    when(jwtService.generateAccessToken(eq(user), anyBoolean())).thenReturn(accessToken);
+    when(accessTokenService.generate(eq(user), anyBoolean())).thenReturn(accessToken);
     when(refreshTokenService.generateRefreshToken(eq(user))).thenReturn(refreshTokenEntity);
     when(refreshTokenService.getExpirationSecond()).thenReturn(1L);
     when(refreshTokenCookieResponseHelper.createRefreshTokenCookie(eq(refreshToken), anyLong()))
@@ -55,10 +55,9 @@ public class TokenResponseEntityCreatorTest {
   @Test
   void
       generate_shouldReturnResponseEntityWithAccessAndWithoutRefreshToken_whenUserIsValidButTwoFaIsPending() {
-    var refreshCookie = ResponseCookie.from("test-refresh-cookie").build();
     var user = new User();
     var accessToken = "access-token";
-    when(jwtService.generateAccessToken(eq(user), anyBoolean())).thenReturn(accessToken);
+    when(accessTokenService.generate(eq(user), anyBoolean())).thenReturn(accessToken);
     var expectedBody = new LoginResponse(accessToken, null, true);
 
     var response = tokenResponseEntityCreator.generate(user, true);
