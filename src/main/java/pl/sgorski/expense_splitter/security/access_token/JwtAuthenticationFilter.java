@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt.filter;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,8 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
-import pl.sgorski.expense_splitter.security.jwt.service.JwtProvider;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 import pl.sgorski.expense_splitter.utils.UuidUtils;
 

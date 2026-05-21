@@ -16,9 +16,9 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import pl.sgorski.expense_splitter.security.jwt.payload.AccessTokenPayload;
-import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
-import pl.sgorski.expense_splitter.security.jwt.service.JwtProvider;
+import pl.sgorski.expense_splitter.security.access_token.AccessTokenPayload;
+import pl.sgorski.expense_splitter.security.access_token.AccessTokenService;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 
 @ExtendWith(MockitoExtension.class)
 public class StompAuthChannelInterceptorTest {

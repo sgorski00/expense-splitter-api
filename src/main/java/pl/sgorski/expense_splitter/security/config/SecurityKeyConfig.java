@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import pl.sgorski.expense_splitter.features.auth.two_fa.config.TwoFactorProperties;
-import pl.sgorski.expense_splitter.security.jwt.config.JwtProperties;
+import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
 
 @Configuration
 @RequiredArgsConstructor

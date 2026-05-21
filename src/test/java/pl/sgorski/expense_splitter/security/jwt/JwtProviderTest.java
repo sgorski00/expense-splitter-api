@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt.service;
+package pl.sgorski.expense_splitter.security.jwt;
 
 import static org.junit.jupiter.api.Assertions.*;
 

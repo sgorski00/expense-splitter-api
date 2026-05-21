@@ -8,7 +8,7 @@ import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenCookieResponseHelper;
 import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.user.domain.User;
-import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
+import pl.sgorski.expense_splitter.security.access_token.AccessTokenService;
 
 @Service
 @RequiredArgsConstructor

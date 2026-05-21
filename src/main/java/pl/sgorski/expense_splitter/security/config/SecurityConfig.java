@@ -20,9 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import pl.sgorski.expense_splitter.security.jwt.filter.JwtAuthenticationFilter;
-import pl.sgorski.expense_splitter.security.jwt.filter.PasswordChangeRequiredFilter;
-import pl.sgorski.expense_splitter.security.jwt.filter.TwoFactorRequiredFilter;
+import pl.sgorski.expense_splitter.security.access_token.JwtAuthenticationFilter;
+import pl.sgorski.expense_splitter.security.access_token.PasswordChangeRequiredFilter;
+import pl.sgorski.expense_splitter.security.access_token.TwoFactorRequiredFilter;
 import pl.sgorski.expense_splitter.security.rate_limit.filter.RateLimitFilter;
 import pl.sgorski.expense_splitter.security.sentry.SentryContextFilter;
 

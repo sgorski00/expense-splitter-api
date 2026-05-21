@@ -3,7 +3,6 @@ package pl.sgorski.expense_splitter.features.user.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import pl.sgorski.expense_splitter.features.auth.dto.response.LoginResponse;
 import pl.sgorski.expense_splitter.features.auth.local.service.LocalAuthService;
 import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntityCreator;
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
-import pl.sgorski.expense_splitter.features.auth.refresh_token.service.RefreshTokenService;
 import pl.sgorski.expense_splitter.features.auth.two_fa.service.UserTwoFactorService;
 import pl.sgorski.expense_splitter.features.expense.dto.filter.ExpenseRole;
 import pl.sgorski.expense_splitter.features.friendship.service.FriendshipService;
@@ -36,7 +34,9 @@ import pl.sgorski.expense_splitter.features.user.dto.response.UserResponse;
 import pl.sgorski.expense_splitter.features.user.mapper.UserMapper;
 import pl.sgorski.expense_splitter.features.user.service.UserService;
 import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResolver;
-import pl.sgorski.expense_splitter.security.oauth2.session.OAuth2SessionService;
+import pl.sgorski.expense_splitter.security.oauth2.OAuth2ContextCookieService;
+import pl.sgorski.expense_splitter.security.oauth2.OAuth2ContextService;
+import pl.sgorski.expense_splitter.security.oauth2.OAuth2Mode;
 
 @RestController
 @RequestMapping(value = "/profile", version = "1.0.0")
@@ -51,12 +51,13 @@ public final class ProfileController {
   private final UserService userService;
   private final UserMapper userMapper;
   private final LocalAuthService localAuthService;
-  private final RefreshTokenService refreshTokenService;
   private final TokenResponseEntityCreator tokensResponseEntityCreator;
   private final FriendshipService friendshipService;
   private final PaymentService paymentService;
   private final PaymentMapper paymentMapper;
   private final UserTwoFactorService userTwoFactorService;
+  private final OAuth2ContextCookieService oAuth2ContextCookieService;
+  private final OAuth2ContextService oAuth2ContextService;
 
   @GetMapping
   @Operation(
@@ -133,13 +134,10 @@ public final class ProfileController {
       description = "Initiates OAuth2 account linking with the specified provider")
   @ApiResponse(responseCode = "302", description = "Redirecting to OAuth2 provider login.")
   public ResponseEntity<Void> linkOAuth2Account(
-      @PathVariable AuthProvider provider,
-      HttpServletRequest request,
-      Authentication authentication) {
+      @PathVariable AuthProvider provider, Authentication authentication) {
     var userId = authenticatedUserResolver.requireUserId(authentication);
-    var session = request.getSession(true);
-    session.setAttribute(OAuth2SessionService.OAUTH_MODE_KEY, "link");
-    session.setAttribute(OAuth2SessionService.OAUTH_LINK_USER_ID_KEY, userId);
+    var token = oAuth2ContextService.generate(userId, OAuth2Mode.LINK);
+    oAuth2ContextCookieService.write(token);
     var redirectPath =
         ServletUriComponentsBuilder.fromCurrentContextPath()
             .path("/oauth2/authorization/")

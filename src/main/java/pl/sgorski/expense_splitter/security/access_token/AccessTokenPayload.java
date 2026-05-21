@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt.payload;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import java.util.UUID;
 

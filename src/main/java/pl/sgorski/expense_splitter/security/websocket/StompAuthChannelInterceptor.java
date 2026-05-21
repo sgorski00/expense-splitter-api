@@ -9,8 +9,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
-import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
-import pl.sgorski.expense_splitter.security.jwt.service.JwtProvider;
+import pl.sgorski.expense_splitter.security.access_token.AccessTokenService;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 
 @Slf4j

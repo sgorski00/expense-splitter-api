@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt.filter;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -17,9 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import pl.sgorski.expense_splitter.exceptions.authentication.two_fa.TwoFactorRequiredException;
-import pl.sgorski.expense_splitter.security.jwt.payload.AccessTokenPayload;
-import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
-import pl.sgorski.expense_splitter.security.jwt.service.JwtProvider;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 import pl.sgorski.expense_splitter.security.service.impl.TwoFactorRequiredWhitelistService;
 import pl.sgorski.expense_splitter.utils.AuthorizationTokenUtils;
 

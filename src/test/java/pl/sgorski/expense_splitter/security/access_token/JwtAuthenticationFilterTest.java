@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt.filter;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,9 +19,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import pl.sgorski.expense_splitter.security.jwt.payload.AccessTokenPayload;
-import pl.sgorski.expense_splitter.security.jwt.service.AccessTokenService;
-import pl.sgorski.expense_splitter.security.jwt.service.JwtProvider;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtAuthenticationFilterTest {

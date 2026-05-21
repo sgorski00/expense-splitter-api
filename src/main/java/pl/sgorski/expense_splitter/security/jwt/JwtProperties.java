@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt.config;
+package pl.sgorski.expense_splitter.security.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

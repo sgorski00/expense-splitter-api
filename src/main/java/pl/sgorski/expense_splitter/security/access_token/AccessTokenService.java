@@ -1,4 +1,4 @@
-package pl.sgorski.expense_splitter.security.jwt.service;
+package pl.sgorski.expense_splitter.security.access_token;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import pl.sgorski.expense_splitter.features.user.domain.User;
-import pl.sgorski.expense_splitter.security.jwt.config.JwtProperties;
-import pl.sgorski.expense_splitter.security.jwt.payload.AccessTokenPayload;
+import pl.sgorski.expense_splitter.security.jwt.JwtProperties;
+import pl.sgorski.expense_splitter.security.jwt.JwtProvider;
 
 @Service
 @RequiredArgsConstructor
