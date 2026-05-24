@@ -1,22 +1,19 @@
 package pl.sgorski.expense_splitter.security.oauth2;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -30,7 +27,6 @@ import pl.sgorski.expense_splitter.features.auth.oauth2.provider.OAuth2UserInfo;
 import pl.sgorski.expense_splitter.features.user.domain.User;
 import pl.sgorski.expense_splitter.features.user.domain.UserIdentity;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
-import tools.jackson.databind.json.JsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 public class OAuth2SuccessHandlerTest {
@@ -39,7 +35,9 @@ public class OAuth2SuccessHandlerTest {
 
   @Mock private TokenResponseEntityCreator tokenResponseEntityCreator;
 
-  private OAuth2SuccessHandler handler;
+  @Mock private OAuth2Properties oAuth2Properties;
+
+  @InjectMocks private OAuth2SuccessHandler handler;
 
   @Mock private HttpServletRequest request;
 
@@ -52,9 +50,7 @@ public class OAuth2SuccessHandlerTest {
   @Mock private OAuth2User principal;
 
   @BeforeEach
-  void setUp() throws Exception {
-    handler =
-        new OAuth2SuccessHandler(userIdentityService, tokenResponseEntityCreator, new JsonMapper());
+  void setUp() {
     when(authentication.getAuthorizedClientRegistrationId()).thenReturn("google");
     when(authentication.getPrincipal()).thenReturn(principal);
     when(userInfo.getProvider()).thenReturn(AuthProvider.GOOGLE);
@@ -62,8 +58,8 @@ public class OAuth2SuccessHandlerTest {
   }
 
   @Test
-  void onAuthenticationSuccess_shouldReturnLoginResponse_whenRequestIsSuccessful()
-      throws Exception {
+  void onAuthenticationSuccess_shouldRedirect_whenRequestIsSuccessful() throws Exception {
+    var redirectUrl = "http://localhost:3000";
     var refreshToken = "test-refresh-token";
     var accessToken = "test-token";
     var loginResponse = new LoginResponse(accessToken, UUID.randomUUID(), false);
@@ -71,13 +67,12 @@ public class OAuth2SuccessHandlerTest {
         ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshToken).body(loginResponse);
     var identity = new UserIdentity();
     identity.setUser(new User());
-    var writer = new StringWriter();
-    when(response.getWriter()).thenReturn(new PrintWriter(writer));
     when(principal.getAttributes()).thenReturn(Map.of());
     when(tokenResponseEntityCreator.generate(any(User.class), anyBoolean()))
         .thenReturn(responseEntity);
     when(userIdentityService.findIdentity(any(AuthProvider.class), anyString()))
         .thenReturn(identity);
+    when(oAuth2Properties.frontendRedirectUrl()).thenReturn(redirectUrl);
 
     try (var userInfoFactory = mockStatic(OAuth2UserInfoFactory.class)) {
       userInfoFactory
@@ -87,10 +82,8 @@ public class OAuth2SuccessHandlerTest {
       handler.onAuthenticationSuccess(request, response, authentication);
     }
 
-    assertTrue(writer.toString().contains(accessToken));
-    verify(response).setStatus(eq(200));
+    verify(response).sendRedirect(redirectUrl);
     verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), eq(refreshToken));
-    verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
     verify(userIdentityService).findIdentity(any(AuthProvider.class), anyString());
   }
 

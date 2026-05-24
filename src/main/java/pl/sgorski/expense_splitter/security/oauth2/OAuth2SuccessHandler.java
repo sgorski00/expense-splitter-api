@@ -7,7 +7,6 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -19,7 +18,6 @@ import pl.sgorski.expense_splitter.features.auth.local.utils.TokenResponseEntity
 import pl.sgorski.expense_splitter.features.auth.oauth2.AuthProvider;
 import pl.sgorski.expense_splitter.features.auth.oauth2.factory.OAuth2UserInfoFactory;
 import pl.sgorski.expense_splitter.features.user.service.UserIdentityService;
-import tools.jackson.databind.json.JsonMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +26,7 @@ public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
   private final UserIdentityService identityService;
   private final TokenResponseEntityCreator tokenResponseEntityCreator;
-  private final JsonMapper jsonMapper;
+  private final OAuth2Properties oAuth2Properties;
 
   @Override
   public void onAuthenticationSuccess(
@@ -44,13 +42,14 @@ public final class OAuth2SuccessHandler implements AuthenticationSuccessHandler 
       var identity = identityService.findIdentity(userInfo.getProvider(), userInfo.getProviderId());
       var user = identity.getUser();
       var tokenResponse = tokenResponseEntityCreator.generate(user, user.isTwoFactorRequired());
+      var responseBody = Objects.requireNonNull(tokenResponse.getBody());
+      if (responseBody.twoFactorRequired()) {
+        // TODO: implement
+        throw new UnsupportedOperationException("2fa in OAuth2 is not implemented yet.");
+      }
 
       setCookies(response, tokenResponse.getHeaders());
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-      response.setStatus(200);
-      var loginResponse = Objects.requireNonNull(tokenResponse.getBody());
-      response.getWriter().write(jsonMapper.writeValueAsString(loginResponse));
-
+      response.sendRedirect(oAuth2Properties.frontendRedirectUrl());
       log.info("OAuth2 authentication successful for provider: {}", provider);
     } catch (IdentityNotFoundException ex) {
       log.warn(

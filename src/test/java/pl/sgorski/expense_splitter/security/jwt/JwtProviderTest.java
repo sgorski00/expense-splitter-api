@@ -87,7 +87,9 @@ public class JwtProviderTest {
   void parse_shouldThrowException_whenTokenIsTampered() {
     Map<String, Object> claims = Map.of("email", "test@example.com");
     var token = jwtProvider.generate(subject, duration, claims);
-    var tamperedToken = token.substring(0, token.length() - 1) + "X";
+    var lastChar = token.charAt(token.length() - 1);
+    var tamperedChar = (char) (lastChar + 1);
+    var tamperedToken = token.substring(0, token.length() - 1) + tamperedChar;
 
     assertThrows(Exception.class, () -> jwtProvider.parse(tamperedToken));
   }
