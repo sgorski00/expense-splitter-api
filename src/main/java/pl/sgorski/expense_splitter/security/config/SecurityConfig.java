@@ -1,5 +1,6 @@
 package pl.sgorski.expense_splitter.security.config;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +37,7 @@ public class SecurityConfig {
   private final PasswordChangeRequiredFilter passwordChangeRequiredFilter;
   private final TwoFactorRequiredFilter twoFactorRequiredFilter;
   private final RateLimitFilter rateLimitFilter;
-  private final SentryContextFilter sentryContextFilter;
+  private final Optional<SentryContextFilter> sentryContextFilter;
   private final AccessDeniedHandler accessDeniedHandler;
   private final AuthenticationEntryPoint authenticationEntryPoint;
   private final AuthenticationSuccessHandler oauth2SuccessHandler;
@@ -44,52 +45,55 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http.authorizeHttpRequests(
-            req ->
-                req.requestMatchers(
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/actuator/**",
-                        "/auth/refresh",
-                        "/ws/**",
-                        "/auth/logout")
-                    .permitAll()
-                    .requestMatchers(
-                        "/auth/2fa/**",
-                        "/expenses/**",
-                        "/friendships/**",
-                        "/payments/**",
-                        "/profile/**",
-                        "/users/**",
-                        "/notifications/**",
-                        "/statistics/**")
-                    .authenticated()
-                    .requestMatchers("/auth/**", "/oauth2/code/**", "/login/oauth2/code/**")
-                    .anonymous()
-                    .requestMatchers("/admin/**")
-                    .hasRole("ADMIN")
-                    .anyRequest()
-                    .denyAll())
-        .csrf(AbstractHttpConfigurer::disable)
-        .cors(Customizer.withDefaults())
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .userDetailsService(userDetailsService)
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .addFilterAfter(twoFactorRequiredFilter, JwtAuthenticationFilter.class)
-        .addFilterAfter(passwordChangeRequiredFilter, TwoFactorRequiredFilter.class)
-        .addFilterAfter(sentryContextFilter, PasswordChangeRequiredFilter.class)
-        .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
-        .exceptionHandling(
-            ex ->
-                ex.accessDeniedHandler(accessDeniedHandler)
-                    .authenticationEntryPoint(authenticationEntryPoint))
-        .oauth2Login(
-            oauth ->
-                oauth
-                    .userInfoEndpoint(user -> user.userService(oauth2UserService))
-                    .successHandler(oauth2SuccessHandler))
-        .build();
+    var chain =
+        http.authorizeHttpRequests(
+                req ->
+                    req.requestMatchers(
+                            "/v3/api-docs/**",
+                            "/swagger-ui/**",
+                            "/actuator/**",
+                            "/auth/refresh",
+                            "/ws/**",
+                            "/auth/logout")
+                        .permitAll()
+                        .requestMatchers(
+                            "/auth/2fa/**",
+                            "/expenses/**",
+                            "/friendships/**",
+                            "/payments/**",
+                            "/profile/**",
+                            "/users/**",
+                            "/notifications/**",
+                            "/statistics/**")
+                        .authenticated()
+                        .requestMatchers("/auth/**", "/oauth2/code/**", "/login/oauth2/code/**")
+                        .anonymous()
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+                        .anyRequest()
+                        .denyAll())
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(Customizer.withDefaults())
+            .sessionManagement(
+                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .userDetailsService(userDetailsService)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(twoFactorRequiredFilter, JwtAuthenticationFilter.class)
+            .addFilterAfter(passwordChangeRequiredFilter, TwoFactorRequiredFilter.class)
+            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
+            .exceptionHandling(
+                ex ->
+                    ex.accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint))
+            .oauth2Login(
+                oauth ->
+                    oauth
+                        .userInfoEndpoint(user -> user.userService(oauth2UserService))
+                        .successHandler(oauth2SuccessHandler));
+
+    sentryContextFilter.ifPresent(s -> chain.addFilterAfter(s, PasswordChangeRequiredFilter.class));
+
+    return chain.build();
   }
 
   @Bean

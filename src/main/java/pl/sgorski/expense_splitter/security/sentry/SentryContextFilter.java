@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,6 +18,7 @@ import pl.sgorski.expense_splitter.security.authenticated.AuthenticatedUserResol
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(name = "sentry.enabled", havingValue = "true")
 public final class SentryContextFilter extends OncePerRequestFilter {
 
   private final AuthenticatedUserResolver authenticatedUserResolver;
