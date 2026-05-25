@@ -1,6 +1,7 @@
 package pl.sgorski.expense_splitter.notification.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import pl.sgorski.expense_splitter.notification.domain.Notification;
 import pl.sgorski.expense_splitter.notification.domain.NotificationChannel;
@@ -10,6 +11,7 @@ import pl.sgorski.expense_splitter.notification.service.NotificationSender;
 
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "es.websocket.enabled", havingValue = "true")
 public final class WebSocketNotificationSender implements NotificationSender {
 
   private final WebSocketSender sender;

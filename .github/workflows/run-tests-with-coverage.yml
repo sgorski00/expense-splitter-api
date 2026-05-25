@@ -23,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Build project and run tests
-        run: mvn clean verify -Ptest
+        run: mvn clean verify -Dspring.profiles.active=test
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v5

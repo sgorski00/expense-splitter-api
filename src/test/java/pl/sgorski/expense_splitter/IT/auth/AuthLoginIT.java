@@ -10,7 +10,7 @@ import pl.sgorski.expense_splitter.IT.base.factory.UserTestFactory;
 import pl.sgorski.expense_splitter.IT.base.helper.AuthHelper;
 import pl.sgorski.expense_splitter.features.auth.dto.request.LoginRequest;
 import pl.sgorski.expense_splitter.features.user.repository.UserRepository;
-import pl.sgorski.expense_splitter.security.rate_limit.RateLimitType;
+import pl.sgorski.expense_splitter.security.rate_limit.model.RateLimitType;
 
 public class AuthLoginIT extends IntegrationTest {
 

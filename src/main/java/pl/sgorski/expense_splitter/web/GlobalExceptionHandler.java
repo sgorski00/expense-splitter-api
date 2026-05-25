@@ -1,9 +1,10 @@
 package pl.sgorski.expense_splitter.web;
 
-import io.sentry.Sentry;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,10 +30,14 @@ import pl.sgorski.expense_splitter.exceptions.friendship.InvalidFriendshipOperat
 import pl.sgorski.expense_splitter.exceptions.user.DuplicateIdentityException;
 import pl.sgorski.expense_splitter.exceptions.user.InvalidEmailException;
 import pl.sgorski.expense_splitter.exceptions.user.UserAlreadyExistsException;
+import pl.sgorski.expense_splitter.security.sentry.SentryReporter;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
+
+  private final Optional<SentryReporter> sentryReporter;
 
   @ExceptionHandler({NotFoundException.class, NoResourceFoundException.class})
   @ApiResponse(
@@ -631,8 +636,12 @@ public class GlobalExceptionHandler {
                       description =
                           "RFC 7807 Problem Details response with 500 Internal Server Error status.")))
   public ProblemDetail handleSecretEncryptionException(SecretEncryptionException ex) {
-    Sentry.captureException(ex);
-    log.error("2FA secret encryption/decryption failed. Exception id={}", Sentry.getLastEventId());
+    sentryReporter.ifPresentOrElse(
+        r -> {
+          r.capture(ex);
+          log.error("2FA secret encryption/decryption failed. Exception id={}", r.getLastEventId());
+        },
+        () -> log.error("2FA secret encryption/decryption failed.", ex));
     var status = HttpStatus.INTERNAL_SERVER_ERROR;
     var problemDetail =
         ProblemDetail.forStatusAndDetail(
@@ -655,8 +664,12 @@ public class GlobalExceptionHandler {
                       description =
                           "Standard RFC 7807 Problem Details response containing error information (type, title, status, detail, instance).")))
   public ProblemDetail handleException(Exception ex) {
-    Sentry.captureException(ex);
-    log.error("Unhandled exception id={}", Sentry.getLastEventId());
+    sentryReporter.ifPresentOrElse(
+        r -> {
+          r.capture(ex);
+          log.error("Unhandled exception id={}", r.getLastEventId());
+        },
+        () -> log.error("An unexpected server error occurred.", ex));
     var status = HttpStatus.INTERNAL_SERVER_ERROR;
     var problemDetail =
         ProblemDetail.forStatusAndDetail(

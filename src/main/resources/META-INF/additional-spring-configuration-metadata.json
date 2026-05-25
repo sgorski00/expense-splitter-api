@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "name": "es.rate-limit.provider",
+      "type": "java.lang.String",
+      "description": "Declaring what provider of rate limiting should be used. Allowed options are: local, waf."
+    },
+    {
+      "name": "es.scheduler.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether scheduler should be enabled. Preferred to be disabled when running with multiple instances to avoid overriding."
+    },
+    {
+      "name": "es.websocket.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether websocket should be enabled. Important to disable it when broker is not configured."
+    }
+  ] }
