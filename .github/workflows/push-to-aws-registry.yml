@@ -1,0 +1,45 @@
+name: Push Docker image to ECR
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-24.04
+
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Extract version
+        id: vars
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/github-actions-ecr-role
+          aws-region: eu-north-1
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region ${{ vars.AWS_REGION }} \
+          | docker login --username AWS --password-stdin \
+          ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com
+
+      - name: Build image
+        run: |
+          IMAGE=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}
+          docker build \
+            --target runtime \
+            -t $IMAGE:${{ steps.vars.outputs.VERSION }} \
+            -t $IMAGE:latest \
+            .
+
+      - name: Push image
+        run: |
+          IMAGE=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.ECR_REPOSITORY }}
+          docker push $IMAGE:${{ steps.vars.outputs.VERSION }}
+          docker push $IMAGE:latest

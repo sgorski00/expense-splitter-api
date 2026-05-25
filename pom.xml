@@ -330,7 +330,7 @@
 									<goal>generate</goal>
 								</goals>
 								<configuration>
-									<apiDocsUrl>http://localhost:${api.port}/api/v3/api-docs</apiDocsUrl>
+									<apiDocsUrl>http://localhost:8080/api/v3/api-docs</apiDocsUrl>
 								</configuration>
 							</execution>
 						</executions>
